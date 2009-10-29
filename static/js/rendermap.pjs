@@ -1,0 +1,31 @@
+var base_x = 100;
+var base_y = 100;
+
+void setup() 
+{
+    size(300, 300);
+    stroke(0);
+    frameRate(25);
+}
+void draw() 
+{
+    var size = 21;
+    var margin = 10;
+    background(255);
+
+    if (document.map.rooms) {
+        $.each(document.map.rooms, function() {
+            var x =  size * (this.xpos - document.map.starting_point.xpos);
+            var y = size * (this.ypos - document.map.starting_point.ypos);
+    
+            if (document.map.player_position.xpos == this.xpos && document.map.player_position.ypos == this.ypos) {
+                fill(0);
+            } else {
+                fill(255);
+            }
+    
+            rect(x, y, size - margin, size - margin);
+        });
+    }
+}
+

@@ -1,0 +1,52 @@
+[
+    {
+        "pk": 1, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": 0, 
+            "description": "You barely exist.", 
+            "ypos": 0, 
+            "title": "center of the world"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": 1, 
+            "description": "Just to the east of the center of the world", 
+            "ypos": 0, 
+            "title": "The eastern road"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": 0, 
+            "description": "Just to the north of the center of the world", 
+            "ypos": 1, 
+            "title": "The northern road"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": 0, 
+            "description": "Just to the south of the center of the world", 
+            "ypos": -1, 
+            "title": "The southern road"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": -1, 
+            "description": "Just to the west of the center of the world", 
+            "ypos": 0, 
+            "title": "The western road"
+        }
+    }
+]
