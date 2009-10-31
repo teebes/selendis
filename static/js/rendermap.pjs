@@ -15,16 +15,60 @@ void draw()
 
     if (document.map.rooms) {
         $.each(document.map.rooms, function() {
+            // determine x & y coords
             var x =  size * (this.xpos - document.map.starting_point.xpos);
             var y = size * (this.ypos - document.map.starting_point.ypos);
+            
+            //line(x - margin, y, x + margin, y);
+            
+            // draw all four connectors
+            //for (var i = 0; i < 4; i++) {
+                
+            //}
     
+            // -- draw the room --
             if (document.map.player_position.xpos == this.xpos && document.map.player_position.ypos == this.ypos) {
+                // if this is the player's room
                 fill(0);
-            } else {
-                fill(255);
             }
-    
-            rect(x, y, size - margin, size - margin);
+            var width = size - margin;
+            rect(x, y, width, width);
+            fill(255);
+            
+            
+            
+            // the room xy point
+            /*
+            stroke(255, 0, 0);
+            fill(255, 0, 0);
+            fill(255);
+            stroke(0);
+            rect(x-1, y-1, 3, 3);
+            */
+            
+            // -- draw the connectors --
+            
+            // vertical up
+            if (this.north == 'Normal') {
+                line(x + (width / 2), y, x + (width / 2), y - (width / 2));
+            }
+            
+            // horizontal right
+            if (this.east == 'Normal') {
+                line(x + width, y + (width / 2), x + width + margin, y + (width / 2 ));
+            }
+            
+            // vertical down
+            if (this.south == 'Normal') {
+                line(x + (width / 2), y + width, x + (width / 2), y + width + (width / 2))
+            }
+            
+            // horizontal left
+            if (this.west == 'Normal') {
+                line(x, y + (width / 2), x - margin, y + (width / 2));
+            }
+
+
         });
     }
 }

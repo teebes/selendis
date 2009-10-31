@@ -9,17 +9,17 @@ class Room(models.Model):
     def __unicode__(self):
         return u"%s, %s: %s" % (self.xpos, self.ypos, self.title)
         
-    #connected_rooms = models.ManyToManyField('self', through='RoomConnector', symmetrical=False)
-"""
+    connected_rooms = models.ManyToManyField('self', through='RoomConnector', symmetrical=False)
+
 CONNECTOR_TYPES = [
-    ('NO', 'Normal'),
+    ('Normal', 'Normal'),
 ]
     
 class RoomConnector(models.Model):
     from_room = models.ForeignKey('Room', related_name='from_room')
     to_room = models.ForeignKey('Room', related_name='to_room')
-    type = models.CharField(max_length=2, choices=CONNECTOR_TYPES)
-"""
+    type = models.CharField(max_length=40, choices=CONNECTOR_TYPES)
+
 """
 class mytest(models.Model):
      parents=models.ManyToManyField('self', through='parents', symmetrical=False)

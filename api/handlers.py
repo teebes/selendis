@@ -5,7 +5,7 @@ from piston.handler import BaseHandler
 from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
-from stark.apps.world.models import Room
+from stark.apps.world.models import Room, RoomConnector
 from stark.apps.anima.models import Player, Mob
 
 RANGE = 10
@@ -24,7 +24,7 @@ fields = (
 class MapHandler(BaseHandler):
     allowed_methods = ('GET',)
     model = Room
-    fields = ('id', 'title', 'description', 'xpos', 'ypos')
+    fields = ('id', 'title', 'description', 'xpos', 'ypos', 'north', 'east', 'south', 'west')
 
     def read(self, request):
         if request.user.is_authenticated():
@@ -48,6 +48,32 @@ class MapHandler(BaseHandler):
             'player_position': {'xpos': player.room.xpos, 'ypos': player.room.ypos},
             'rooms': rooms,
         }
+
+    @classmethod
+    def __determine_connection(self, room, delta):
+        try:
+            to_room = Room.objects.get(xpos=room.xpos + delta['x'], ypos = room.ypos + delta['y'])
+            try:
+                return RoomConnector.objects.get(from_room=room, to_room=to_room).type
+            except RoomConnector.DoesNotExist:
+                return None
+        except Room.DoesNotExist:
+            return None
+
+    @classmethod
+    def north(self, room): return self.__determine_connection(room, {'x': 0, 'y': -1})
+    
+    @classmethod
+    def east(self, room): return self.__determine_connection(room, {'x': 1, 'y': 0})
+
+    @classmethod
+    def south(self, room): return self.__determine_connection(room, {'x': 0, 'y': 1})
+
+    @classmethod
+    def west(self, room): return self.__determine_connection(room, {'x': -1, 'y': 0})
+    
+
+
     
 
 class PlayerHandler(BaseHandler):
