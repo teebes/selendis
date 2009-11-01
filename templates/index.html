@@ -1,6 +1,8 @@
 <html>
 <head>
 
+<link rel="stylesheet" href="/static/css/style.css" type="text/css"/>
+
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js"></script>
 <script type="text/javascript" src="/static/js/data.js"></script>
 
@@ -12,86 +14,65 @@
     
     <h1>Stark</h1>
 
-<div style="float: left;">
-    <canvas id="map" width="300" height="300" style="border: 1px solid #000000;"></canvas>
-    <br /><br />
-    <input id="command_text" type='text' style='width: 250px;' /><input id="submit_command" type='submit' value='<-' />
+<div id="left_pane">
+    <canvas id="map" width="300px" height="300px"></canvas>
+    <div id="input_feedback" style="display: none">Test error message</div>
+    <div id="input_bar">
+        <input id="command_text" type='text' /><input id="submit_command" type='submit' value='<-' />
+    </div>
 </div>
 
-<div style="border: 1px solid #000000; width: 500px; height: 500px; float: left; margin-left: 50px;">
-    <h2 id="room_title"></h2>
-    <p id="room_desc"></p>
+<div id="stark_right_pane">
+    <p><span class='link' id="room_link">room</span> | <span class='link' id="profile_link"></span></p>
     
-    <div id="room_players"></div>
-    <div id="room_mobs"></div>
+    <div id="room_box" class='right_pane_box'>
+        <h2><input id="room_title_edit" type='text' value='' style='display: none';/><span id="room_title"></span></h2>
+        <p id="room_desc"></p>
+        <div id="room_players"></div>
+        <div id="room_mobs"></div>
+    </div>
+    
+    <div id="profile_box" class='right_pane_box' style='display: none;'>
+        <div id="profile_builder" style="display: none;">
+            <input type='checkbox' id="builder_checkbox" /> builder mode
+        </div>
+    </div>
 </div>
 
 <div style="clear: both;"></div>
 
 <script type='text/javascript'>
 $(document).ready(function(){
+    // initial data
     document.map = [];
     load_map();
-    
-    //process_command = function() {
-    //    send_command('north');
-    //    $("#command_text").val('');
-    //}
-    
-    test_command = function() {
-        
-    }
-    
-    $("#submit_command").click(function () {
-        process_command($("#command_text").val());
-        $("#command_text").val('');
-        
-    });
-    
-    $("#command_text").keypress(function (e) {
-        if (e.which == 13) {
-            process_command($(this).val())
-            $(this).val('');
-        }
-    });
-    
-    
     document.player = null;
     get_player();
 
+    // menu
+    $("#room_link").click(function () {
+        $("#room_box").show();
+        $("#profile_box").hide();
+    });
+    $("#profile_link").click(function() {
+        $("#profile_box").show();
+        $("#room_box").hide();
+    })
+    
+    // commands
+    $("#command_text").focus();
+    $("#submit_command").click(function () { process_command($("#command_text").val()); });
+    $("#command_text").keypress(function (e) { if (e.which == 13) { process_command($(this).val()) } });
+
     //setInterval("reload();", 2000);
 
+    // processing
     var script = $.ajax({url: "/static/js/rendermap.pjs", async: false}).responseText;
     var canvas = $('canvas#map').get(0);
     Processing(canvas, script);
-
-    //debugger;
-
 });
+
 </script>
-
-{% comment %}
-void keyPressed() {
-    var move = 'no'
-    if (keyCode == RIGHT) { move = 'east'; }
-    if (keyCode == LEFT) { move = 'west'; }
-    if (keyCode == UP) { move = 'north'; }
-    if (keyCode == DOWN) { move = 'south'; }
-
-    if (move != 'no') {
-        $.ajax({
-            type: "PUT",
-            url: "/api/players/1.json",
-            data: { move: move },
-            dataType: "json",
-            success: function(data) {
-                player = data;
-                render_room(player.room);
-            }
-        });
-    }  
-}
-{% endcomment %}
 
 </body>
 </html>

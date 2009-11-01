@@ -1,0 +1,49 @@
+* { margin: 0; padding: 0; }
+
+html {
+    color: #3f3f3f;
+    font-family: Verdana, "Lucida Grande", Helvetica, Arial,Calibri,'times new roman';
+    font-size:12px;
+}
+
+.link {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#left_pane {
+    float: left;
+    margin-left: 10px;
+    width: 310px;
+}
+
+    #map {
+        border: 1px solid #000000;
+    }
+    
+    #input_feedback {
+        border: 1px solid #ff0000;
+        margin-top: 10px;
+        padding: 3px;
+    }
+    
+    #input_bar {
+        margin-top: 10px;
+    }
+    #command_text {
+        width: 250px;
+    }
+
+#right_pane {
+    border: 1px solid #000000;
+    float: left;
+    height: 500px;    
+    margin-left: 20px;
+    width: 500px;    
+}
+
+    #room {
+        
+    }
+    

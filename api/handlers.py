@@ -10,16 +10,43 @@ from stark.apps.anima.models import Player, Mob
 
 RANGE = 10
 
-"""
-fields = (
-    'id', 'title', 'description', 'xpos', 'ypos',
-    ('player_related', (
-        'id', 'name',
-    ),),
-    ('mob_related', (
-        'id', 'name',
-    ),),)
-"""
+
+class RoomHandler(BaseHandler):
+    allowed_methods = ('GET', 'PUT',)
+    model = Room
+    fields = ('id', 'title', 'description', 'xpos', 'ypos', 'north', 'east', 'south', 'west')
+    
+    def update(self, request, *args, **kwargs):
+        try:
+            if not Player.objects.get(user=request.user).builder_mode:
+                return rc.FORBIDDEN
+            super(RoomHandler, self).update(request, *args, **kwargs)
+            return Room.objects.get(id=kwargs['id'])
+        except Exception:
+            return rc.BAD_REQUEST
+
+    @classmethod
+    def __determine_connection(self, room, delta):
+        try:
+            to_room = Room.objects.get(xpos=room.xpos + delta['x'], ypos = room.ypos + delta['y'])
+            try:
+                return RoomConnector.objects.get(from_room=room, to_room=to_room).type
+            except RoomConnector.DoesNotExist:
+                return None
+        except Room.DoesNotExist:
+            return None
+
+    @classmethod
+    def north(self, room): return self.__determine_connection(room, {'x': 0, 'y': -1})
+    
+    @classmethod
+    def east(self, room): return self.__determine_connection(room, {'x': 1, 'y': 0})
+
+    @classmethod
+    def south(self, room): return self.__determine_connection(room, {'x': 0, 'y': 1})
+
+    @classmethod
+    def west(self, room): return self.__determine_connection(room, {'x': -1, 'y': 0})
 
 class MapHandler(BaseHandler):
     allowed_methods = ('GET',)
@@ -82,6 +109,8 @@ class PlayerHandler(BaseHandler):
     fields = (
         'id',
         'name',
+        'level',
+        'builder_mode',
         ('room', (
             'id',
             'title',
@@ -104,29 +133,56 @@ class PlayerHandler(BaseHandler):
         return player
     
     def update(self, request, id=None):
-        player = Player.objects.get(user=request.user)
-        if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
-            x = request.PUT['xpos']
-            y = request.PUT['ypos']
-            from_room = player.room
-            try:
-                to_room = Room.objects.get(xpos=x, ypos=y)
-                # TODO: validate that the client isn't returning bogus coords
-                player.room = to_room
-                player.save()
-            except Room.DoesNotExist:
-                return rc.BAD_REQUEST
-        return player
+        try:# TODO: remove this eventually
 
-class CommandHandler(BaseHandler):
-    allowed_methods = ('GET', 'PUT')
-    
-    def read(self, request):
-        return 'hello!'
-    
-    def update(self, request):
-        if request.PUT.has_key('command'):
-            command = request.PUT['command']
-            return command
-        else:
-            return rc.BAD_REQUEST
+            player = Player.objects.get(user=request.user)
+
+            if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
+                x = int(request.PUT['xpos'])
+                y = int(request.PUT['ypos'])
+                from_room = player.room
+                try:
+                    connector = RoomConnector.objects.get(from_room=from_room, to_room__xpos=x, to_room__ypos=y)
+                    # if we haven't errored out, then there exists a connection to those coordinates
+                    player.room = connector.to_room
+                    player.save()
+                except RoomConnector.DoesNotExist:
+                    #return rc.BAD_REQUEST # uncomment to enable staff god mode
+                    # Admins can create new connections or new rooms by
+                    # walking around
+                    if player.builder_mode:
+                        try:
+                            for i in range(-1, 2):
+                                for j in range(-1, 2):
+                                    if abs(i) != abs(j):
+                                        if player.room.xpos + i == x and player.room.ypos + j == y:
+                                            to_room, is_new = Room.objects.get_or_create(xpos=x, ypos=y)
+                                            if is_new:
+                                                to_room.title = 'Untitled room'
+                                                to_room.save()
+                                            connector = RoomConnector(from_room=player.room, to_room=to_room)
+                                            connector.type = 'Normal'
+                                            connector.save()
+                                            player.room = to_room
+                                            player.save()
+                                            return player
+                        except Room.DoesNotExist:
+                            return rc.BAD_REQUEST
+                    else:
+                        return rc.BAD_REQUEST
+
+            if request.PUT.has_key('builder_mode'):
+                if player.level < 100:
+                    return rc.BAD_REQUEST
+                
+                if request.PUT['builder_mode'] in (u'false', None):
+                    player.builder_mode = False;
+                else:
+                    player.builder_mode = True;
+                player.save()
+
+            return player
+
+        except Exception, e:
+            print "exception: %s" % e
+            raise Exception

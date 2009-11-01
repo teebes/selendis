@@ -25,5 +25,7 @@ class Anima(models.Model):
 
 class Player(Anima):
     user = models.ForeignKey(User)
+    level = models.IntegerField(default=1)
+    builder_mode = models.BooleanField(default=False)
 
 class Mob(Anima): pass
