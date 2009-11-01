@@ -4,7 +4,10 @@
 <link rel="stylesheet" href="/static/css/style.css" type="text/css"/>
 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js"></script>
+
 <script type="text/javascript" src="/static/js/data.js"></script>
+<script type="text/javascript" src="/static/js/commands.js"></script>
+<script type="text/javascript" src="/static/js/painters.js"></script>
 
 <script language="javascript" src="/static/js/lib/processing.js"></script>
 <!--script language="javascript" src="/static/js/lib/init.js"></script-->
@@ -45,25 +48,17 @@
 $(document).ready(function(){
     // initial data
     document.map = [];
-    load_map();
     document.player = null;
+    
+    get_map();
     get_player();
 
-    // menu
-    $("#room_link").click(function () {
-        $("#room_box").show();
-        $("#profile_box").hide();
-    });
-    $("#profile_link").click(function() {
-        $("#profile_box").show();
-        $("#room_box").hide();
-    })
+    // menu bar
+    //setup_menu();
     
     // commands
-    $("#command_text").focus();
-    $("#submit_command").click(function () { process_command($("#command_text").val()); });
-    $("#command_text").keypress(function (e) { if (e.which == 13) { process_command($(this).val()) } });
-
+    //setup_commands();
+    
     //setInterval("reload();", 2000);
 
     // processing
