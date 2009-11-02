@@ -7,7 +7,7 @@
 
 <script type="text/javascript" src="/static/js/data.js"></script>
 <script type="text/javascript" src="/static/js/commands.js"></script>
-<script type="text/javascript" src="/static/js/painters.js"></script>
+<script type="text/javascript" src="/static/js/pages.js"></script>
 
 <script language="javascript" src="/static/js/lib/processing.js"></script>
 <!--script language="javascript" src="/static/js/lib/init.js"></script-->
@@ -25,21 +25,36 @@
     </div>
 </div>
 
-<div id="stark_right_pane">
-    <p><span class='link' id="room_link">room</span> | <span class='link' id="profile_link"></span></p>
+<div id="right_pane">
     
-    <div id="room_box" class='right_pane_box'>
-        <h2><input id="room_title_edit" type='text' value='' style='display: none';/><span id="room_title"></span></h2>
+    <div id="room_box" class='page'>
+        <h2 id="room_title"></h2>
         <p id="room_desc"></p>
         <div id="room_players"></div>
         <div id="room_mobs"></div>
     </div>
-    
-    <div id="profile_box" class='right_pane_box' style='display: none;'>
-        <div id="profile_builder" style="display: none;">
-            <input type='checkbox' id="builder_checkbox" /> builder mode
-        </div>
+
+    Builder:
+    <div id="builder_box" class='page'>
+        <p>title: <input type='text' id="builder_room_title" /></p>
+        <p>description:</p>
+        
+        <textarea id="builder_room_description"></textarea>
+        
+        <p><input type='checkbox' id="builder_room_north" /> north</p>
+        <p><input type='checkbox' id="builder_room_east" /> east</p>
+        <p><input type='checkbox' id="builder_room_south" /> south</p>
+        <p><input type='checkbox' id="builder_room_west" /> west</p>
+        
+        
+        
     </div>
+    
+    Profile:
+    <div id="profile_box" class='page'>
+        <h2 id="player_name"></h2>      
+    </div>
+        
 </div>
 
 <div style="clear: both;"></div>
@@ -52,13 +67,14 @@ $(document).ready(function(){
     
     get_map();
     get_player();
+    setup_commands();
 
-    // menu bar
-    //setup_menu();
-    
-    // commands
-    //setup_commands();
-    
+    // Initial load, replace with setInterval eventually
+    $.getJSON("/api/players/me.json", function(player) {
+        // render the pages
+        render_room();
+        render_profile();
+    });
     //setInterval("reload();", 2000);
 
     // processing

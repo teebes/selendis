@@ -33,6 +33,7 @@ modify_room = function(data) {
         dataType: "json",
         success: function(room) {
             document.player.room = room;
+            render_room();
         }
     });
 }

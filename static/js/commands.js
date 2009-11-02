@@ -12,8 +12,8 @@ move_to = function(x, y) {
         dataType: "json",
         success: function(player) {
             document.player = player;
-            render_room(document.player.room);
-            load_map();
+            render_room();
+            get_map();
         }
     });
 }

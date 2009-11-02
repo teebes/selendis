@@ -36,14 +36,15 @@ html {
     }
 
 #right_pane {
-    border: 1px solid #000000;
     float: left;
     height: 500px;    
     margin-left: 20px;
     width: 500px;    
 }
 
-    #room {
-        
+    .page {
+        border: 1px solid #000000;
+        padding: 3px;
+        margin-bottom: 10px;
     }
     
