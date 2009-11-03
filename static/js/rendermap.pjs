@@ -38,7 +38,7 @@ void draw()
             */
             
             // -- draw the connectors --
-            stroke(100);
+            //stroke(100);
             // vertical up
             if (this.north == 'Normal') {
                 line(x + (width / 2), y, x + (width / 2), y - (width / 2));

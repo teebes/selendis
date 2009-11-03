@@ -34,19 +34,26 @@
         <div id="room_mobs"></div>
     </div>
 
-    Builder:
-    <div id="builder_box" class='page'>
+    <div id="builder_box" class='page' style='display: none;'>
+        <p>coords <span id="builder_x"></span>, <span id="builder_y"></span></p>
+        
         <p>title: <input type='text' id="builder_room_title" /></p>
         <p>description:</p>
         
         <textarea id="builder_room_description"></textarea>
         
-        <p><input type='checkbox' id="builder_room_north" /> north</p>
-        <p><input type='checkbox' id="builder_room_east" /> east</p>
-        <p><input type='checkbox' id="builder_room_south" /> south</p>
-        <p><input type='checkbox' id="builder_room_west" /> west</p>
+        <p><input type='checkbox' id="builder_north" /> north</p>
+        <p><input type='checkbox' id="builder_east" /> east</p>
+        <p><input type='checkbox' id="builder_south" /> south</p>
+        <p><input type='checkbox' id="builder_west" /> west</p>
         
+        <p>
+            x: <input type='text' id="jump_x" style='width: 30px;' />
+            y: <input type='text' id="jump_y" style='width: 30px;' />
+            <input type='submit' id='jump_to' value='Jump To' />
+        </p>
         
+        <p><input type='submit' id='delete_room' value='Delete Room'/></p>
         
     </div>
     
@@ -66,11 +73,13 @@ $(document).ready(function(){
     document.player = null;
     
     get_map();
-    get_player();
+    //get_player();
     setup_commands();
+    setup_builder();
 
     // Initial load, replace with setInterval eventually
     $.getJSON("/api/players/me.json", function(player) {
+        document.player = player;
         // render the pages
         render_room();
         render_profile();

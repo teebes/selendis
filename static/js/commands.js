@@ -4,20 +4,6 @@ setup_commands = function() {
     $("#command_text").keypress(function (e) { if (e.which == 13) { process_command($(this).val()) } });
 }
 
-move_to = function(x, y) {
-    $.ajax({
-        type: "PUT",
-        url: "/api/players/me.json",
-        data: { xpos: x, ypos: y },
-        dataType: "json",
-        success: function(player) {
-            document.player = player;
-            render_room();
-            get_map();
-        }
-    });
-}
-
 process_command = function(command){
     var t = command.split(' ');
     $("#input_feedback").html('');

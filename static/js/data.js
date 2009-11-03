@@ -34,11 +34,32 @@ modify_room = function(data) {
         success: function(room) {
             document.player.room = room;
             render_room();
+            get_map();
         }
     });
 }
 
+move_to = function(x, y) {
+    $.ajax({
+        type: "PUT",
+        url: "/api/players/me.json",
+        data: { xpos: x, ypos: y },
+        dataType: "json",
+        success: function(player) {
+            document.player = player;
+            render_room();
+            get_map();
+        }
+    });
+}
 
-
+/* deleters */
+delete_room = function(data) {
+        $.ajax({
+            type: "DELETE",
+            url: "api/world/rooms/" + data.id + ".json",
+            dataType: "json",
+        });
+}
 
 
