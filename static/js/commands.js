@@ -9,13 +9,15 @@ process_command = function(command){
     $("#input_feedback").html('');
     $("#input_feedback").hide();
 
-    if (t[0] == 'north' || t[0] == 'nort' || t[0] == 'nor' || t[0] == 'no' || t[0] == 'n') {
+    first = t[0].toLowerCase();
+
+    if (first == 'north' || first == 'nort' || first == 'nor' || first == 'no' || first == 'n') {
         move_to(document.player.room.xpos, document.player.room.ypos - 1);
-    } else if (t[0] == 'east' || t[0] == 'ea' || t[0] == 'e') {
+    } else if (first == 'east' || first == 'ea' || first == 'e') {
         move_to(document.player.room.xpos + 1, document.player.room.ypos);
-    } else if (t[0] == 'south' || t[0] == 'sout' || t[0] == 'sou' || t[0] == 'so' || t[0] == 's') {        
+    } else if (first == 'south' || first == 'sout' || first == 'sou' || first == 'so' || first == 's') {        
         move_to(document.player.room.xpos, document.player.room.ypos + 1);
-    } else if (t[0] == 'west' || t[0] == 'wes' || t[0] == 'we' || t[0] == 'w') {        
+    } else if (first == 'west' || first == 'wes' || first == 'we' || first == 'w') {        
         move_to(document.player.room.xpos - 1, document.player.room.ypos);
     } else {
         $("#input_feedback").show();

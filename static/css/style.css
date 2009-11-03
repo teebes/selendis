@@ -6,6 +6,8 @@ html {
     font-size:12px;
 }
 
+body { padding-top: 5px; }
+
 .link {
     color: blue;
     cursor: pointer;
@@ -29,7 +31,7 @@ html {
     }
     
     #input_bar {
-        margin-top: 10px;
+        margin-bottom: 10px;
     }
     #command_text {
         width: 250px;

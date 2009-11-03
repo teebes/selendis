@@ -14,18 +14,21 @@
 
 </head>
 <body>
-    
-    <h1>Stark</h1>
 
 <div id="left_pane">
+    <div id="input_bar">
+        <input id="command_text" type='text' /><input id="submit_command" type='submit' value='Enter' />
+    </div>
+
     <canvas id="map" width="300px" height="300px"></canvas>
     <div id="input_feedback" style="display: none">Test error message</div>
-    <div id="input_bar">
-        <input id="command_text" type='text' /><input id="submit_command" type='submit' value='<-' />
-    </div>
 </div>
 
 <div id="right_pane">
+    
+    <div id="profile_box" class='page'>
+        <b id="player_name"></b>, level <span id="player_level"></span>
+    </div>    
     
     <div id="room_box" class='page'>
         <h2 id="room_title"></h2>
@@ -55,11 +58,6 @@
         
         <p><input type='submit' id='delete_room' value='Delete Room'/></p>
         
-    </div>
-    
-    Profile:
-    <div id="profile_box" class='page'>
-        <h2 id="player_name"></h2>      
     </div>
         
 </div>

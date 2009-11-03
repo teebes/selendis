@@ -25,6 +25,7 @@ render_room = function() {
 
 render_profile = function() {
     $("#player_name").html(document.player.name);
+    $("#player_level").html(document.player.level);
 }
 
 render_builder = function() {

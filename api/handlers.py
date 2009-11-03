@@ -143,7 +143,11 @@ class PlayerHandler(BaseHandler):
 
     def read(self, request, id=None):
         if request.user.is_authenticated():
-            player, created = Player.objects.get_or_create(user=request.user, name=request.user.username)
+            player, is_new = Player.objects.get_or_create(user=request.user, name=request.user.username)
+            if is_new:
+                player.temporary = True
+                player.level = 1
+                player.save()
         else:
             player = Player.objects.get(pk=id)
         return player

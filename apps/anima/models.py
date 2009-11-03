@@ -6,6 +6,7 @@ from stark.apps.world.models import Room
 class Anima(models.Model):
     name = models.CharField(max_length=40, unique=True)
     room = models.ForeignKey(Room, related_name="%(class)s_related")
+    level = models.IntegerField(default=1)
     
     class Meta:
         abstract = True    
@@ -25,7 +26,7 @@ class Anima(models.Model):
 
 class Player(Anima):
     user = models.ForeignKey(User)
-    level = models.IntegerField(default=1)
     builder_mode = models.BooleanField(default=False)
+    temporary = models.BooleanField(default=False)
 
 class Mob(Anima): pass
