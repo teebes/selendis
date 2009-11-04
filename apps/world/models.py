@@ -1,5 +1,9 @@
 from django.db import models
 
+ROOM_TYPES = (
+    ('road', 'Road'),
+)
+
 class Room(models.Model):
     xpos = models.IntegerField(blank=False)
     ypos = models.IntegerField(blank=False)

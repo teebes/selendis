@@ -3,8 +3,13 @@ from django.db import models
 
 from stark.apps.world.models import Room
 
+#MOB_TYPES = (
+#    ('humanoid','Humanoid'),
+#    ('beast', 'Beast'),
+#)
+
 class Anima(models.Model):
-    name = models.CharField(max_length=40, unique=True)
+    name = models.CharField(max_length=40) # should be unique for player subclass (not enforced @ db level)
     room = models.ForeignKey(Room, related_name="%(class)s_related")
     level = models.IntegerField(default=1)
     

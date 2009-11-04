@@ -2,6 +2,12 @@ setup_commands = function() {
     $("#command_text").focus();
     $("#submit_command").click(function () { process_command($("#command_text").val()); });
     $("#command_text").keypress(function (e) { if (e.which == 13) { process_command($(this).val()) } });
+    
+    $("#move_north").click(function () { process_command('north'); });
+    $("#move_east").click(function () { process_command('east'); });
+    $("#move_south").click(function () { process_command('south'); });
+    $("#move_west").click(function () { process_command('west'); });
+    
 }
 
 process_command = function(command){
@@ -24,6 +30,5 @@ process_command = function(command){
         $("#input_feedback").html("Invalid command: '" + command + "'");
     }
     
-    $("#command_text").val('');
-    
+    $("#command_text").val('');   
 }

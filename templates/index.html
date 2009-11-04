@@ -17,7 +17,26 @@
 
 <div id="left_pane">
     <div id="input_bar">
-        <input id="command_text" type='text' /><input id="submit_command" type='submit' value='Enter' />
+        <input id="command_text" type='text' /> <br />
+        <input id="submit_command" type='submit' value='Enter' />
+        
+        <table border='0'>
+            <tr>
+                <td></td>
+                <td><input id="move_north" type='submit' value='North' /></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input id="move_west" type='submit' value='West' /></td>
+                <td></td>
+                <td><input id="move_east" type='submit' value='East' /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input id="move_south" type='submit' value='South' /></td>
+                <td></td>
+            </tr>
+        </table>
     </div>
 
     <canvas id="map" width="300px" height="300px"></canvas>
