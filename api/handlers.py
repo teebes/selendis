@@ -14,7 +14,7 @@ RANGE = 10
 class RoomHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT', 'DELETE')
     model = Room
-    fields = ('id', 'title', 'description', 'xpos', 'ypos', 'north', 'east', 'south', 'west',
+    fields = ('id', 'title', 'description', 'xpos', 'ypos', 'type', 'north', 'east', 'south', 'west',
               ('player_related', ('id', 'name')),
               ('mob_related', ('id', 'name'))
               )
@@ -25,6 +25,8 @@ class RoomHandler(BaseHandler):
             # only a builder can change a room
             if not Player.objects.get(user=request.user).builder_mode:
                 return rc.FORBIDDEN
+            
+            print request.PUT
             
             from_room = Room.objects.get(pk=kwargs['id'])
             
@@ -185,6 +187,7 @@ class PlayerHandler(BaseHandler):
                                             to_room, is_new = Room.objects.get_or_create(xpos=x, ypos=y)
                                             if is_new:
                                                 to_room.title = 'Untitled room'
+                                                to_room.type = 'field'
                                                 to_room.save()
                                             player.room = to_room
                                             player.save()

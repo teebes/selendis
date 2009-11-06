@@ -81,7 +81,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'quasitimer',
     'stark.apps.anima',
     'stark.apps.world',
 )

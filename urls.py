@@ -16,7 +16,6 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     (r'^admin/', include(admin.site.urls)),
     (r'^api/', include('stark.api.urls')),
-    (r'^quasitimer/', include('quasitimer.urls')),
 
     (r'^$', 'stark.views.index'),
     (r'^quick/$', 'stark.views.quick'),

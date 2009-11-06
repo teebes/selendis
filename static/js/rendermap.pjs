@@ -6,6 +6,18 @@ void setup()
     stroke(0);
     frameRate(25);
 }
+
+void keyPressed() {
+    if (!document.player.builder_mode) {
+        if (key == CODED) {
+            if (keyCode == UP) { process_command('north'); }
+            else if (keyCode == RIGHT) { process_command('east'); }
+            else if (keyCode == DOWN) { process_command('south'); }
+            else if (keyCode == LEFT) { process_command('west'); }
+        }
+    }
+}
+
 void draw() 
 {
 
@@ -16,17 +28,48 @@ void draw()
     if (document.map.rooms) {
         $.each(document.map.rooms, function() {
             // determine x & y coords
-            var x =  size * (this.xpos - document.map.starting_point.xpos);
-            var y = size * (this.ypos - document.map.starting_point.ypos);
+            var x =  0 + (size * (this.xpos - document.map.starting_point.xpos));
+            var y = 0 + (size * (this.ypos - document.map.starting_point.ypos));
+            
+            var width = size - margin;
             
             // -- draw the room --
+            // type based coloring
+            stroke(0);
             if (document.map.player_position.xpos == this.xpos && document.map.player_position.ypos == this.ypos) {
                 // if this is the player's room
-                fill(0);
+                //fill(0);
+                stroke(#0000ff);
+                strokeWeight(2);
             }
-            var width = size - margin;
+            
+            if (this.type == 'road') {
+                fill(#aa6e27);
+            } else if (this.type == 'water') {
+                fill(#3292dc);
+            } else if (this.type == 'field') {
+                fill(#27aa42);
+            } else if (this.type == 'city') {
+                fill(#D7CBB9);
+            } else if (this.type == 'shop') {
+                fill(#f5d494);
+            }
+            
             rect(x, y, width, width);
+            
+
+            // player dot
+            /*
+            if (document.map.player_position.xpos == this.xpos && document.map.player_position.ypos == this.ypos) {
+                smooth();
+                stroke(#666666);
+                fill(#000000);
+                ellipse(x + width / 2, y + width / 2, 8, 8);
+            }
+            */
+            
             fill(255);
+            strokeWeight(1);
             
             // the room xy point
             /*

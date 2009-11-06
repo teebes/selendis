@@ -22,6 +22,12 @@ void draw()
   rect(20, 20, 10, 10);
 }
 
+void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == UP) { alert('ok!'); }
+  }
+}
+
 </script>
 
 <canvas width="300" height="300" style="border: 1px solid #000000"></canvas>

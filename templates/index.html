@@ -17,6 +17,7 @@
 
 <div id="left_pane">
     <div id="input_bar">
+        <div id="input_feedback" style="display: none">Test error message</div>
         <input id="command_text" type='text' /> <br />
         <input id="submit_command" type='submit' value='Enter' />
         
@@ -40,7 +41,6 @@
     </div>
 
     <canvas id="map" width="300px" height="300px"></canvas>
-    <div id="input_feedback" style="display: none">Test error message</div>
 </div>
 
 <div id="right_pane">
@@ -64,10 +64,23 @@
         
         <textarea id="builder_room_description"></textarea>
         
+        <p>Connectors:</p>
+        
         <p><input type='checkbox' id="builder_north" /> north</p>
         <p><input type='checkbox' id="builder_east" /> east</p>
         <p><input type='checkbox' id="builder_south" /> south</p>
         <p><input type='checkbox' id="builder_west" /> west</p>
+        
+        <p>type:
+            <select name='room_type' id="builder_room_type">
+                <option value=''></option>
+                <option value='road'>Road</option>
+                <option value='water'>Water</option>
+                <option value='field'>Field</option>
+                <option value='city'>City</option>
+                <option value='shop'>Shop</option>
+            </select>
+        </p>
         
         <p>
             x: <input type='text' id="jump_x" style='width: 30px;' />

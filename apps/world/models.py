@@ -2,6 +2,10 @@ from django.db import models
 
 ROOM_TYPES = (
     ('road', 'Road'),
+    ('field', 'Field'),
+    ('water', 'Water'),
+    ('city', 'City'),
+    ('shop', 'Shop'),
 )
 
 class Room(models.Model):
@@ -9,6 +13,7 @@ class Room(models.Model):
     ypos = models.IntegerField(blank=False)
     title = models.CharField(max_length=80, blank=False)
     description = models.TextField()
+    type = models.CharField(max_length=20, choices=ROOM_TYPES)
     
     def __unicode__(self):
         return u"%s, %s: %s" % (self.xpos, self.ypos, self.title)

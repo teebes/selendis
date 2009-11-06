@@ -3,11 +3,11 @@ from stark.apps.world.models import Room, RoomConnector
 
 def generate_mobs(mobs_per_batch=5):
     # creates a batch of mobs
-    mob_names = ['a small black cat', 'a black dog', 'a cute brown deer', 'a strong buck', 'a peasant']
+    mob_names = ['a small black cat', 'a black dog', 'a cute brown deer', 'a zombie', 'a peasant']
     
     for i in range(0, mobs_per_batch):
         for mob_name in mob_names:
-            room = Room.objects.order_by('?')[0]
+            room = Room.objects.exclude(type='water').order_by('?')[0]
             
             mob = Mob()
             mob.name = mob_name

@@ -6,7 +6,8 @@
             "xpos": 0, 
             "description": "You barely exist.", 
             "ypos": 0, 
-            "title": "center of the world"
+            "title": "center of the world",
+            "type": "road"
         }
     }, 
     {
@@ -16,7 +17,8 @@
             "xpos": 1, 
             "description": "Just to the east of the center of the world", 
             "ypos": 0, 
-            "title": "The eastern road"
+            "title": "The eastern road",
+            "type": "road"
         }
     }, 
     {
@@ -26,7 +28,8 @@
             "xpos": 0, 
             "description": "Just to the north of the center of the world", 
             "ypos": 1, 
-            "title": "The northern road"
+            "title": "The northern road",
+            "type": "road"
         }
     }, 
     {
@@ -36,7 +39,8 @@
             "xpos": 0, 
             "description": "Just to the south of the center of the world", 
             "ypos": -1, 
-            "title": "The southern road"
+            "title": "The southern road",
+            "type": "road"
         }
     }, 
     {
@@ -46,7 +50,8 @@
             "xpos": -1, 
             "description": "Just to the west of the center of the world", 
             "ypos": 0, 
-            "title": "The western road"
+            "title": "The western road",
+            "type": "road"
         }
     }
 ]

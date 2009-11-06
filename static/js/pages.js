@@ -65,6 +65,17 @@ render_builder = function() {
             modify_room(data);
         });
     });
+    
+    // room types
+    $.each($("#builder_room_type").children(), function() {
+        if ($(this).attr('value') == document.player.room.type) {
+            $(this).attr('selected', true)
+        }
+    })
+    
+    // jump to
+    $("#jump_x").val(document.player.room.xpos);
+    $("#jump_y").val(document.player.room.ypos);
 }
 
 setup_builder = function () {
@@ -74,8 +85,16 @@ setup_builder = function () {
         delete_room(document.player.room);
     }
     });
+    
     $("#jump_to").click(function() {
         move_to($("#jump_x").val(), $("#jump_y").val());
+    });
+ 
+    $("#builder_room_type").change(function () {
+        var data = {}
+        data['type'] = $(this).val();
+        data['id'] = document.player.room.id
+        modify_room(data);
     });
     
 }
