@@ -102,14 +102,14 @@ $(document).ready(function(){
     document.map = [];
     document.player = null;
     
-    get_map();
-    //get_player();
     setup_commands();
     setup_builder();
 
     // Initial load, replace with setInterval eventually
     $.getJSON("/api/players/me.json", function(player) {
+        get_map();
         document.player = player;
+        
         // render the pages
         render_room();
         render_profile();

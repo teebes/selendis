@@ -10,11 +10,9 @@ anyone can write clients and apps in any language that interact with that world
 * Server-side is Django_ served by Apache with mod-wsgi using django_piston_
 for the REST api and sqlite3 as the db (for now)
 
-* Client-side is Javascript using processing.js_ ( which uses the HTML5
+* Client-side is Javascript using processing.js_ (which uses the HTML5
 <canvas> element) for the graphics and jQuery_ for the REST calls and
 UI
-
-* Uses the HTML5 <canvas> element
 
 _ http://en.wikipedia.org/wiki/REST
 _ http://djangoproject.com/
