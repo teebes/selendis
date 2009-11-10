@@ -8,8 +8,7 @@ from piston.utils import rc
 from stark.apps.world.models import Room, RoomConnector
 from stark.apps.anima.models import Player, Mob
 
-RANGE = 10
-
+ROOM_RANGE = 10
 
 class RoomHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT', 'DELETE')
@@ -26,8 +25,6 @@ class RoomHandler(BaseHandler):
             if not Player.objects.get(user=request.user).builder_mode:
                 return rc.FORBIDDEN
             
-            print request.PUT
-            
             from_room = Room.objects.get(pk=kwargs['id'])
             
             # if a connector has been passed, toggle accordingly, creating a
@@ -42,8 +39,6 @@ class RoomHandler(BaseHandler):
                     to_x = from_room.xpos + x
                     to_y = from_room.ypos + y
                     
-                    # if the room does not exist, 
-                    
                     try:
                         to_room = Room.objects.get(xpos=to_x, ypos=to_y)
                     except Room.DoesNotExist:
@@ -56,6 +51,7 @@ class RoomHandler(BaseHandler):
                         connector = RoomConnector()
                         connector.from_room = from_room
                         connector.to_room = to_room
+                        connector.direction = k
                         connector.type = 'Normal'
                         connector.save()
 
@@ -75,15 +71,27 @@ class RoomHandler(BaseHandler):
         room = Room.objects.get(pk=id)
         
         if player.room == room:
-            player.room = Room.objects.get(pk=1)
+            # if possible, move the player to an adjacent room, otherwise to
+            # the origin
+            adjacent_rooms = room.from_room.all()
+            if adjacent_rooms:
+                player.room = adjacent_rooms[0].to_room
+            else:
+                player.room = Room.objects.get(pk=1)
             player.save()
             
         room.delete()
         
         return rc.DELETED
 
+
     @classmethod
-    def __determine_connection(self, room, delta):
+    def __determine_connection(self, room, direction):
+        try:
+            return room.from_room.get(direction=direction).type
+        except RoomConnector.DoesNotExist:
+            return None
+        
         try:
             to_room = Room.objects.get(xpos=room.xpos + delta['x'], ypos = room.ypos + delta['y'])
             try:
@@ -94,16 +102,16 @@ class RoomHandler(BaseHandler):
             return None
 
     @classmethod
-    def north(self, room): return self.__determine_connection(room, {'x': 0, 'y': -1})
+    def north(self, room): return self.__determine_connection(room, 'north')
     
     @classmethod
-    def east(self, room): return self.__determine_connection(room, {'x': 1, 'y': 0})
+    def east(self, room): return self.__determine_connection(room, 'east')
 
     @classmethod
-    def south(self, room): return self.__determine_connection(room, {'x': 0, 'y': 1})
+    def south(self, room): return self.__determine_connection(room, 'south')
 
     @classmethod
-    def west(self, room): return self.__determine_connection(room, {'x': -1, 'y': 0})
+    def west(self, room): return self.__determine_connection(room, 'west')
 
 class MapHandler(BaseHandler):
     allowed_methods = ('GET',)
@@ -114,15 +122,37 @@ class MapHandler(BaseHandler):
             rooms = []
             min_x = None
             min_y = None
-            for x in range(player.room.xpos - RANGE, player.room.xpos + RANGE):
-                for y in range(player.room.ypos - RANGE, player.room.ypos + RANGE):
-                    try:
-                        rooms.append(Room.objects.get(xpos=x, ypos=y))
-                        if not min_x: min_x = x
-                        elif x < min_x : min_x = x
-                        if not min_y: min_y = y
-                        elif y < min_y: min_y = y
-                    except Room.DoesNotExist: pass
+            
+            for room in Room.objects.filter(
+                            xpos__gt=player.room.xpos - ROOM_RANGE,
+                            xpos__lt=player.room.xpos + ROOM_RANGE,
+                            ypos__gt=player.room.ypos - ROOM_RANGE,
+                            ypos__lt=player.room.ypos + ROOM_RANGE):
+                
+                # keep track of the lowest x
+                if not min_x: min_x = room.xpos
+                elif room.xpos < min_x: min_x = room.xpos
+                
+                # keep track of the lowest y
+                if not min_y: min_y = room.ypos
+                elif room.ypos < min_y: min_y = room.ypos
+                
+                # Because django-piston automatically looks up objects if
+                # they've been previously defined as a handler's model (which
+                # is the case for Room), I specifically fetch the room
+                # attributes I need to speed up this api call.
+                # If you let piston do this for you it's 5 to 10 times slower
+                room_dict = {
+                    'xpos': room.xpos,
+                    'ypos': room.ypos,
+                    'type': room.type,
+                }
+                
+                for connection in room.from_room.all():
+                    room_dict[connection.direction] = connection.type
+                
+                rooms.append(room_dict)
+
         else:
             return rc.FORBIDDEN
         return {
@@ -199,3 +229,9 @@ class PlayerHandler(BaseHandler):
         except Exception, e:
             print "exception: %s" % e
             raise Exception
+
+class PingHandler(BaseHandler):
+    allowed_methods = ('GET',)
+    
+    def read(self, request):
+        return {'status': 'OK'}

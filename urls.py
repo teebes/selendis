@@ -19,6 +19,7 @@ urlpatterns = patterns('',
 
     (r'^$', 'stark.views.index'),
     (r'^quick/$', 'stark.views.quick'),
+    (r'^ping/$', 'django.views.generic.simple.direct_to_template', {'template': 'ping.html'}),
 )
 
 if settings.DEBUG:

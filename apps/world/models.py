@@ -1,5 +1,22 @@
 from django.db import models
 
+CONNECTOR_TYPES = [
+    ('Normal', 'Normal'),
+]
+ 
+DIRECTIONS = [
+    ('north', 'north'),
+    ('east', 'east'),
+    ('south', 'south'),
+    ('west', 'west'),
+]
+    
+class RoomConnector(models.Model):
+    from_room = models.ForeignKey('Room', related_name='from_room')
+    to_room = models.ForeignKey('Room', related_name='to_room')
+    type = models.CharField(max_length=40, choices=CONNECTOR_TYPES)
+    direction = models.CharField(max_length=40, choices=DIRECTIONS)
+
 ROOM_TYPES = (
     ('road', 'Road'),
     ('field', 'Field'),
@@ -15,19 +32,11 @@ class Room(models.Model):
     description = models.TextField()
     type = models.CharField(max_length=20, choices=ROOM_TYPES)
     
+    
     def __unicode__(self):
         return u"%s, %s: %s" % (self.xpos, self.ypos, self.title)
         
     connected_rooms = models.ManyToManyField('self', through='RoomConnector', symmetrical=False)
-
-CONNECTOR_TYPES = [
-    ('Normal', 'Normal'),
-]
-    
-class RoomConnector(models.Model):
-    from_room = models.ForeignKey('Room', related_name='from_room')
-    to_room = models.ForeignKey('Room', related_name='to_room')
-    type = models.CharField(max_length=40, choices=CONNECTOR_TYPES)
 
 """
 class mytest(models.Model):

@@ -13,6 +13,15 @@ class Anima(models.Model):
     room = models.ForeignKey(Room, related_name="%(class)s_related")
     level = models.IntegerField(default=1)
     
+    hp = models.IntegerField(default=10)
+    max_hp = models.IntegerField(default=10)
+    
+    mv = models.IntegerField(default=10)
+    max_mv = models.IntegerField(default=10)
+    
+    sp = models.IntegerField(default=10)
+    max_sp = models.IntegerField(default=10)
+    
     class Meta:
         abstract = True    
     

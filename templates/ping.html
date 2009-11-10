@@ -1,0 +1,47 @@
+<html>
+<head>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js"></script>
+
+</head>
+<body>
+
+<h1>API test</h1>
+
+url: <input type='text' id='url' /> <br />
+<input type='submit' id='test_call' value='Call' /> (or press enter)
+
+<div id="feedback">
+</div>
+
+<div id="results">
+</div>
+
+<script type='text/javascript'>
+
+$(document).ready(function(){
+  
+  var test_call = function() {
+  	var url = $("#url").val();	
+  	$("#feedback").html("Sent request to " + url + ", waiting...");
+  	$("#results").html('');
+  
+  	var start = new Date();
+  	start = Number(start.getTime());
+  
+	$.get(url, function(data){
+	  var end = new Date();
+	  end = Number(end.getTime());
+	  $("#results").html("Came back in: <strong>" + (end - start) + "</strong> ms");
+	});
+  }
+  
+  $("#url").keypress(function (e) { if (e.which == 13) { test_call() } } );
+  $("#test_call").click(test_call);
+  
+});
+
+</script>
+
+</body>
+</html>
