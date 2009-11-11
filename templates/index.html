@@ -46,7 +46,15 @@
 <div id="right_pane">
     
     <div id="profile_box" class='page'>
-        <b id="player_name"></b>, level <span id="player_level"></span>
+        <div>
+        {% if player.temporary %}
+            <a href="{% url profile %}">customize this character</a> | <a href="{% url logout_login %}">login</a>
+        {% else %}
+            <a href="{% url logout_login %}">logout</a>
+        {% endif %}
+        </div>
+        
+        <strong id="player_name"></strong>, level <span id="player_level"></span>
     </div>    
     
     <div id="room_box" class='page'>

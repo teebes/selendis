@@ -22,7 +22,7 @@ class RoomHandler(BaseHandler):
     def update(self, request, *args, **kwargs):
         try:
             # only a builder can change a room
-            if not Player.objects.get(user=request.user).builder_mode:
+            if not Player.objects.get(user=request.user, status='logged_in').builder_mode:
                 return rc.FORBIDDEN
             
             from_room = Room.objects.get(pk=kwargs['id'])
@@ -67,7 +67,7 @@ class RoomHandler(BaseHandler):
             return rc.BAD_REQUEST
         
     def delete(self, request, id):
-        player = Player.objects.get(user=request.user)
+        player = Player.objects.get(user=request.user, status='logged_in')
         room = Room.objects.get(pk=id)
         
         if player.room == room:
@@ -118,7 +118,7 @@ class MapHandler(BaseHandler):
 
     def read(self, request):
         if request.user.is_authenticated():
-            player, created = Player.objects.get_or_create(user=request.user, name=request.user.username)
+            player = Player.objects.get(user=request.user, status='logged_in')
             rooms = []
             min_x = None
             min_y = None
@@ -175,19 +175,15 @@ class PlayerHandler(BaseHandler):
 
     def read(self, request, id=None):
         if request.user.is_authenticated():
-            player, is_new = Player.objects.get_or_create(user=request.user, name=request.user.username)
-            if is_new:
-                player.temporary = True
-                player.level = 1
-                player.save()
+            player = Player.objects.get(user=request.user, status='logged_in')
         else:
-            player = Player.objects.get(pk=id)
+            player = Player.objects.get(pk=id) # TODO: this should probably return some kind of error instead
         return player
     
     def update(self, request, id=None):
         try:# TODO: remove this eventually
 
-            player = Player.objects.get(user=request.user)
+            player = Player.objects.get(user=request.user, status='logged_in')
 
             if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
                 x = int(request.PUT['xpos'])

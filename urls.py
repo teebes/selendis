@@ -18,6 +18,11 @@ urlpatterns = patterns('',
     (r'^api/', include('stark.api.urls')),
 
     (r'^$', 'stark.views.index'),
+    
+    url(r'^login/$', 'stark.views.login', name='login'),
+    url(r'^profile/$', 'stark.views.profile', name='profile'),
+    url(r'^logout-login/$', 'stark.views.logout_login', name='logout_login'),
+    
     (r'^quick/$', 'stark.views.quick'),
     (r'^ping/$', 'django.views.generic.simple.direct_to_template', {'template': 'ping.html'}),
 )

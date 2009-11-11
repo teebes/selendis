@@ -38,9 +38,17 @@ class Anima(models.Model):
     def __unicode__(self):
         return u"%s" % self.name
 
+PLAYER_STATUSES = (
+    ('logged_in', 'Logged In'),
+    ('logged_out', 'Logged Out'),
+    ('guest', 'Guest'),
+    ('inactive', 'Inactive'),
+)
+
 class Player(Anima):
     user = models.ForeignKey(User)
     builder_mode = models.BooleanField(default=False)
     temporary = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=PLAYER_STATUSES)
 
 class Mob(Anima): pass
