@@ -56,9 +56,16 @@ process_command = function(command){
         }
     }
     
+    // chat
+    else if (first == 'chat') {
+        t.shift();
+        send_communication('chat', t);
+        return
+    }
+    
     else if (first == 'help') {
         $("#input_feedback").show();
-        $("#input_feedback").html("Commands: north east south west");
+        $("#input_feedback").html("Commands: chat north east south west");
         return
     }
     

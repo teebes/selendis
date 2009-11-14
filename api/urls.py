@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
-from stark.api.handlers import MapHandler, PlayerHandler, RoomHandler, PingHandler
+from stark.api.handlers import MapHandler, PlayerHandler, RoomHandler, PingHandler, MessageHandler
 
 player_handler = Resource(PlayerHandler)
 
@@ -10,6 +10,8 @@ urlpatterns = patterns('',
     
     url(r'^players/me\.(?P<emitter_format>.+)', player_handler),
     url(r'^players/((?P<id>[^/]+)\.(?P<emitter_format>.+))?$', player_handler),
+
+    url(r'^messages\.(?P<emitter_format>.+)', Resource(MessageHandler)),
     
     url(r'^ping.(?P<emitter_format>.+)$', Resource(PingHandler)),
 

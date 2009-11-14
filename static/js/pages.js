@@ -98,3 +98,8 @@ setup_builder = function () {
     });
     
 }
+
+render_communications = function() {
+    
+    //$("#communications")
+}

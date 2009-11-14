@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 
@@ -6,7 +8,7 @@ from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
 from stark.apps.world.models import Room, RoomConnector
-from stark.apps.anima.models import Player, Mob
+from stark.apps.anima.models import Player, Mob, Message
 
 ROOM_RANGE = 10
 
@@ -225,6 +227,33 @@ class PlayerHandler(BaseHandler):
         except Exception, e:
             print "exception: %s" % e
             raise Exception
+
+class MessageHandler(BaseHandler):
+    allowed_methods = ('GET', 'POST')
+    model = Message
+    fields = ('content', 'type', 'created', 'source')
+    
+    def read(self, request, *args, **kwargs):
+        return Message.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            content = request.POST['content']
+            type = request.POST['type']
+            message = Message.objects.create(
+                created=datetime.datetime.now(),
+                type=type,
+                content=content,
+                author=Player.objects.get(user=request.user, status='logged_in'),
+            )
+            return message
+        except Exception, e:
+            print u"exception: %s" % e
+            return rc.BAD_REQUEST
+    
+    @classmethod
+    def source(self, message):
+        return u"%s" % message.author.name
 
 class PingHandler(BaseHandler):
     allowed_methods = ('GET',)

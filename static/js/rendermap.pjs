@@ -4,7 +4,7 @@ var base_y = 100;
 void setup() 
 {
     stroke(0);
-    frameRate(25);
+    frameRate(5);
 }
 
 void keyPressed() {

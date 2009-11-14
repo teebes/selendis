@@ -11,6 +11,10 @@ get_player = function() {
     });
 }
 
+get_communications = function() {
+    $.getJSON("/api/messages.json")
+}
+
 /* modifiers */
 
 modify_player = function(data) {

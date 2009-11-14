@@ -8,12 +8,16 @@
 <script type="text/javascript" src="/static/js/data.js"></script>
 <script type="text/javascript" src="/static/js/commands.js"></script>
 <script type="text/javascript" src="/static/js/pages.js"></script>
+<script type="text/javascript" src="/static/js/communications.js"></script>
 
 <script language="javascript" src="/static/js/lib/processing.js"></script>
 <!--script language="javascript" src="/static/js/lib/init.js"></script-->
 
 </head>
 <body>
+
+<div id="communications">
+</div> 
 
 <div id="left_pane">
     <div id="input_bar">
@@ -52,6 +56,7 @@
         {% else %}
             <a href="{% url logout_login %}">logout</a>
         {% endif %}
+        | <a href="http://github.com/teebes/stark/blob/master/README">what's all this?</a>
         </div>
         
         <strong id="player_name"></strong>, level <span id="player_level"></span>
@@ -122,6 +127,9 @@ $(document).ready(function(){
         render_room();
         render_profile();
     });
+
+    render_communications();
+    
     //setInterval("reload();", 2000);
 
     // processing
