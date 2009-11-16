@@ -52,7 +52,7 @@
     <div id="profile_box" class='page'>
         <div>
         {% if player.temporary %}
-            <a href="{% url profile %}">customize this character</a> | <a href="{% url logout_login %}">login</a>
+            <a href="{% url profile %}">save this character</a> | <a href="{% url logout_login %}">login</a>
         {% else %}
             <a href="{% url logout_login %}">logout</a>
         {% endif %}
@@ -118,19 +118,23 @@ $(document).ready(function(){
     setup_commands();
     setup_builder();
 
-    // Initial load, replace with setInterval eventually
-    $.getJSON("/api/players/me.json", function(player) {
-        get_map();
-        document.player = player;
-        
-        // render the pages
-        render_room();
-        render_profile();
-    });
+    get_map();
 
-    render_communications();
-    
-    //setInterval("reload();", 2000);
+    pulse = function() {
+        render_communications();
+        
+        $.getJSON("/api/players/me.json", function(player) {
+            document.player = player;
+            
+            get_map();
+            
+            // render the pages
+            render_room();
+            render_profile();
+        });           
+    }
+    pulse();
+    setInterval("pulse();", 2000);
 
     // processing
     var script = $.ajax({url: "/static/js/rendermap.pjs", async: false}).responseText;

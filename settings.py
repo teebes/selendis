@@ -1,5 +1,25 @@
+import logging
+import logging.handlers
 import os
+
 SITE_FS_ROOT = os.path.realpath(os.path.abspath(os.path.join(os.path.realpath(os.path.dirname(__file__)), '.')))
+
+# loggers
+LOGS_DIR = u"%s/logs" % SITE_FS_ROOT
+if not hasattr(logging, 'setup_done'): # because django imports settings multiple times
+    logging.setup_done = True
+    
+    # general logger
+    stark_logger = logging.getLogger('StarkLogger')
+    stark_logger.setLevel(logging.DEBUG)
+    handler = logging.handlers.RotatingFileHandler(LOGS_DIR + "/stark.log", maxBytes=1 * 1028 * 1028, backupCount=5)
+    stark_logger.addHandler(handler)
+
+    # logger specifically for the timing functions
+    pulse_logger = logging.getLogger('PulseLogger')
+    pulse_logger.setLevel(logging.DEBUG)
+    handler = logging.handlers.RotatingFileHandler(LOGS_DIR + "/pulses.log", maxBytes=1 * 1028 * 1028, backupCount=5)
+    pulse_logger.addHandler(handler)
 
 # Django settings for stark project.
 

@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 
-from stark.apps.world.models import Room
+from stark.apps.world.models import Room, RoomConnector
 
 #MOB_TYPES = (
 #    ('humanoid','Humanoid'),
@@ -29,7 +29,44 @@ class Anima(models.Model):
     max_sp = models.IntegerField(default=10)
     
     class Meta:
-        abstract = True    
+        abstract = True                
+    
+    def move(self, to_room=None, random=False):
+        if random:
+            connector = RoomConnector.objects.filter(from_room=self.room).order_by('?')[0]
+            to_room = connector.to_room
+        elif to_room:
+            connector = RoomConnector.objects.get(from_room=self.room, to_room=to_room)
+        else:
+            raise Exception('in Anima.move(), provide either a to_room or set random=True')
+
+        from_room = self.room
+        self.room = to_room
+        self.save()
+        
+        # tell every player in the room the mob was in that it's gone
+        for player in Player.objects.filter(room=from_room):
+            Message.objects.create(
+                type = 'notification',
+                created = datetime.datetime.now(),
+                destination = player.name,
+                content = "%s leaves %s." % (self.name, connector.direction)
+            )
+        
+        rev_direction = None
+        if connector.direction == 'north': rev_direction = 'south'
+        if connector.direction == 'east': rev_direction = 'west'
+        if connector.direction == 'south': rev_direction = 'north'
+        if connector.direction == 'west': rev_direction = 'east'
+            
+        # tell every player in the room the mob is moving to that it's arrived
+        for player in Player.objects.filter(room=to_room):
+            Message.objects.create(
+                type = 'notification',
+                created = datetime.datetime.now(),
+                destination = player.name,
+                content = "%s has arrived from the %s." % (self.name, rev_direction),
+            )
     
     def save(self, *args, **kwargs):
         if not hasattr(self, 'room'):
@@ -63,6 +100,7 @@ MESSAGE_TYPES = (
     ('chat', 'Chat'),
     ('clan', 'Clan'),
     ('direct', 'Direct'),
+    ('notification', 'Notifiation'),
 )
 
 class Message(models.Model):

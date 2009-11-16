@@ -25,6 +25,10 @@ body { padding-top: 5px; }
     width: 823px;
 }
 
+.comm_notification {
+    color: #666666;
+}
+
 #left_pane {
     float: left;
     margin-left: 10px;

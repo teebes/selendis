@@ -59,7 +59,7 @@ process_command = function(command){
     // chat
     else if (first == 'chat') {
         t.shift();
-        send_communication('chat', t);
+        send_communication('chat', t.join(' '));
         return
     }
     

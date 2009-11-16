@@ -1,7 +1,9 @@
 import datetime
+import logging
 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
+from django.db.models import Q
 
 from piston.handler import BaseHandler
 from piston.authentication import HttpBasicAuthentication
@@ -157,6 +159,7 @@ class MapHandler(BaseHandler):
 
         else:
             return rc.FORBIDDEN
+        
         return {
             'starting_point': {'xpos': min_x, 'ypos': min_y},
             'player_position': {'xpos': player.room.xpos, 'ypos': player.room.ypos},
@@ -234,7 +237,19 @@ class MessageHandler(BaseHandler):
     fields = ('content', 'type', 'created', 'source')
     
     def read(self, request, *args, **kwargs):
-        return Message.objects.all()
+        
+        player = Player.objects.get(user=request.user, status='logged_in') 
+        
+        messages = []
+
+        for message in Message.objects.filter(type='chat').order_by('-created')[:10]:
+            messages.append(message)
+
+        for message in Message.objects.filter(type='notification', destination=player.name).order_by('created'):
+            messages.append(message)
+
+        messages = sorted(messages, lambda x, y: cmp(x.created, y.created))
+        return messages
     
     def create(self, request, *args, **kwargs):
         try:
@@ -253,7 +268,10 @@ class MessageHandler(BaseHandler):
     
     @classmethod
     def source(self, message):
-        return u"%s" % message.author.name
+        if message.author:
+            return u"%s" % message.author.name
+        else:
+            return u"system"
 
 class PingHandler(BaseHandler):
     allowed_methods = ('GET',)

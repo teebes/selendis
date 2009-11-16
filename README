@@ -1,8 +1,9 @@
 What is Stark?
 =============
 
-Stark is an attempt at a web-based visual mud. It is built using only open
-technologies that revolve around the browser:
+Stark is an attempt at a web-based visual mud. It built using open
+technologies that revolve around the browser and is therefore completely
+cross-platform (including all modern smart phones).
 
 * All client-server interactions are RESTful_, which therefore means that
 anyone can write clients and apps in any language that interact with that world
@@ -10,9 +11,9 @@ anyone can write clients and apps in any language that interact with that world
 * Server-side is Django_ served by Apache with mod-wsgi using django_piston_
 for the REST api and sqlite3 as the db (for now)
 
-* Client-side is Javascript using processing.js_ (which uses the HTML5
-<canvas> element) for the graphics and jQuery_ for the REST calls and
-UI
+* Client-side is Javascript using Scalable Vector Graphics with processing.js_
+(which uses the HTML5 <canvas> element) for the graphics and jQuery_ for the
+REST calls and UI
 
 _ http://en.wikipedia.org/wiki/REST
 _ http://djangoproject.com/
@@ -43,4 +44,7 @@ $ python manage.py runserver
 * login to the admin side at http://127.0.0.1:8000/admin (you need to do this
 otherwise it will create an anonymous account when you load the game)
 
-* load the game at http://127.0.0.1:8000
+* load the game in your browser at http://127.0.0.1:8000
+
+* run the timer script:
+$ python apps/timer
