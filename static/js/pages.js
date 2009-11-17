@@ -80,7 +80,7 @@ render_builder = function() {
 
 setup_builder = function () {
     $("#delete_room").click(function() {
-    var confirmation = confirm("Press Ok to delete. You'll need ro manually reload afterwards.");
+    var confirmation = confirm("Press Ok to delete.");
     if (confirmation) {
         delete_room(document.player.room);
     }
@@ -88,6 +88,10 @@ setup_builder = function () {
     
     $("#jump_to").click(function() {
         move_to($("#jump_x").val(), $("#jump_y").val());
+    });
+ 
+    $("#create_room").click(function() {
+        create_room($("#create_x").val(), $("#create_y").val());
     });
  
     $("#builder_room_type").change(function () {

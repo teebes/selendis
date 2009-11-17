@@ -1,3 +1,21 @@
+/* utility functions */
+
+move_to = function(x, y) {
+    $.ajax({
+        type: "PUT",
+        url: "/api/players/me.json",
+        data: { xpos: x, ypos: y },
+        dataType: "json",
+        success: function(player) {
+            document.player = player;
+            render_room();
+            get_map();
+        }
+    });
+}
+
+/* bindings & command execution */
+
 setup_commands = function() {
     $("#command_text").focus();
     $("#submit_command").click(function () { process_command($("#command_text").val()); });

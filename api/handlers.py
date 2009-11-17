@@ -15,13 +15,23 @@ from stark.apps.anima.models import Player, Mob, Message
 ROOM_RANGE = 10
 
 class RoomHandler(BaseHandler):
-    allowed_methods = ('GET', 'PUT', 'DELETE')
+    allowed_methods = ('GET', 'POST', 'PUT', 'DELETE')
     model = Room
     fields = ('id', 'title', 'description', 'xpos', 'ypos', 'type', 'north', 'east', 'south', 'west',
               ('player_related', ('id', 'name')),
               ('mob_related', ('id', 'name'))
               )
 
+    def create(self, request, *args, **kwargs):
+        if not Player.objects.get(user=request.user, status='logged_in').builder_mode:
+            return rc.FORBIDDEN
+        
+        if Room.objects.filter(xpos=request.POST['xpos'], ypos=request.POST['ypos']):
+            return rc.BAD_REQUEST
+
+        room = Room.objects.create(xpos=request.POST['xpos'], ypos=request.POST['ypos'], title='Untitled Room', type='field')
+        
+        return room
     
     def update(self, request, *args, **kwargs):
         try:
@@ -62,12 +72,11 @@ class RoomHandler(BaseHandler):
                 if k in ('north', 'east', 'south', 'west'):
                     if request.PUT[k] == 'toggle':
                         __connect_to(k)
-                        #del request.PUT[k]
 
             super(RoomHandler, self).update(request, *args, **kwargs)
             return Room.objects.get(id=kwargs['id'])
         except Exception, e:
-            print e
+            print "Error: %s" % e
             return rc.BAD_REQUEST
         
     def delete(self, request, id):
@@ -184,7 +193,7 @@ class PlayerHandler(BaseHandler):
         else:
             player = Player.objects.get(pk=id) # TODO: this should probably return some kind of error instead
         return player
-    
+        
     def update(self, request, id=None):
         try:# TODO: remove this eventually
 
@@ -200,29 +209,13 @@ class PlayerHandler(BaseHandler):
                     player.save()
                 except RoomConnector.DoesNotExist:
                     if player.builder_mode:
+                    # builders can jump to any room
                         try:
-                            # jump to
                             player.room = Room.objects.get(xpos=x, ypos=y)
                             player.save()
                             return player
                         except Room.DoesNotExist:
-                        # Builders can create new room by walking into the
-                        # non-existing space if it's adjacent to an existing
-                        # room
-                        # TODO: remove this, as it should be a POST call
-                        # instead
-                            for i in range(-1, 2):
-                                for j in range(-1, 2):
-                                    if abs(i) != abs(j):
-                                        if player.room.xpos + i == x and player.room.ypos + j == y:
-                                            to_room, is_new = Room.objects.get_or_create(xpos=x, ypos=y)
-                                            if is_new:
-                                                to_room.title = 'Untitled room'
-                                                to_room.type = 'field'
-                                                to_room.save()
-                                            player.room = to_room
-                                            player.save()
-                                            return player
+                            pass
                     else:
                         return rc.BAD_REQUEST
             return player

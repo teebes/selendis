@@ -6,6 +6,7 @@ player_handler = Resource(PlayerHandler)
 
 urlpatterns = patterns('',
     url(r'^world/rooms/((?P<id>[^/]+)\.(?P<emitter_format>.+))?$', Resource(RoomHandler)),
+    url(r'^world/rooms/create/', Resource(RoomHandler)),
     url(r'^world/map\.(?P<emitter_format>.+)', Resource(MapHandler)),
     
     url(r'^players/me\.(?P<emitter_format>.+)', player_handler),
