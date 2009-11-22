@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import Q
 
@@ -9,17 +10,63 @@ from piston.handler import BaseHandler
 from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
-from stark.apps.world.models import Room, RoomConnector
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
 from stark.apps.anima.models import Player, Mob, Message
 
 ROOM_RANGE = 10
+
+
+class ItemHandler(BaseHandler):
+    allowed_methods = ('GET', 'PUT')
+    model = ItemInstance
+
+    def read(self, request, id):
+        item = ItemInstance.objects.get(pk=id)
+        return {
+            'id': item.id,
+            'type': item.item_type.name,
+            'name': item.item.name,
+        }
+        
+
+    def update(self, request, id):
+        item = ItemInstance.objects.get(pk=id)
+        player = Player.objects.get(status='logged_in', user=request.user)
+        
+        # update item owner
+        try:
+            new_owner = ContentType.objects.get(model=request.PUT['owner_type']).model_class().objects.get(pk=request.POST['owner_id'])
+            
+            # Do this if:
+            # - player is a builder or
+            # - player giving to player who are both in the same room or
+            # - player to room if in the same room or
+            # - room to player if in the same room
+            
+            if player.builder_mode or \
+                (item.owner.__class__ is Player and new_owner.__class__ is Player and item.owner.room == new_owner.room) or \
+                (item.owner.__class__ is Player and new_owner.__class__ is Room  and item.owner.room == new_owner) or \
+                (item.owner.__class__ is Room and new_owner.__class__ is Player and item.owner == new_owner.room):
+                    item.owner = new_owner
+                    item.save() # TODO: maybe try removing once super call is in?
+                                
+        #except Exception: pass
+        except Exception, e: print "error: %s" % e
+        
+        return {
+            'id': item.id,
+            'type': item.item_type.name,
+            'name': item.item.name,
+        }
+
 
 class RoomHandler(BaseHandler):
     allowed_methods = ('GET', 'POST', 'PUT', 'DELETE')
     model = Room
     fields = ('id', 'title', 'description', 'xpos', 'ypos', 'type', 'north', 'east', 'south', 'west',
               ('player_related', ('id', 'name')),
-              ('mob_related', ('id', 'name'))
+              ('mob_related', ('id', 'name')),
+              'items',
               )
 
     def create(self, request, *args, **kwargs):
@@ -97,6 +144,22 @@ class RoomHandler(BaseHandler):
         
         return rc.DELETED
 
+    @classmethod
+    def items(self, room):
+        # TODO: ideally, this function should simply be:
+        # return ItemInstance.objects.filter(owner_type__name='room', owner_id=room.id)
+        # since ItemInstance has a defined handler. However, if I do that
+        # django crashes and I can't figure out why for the life of me. As
+        # far as I can tell it's a piston issue...
+        
+        result = []
+        for i in ItemInstance.objects.filter(owner_type__name='room', owner_id=room.id):
+            result.append({
+                'id': i.id,
+                'type': i.item_type.name,
+                'name': i.item.name,
+            })
+        return result
 
     @classmethod
     def __determine_connection(self, room, direction):
@@ -185,6 +248,7 @@ class PlayerHandler(BaseHandler):
         'level',
         'builder_mode',
         'room',
+        'items',
     )
 
     def read(self, request, id=None):
@@ -218,11 +282,28 @@ class PlayerHandler(BaseHandler):
                             pass
                     else:
                         return rc.BAD_REQUEST
+
+            if request.PUT.has_key('items'):
+                for item in request.PUT['items']:
+                    print item
+
             return player
 
         except Exception, e:
             print "exception: %s" % e
             raise Exception
+
+    @classmethod
+    def items(self, player):
+        # refer to RoomHandler.items for explanation for the weirdness below
+        result = []
+        for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
+            result.append({
+                'id': i.id,
+                'type': i.item_type.name,
+                'name': i.item.name,
+            })
+        return result        
 
 class MessageHandler(BaseHandler):
     allowed_methods = ('GET', 'POST')

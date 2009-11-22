@@ -1,3 +1,7 @@
+get_communications = function() {
+    $.getJSON("/api/messages.json")
+}
+
 render_communications = function() {
     $.getJSON("/api/messages.json", function(communications) {
         var previous_html = $("#communications").html()

@@ -93,6 +93,11 @@ class Player(Anima):
     builder_mode = models.BooleanField(default=False)
     temporary = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=PLAYER_STATUSES)
+    last_activity = models.DateTimeField(blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        self.last_activity = datetime.datetime.now()
+        return super(Player, self).save(*args, **kwargs)
 
 class Mob(Anima): pass
 

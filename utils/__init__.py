@@ -1,4 +1,4 @@
-from stark.apps.anima.models import Mob
+from stark.apps.anima.models import Mob, Player
 from stark.apps.world.models import Room, RoomConnector
 
 def generate_mobs(mobs_per_batch=5):

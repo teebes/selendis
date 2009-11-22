@@ -12,17 +12,12 @@ get_map = function() {
     });
 }
 
+/*
 get_player = function() {
     $.getJSON("/api/players/me.json", function(player) {
         document.player = player;
     });
 }
-
-get_communications = function() {
-    $.getJSON("/api/messages.json")
-}
-
-/* modifiers */
 
 modify_player = function(data) {
     $.ajax({
@@ -35,5 +30,5 @@ modify_player = function(data) {
         }
     });
 }
-
+*/
 

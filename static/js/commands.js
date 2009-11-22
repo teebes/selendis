@@ -81,6 +81,38 @@ process_command = function(command){
         return
     }
     
+    // get / drop
+    else if (first == 'get' || first == 'drop') {
+        t.shift();
+        if (document.player.room) {
+            var player_items = document.player.items;
+            var room_items = document.player.room.items;
+            
+            var items = null;
+            if (first == 'get') { items = room_items; }
+            else if (first == 'drop') { items = player_items; }
+            
+            $.each(items, function () {
+                split_name = this.name.split(' ');
+                for (var i = 0 ; i < split_name.length ; i++) {
+                    if (t[0] == this.id ||
+                        split_name[i] != 'a' &&
+                        split_name[i] != 'the' &&
+                        split_name[i] == t[0]) {
+                        if (first == 'get') {
+                            modify_item({id: this.id, owner_type: 'player', owner_id: document.player.id});
+                            break;
+                        } else if (first == 'drop') {
+                            modify_item({id: this.id, owner_type: 'room', owner_id: document.player.room.id});
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+        return
+    }
+    
     else if (first == 'help') {
         $("#input_feedback").show();
         $("#input_feedback").html("Commands: chat north east south west");

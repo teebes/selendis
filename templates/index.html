@@ -8,8 +8,9 @@
 <script type="text/javascript" src="/static/js/builder.js"></script>
 <script type="text/javascript" src="/static/js/data.js"></script>
 <script type="text/javascript" src="/static/js/commands.js"></script>
-<script type="text/javascript" src="/static/js/pages.js"></script>
+<script type="text/javascript" src="/static/js/room.js"></script>
 <script type="text/javascript" src="/static/js/communications.js"></script>
+<script type="text/javascript" src="/static/js/player.js"></script>
 
 <script language="javascript" src="/static/js/lib/processing.js"></script>
 <!--script language="javascript" src="/static/js/lib/init.js"></script-->
@@ -60,15 +61,23 @@
         | <a href="http://github.com/teebes/stark/blob/master/README">what's all this?</a>
         </div>
         
+        <div>
         <strong id="player_name"></strong>, level <span id="player_level"></span>
+        </div>
+        
+        <br />Inventory:
+        <div id="player_inventory"></div>
+        
     </div>    
     
     <div id="room_box" class='page'>
         <h2 id="room_title"></h2>
         <p id="room_desc"></p>
+        <div id="room_items"></div>
+        <div id="room_mobs"></div>        
         <div id="room_players"></div>
-        <div id="room_mobs"></div>
     </div>
+
 
     <div id="builder_box" class='page' style='display: none;'>
         <p>coords <span id="builder_x"></span>, <span id="builder_y"></span></p>

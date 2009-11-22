@@ -65,3 +65,16 @@ body { padding-top: 5px; }
         margin-bottom: 10px;
     }
     
+    #room_desc {
+        margin-bottom: 5px;
+    }
+    #room_items {
+        margin-bottom: 5px;
+    }
+    #room_players {
+        margin-bottom: 5px;
+    }
+    #room_mobs {
+        margin-bottom: 5px;
+    }
+    
