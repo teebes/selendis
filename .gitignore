@@ -4,3 +4,4 @@
 *.kpf
 db
 logs/
+doc/_build/

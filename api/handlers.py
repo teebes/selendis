@@ -252,10 +252,11 @@ class PlayerHandler(BaseHandler):
     )
 
     def read(self, request, id=None):
-        if request.user.is_authenticated():
+        if id == 'me':
             player = Player.objects.get(user=request.user, status='logged_in')
         else:
-            player = Player.objects.get(pk=id) # TODO: this should probably return some kind of error instead
+            return RC.FORBIDDEN
+            #player = Player.objects.get(pk=id) # TODO: this should probably return some kind of error instead
         return player
         
     def update(self, request, id=None):
@@ -282,10 +283,6 @@ class PlayerHandler(BaseHandler):
                             pass
                     else:
                         return rc.BAD_REQUEST
-
-            if request.PUT.has_key('items'):
-                for item in request.PUT['items']:
-                    print item
 
             return player
 
