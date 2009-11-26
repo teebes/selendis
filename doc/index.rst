@@ -12,9 +12,11 @@ Contents:
    :maxdepth: 2
 
    overview
+   development
    architecture
    api
    client
+   
 
 Indices and tables
 ==================

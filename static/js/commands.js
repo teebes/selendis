@@ -1,6 +1,10 @@
 /* utility functions */
 
 move_to = function(x, y) {
+    // assume the move went through so that directions can be spammed
+    document.player.room.xpos = x;
+    document.player.room.ypos = y;
+    
     $.ajax({
         type: "PUT",
         url: "/api/players/me.json",
@@ -10,6 +14,19 @@ move_to = function(x, y) {
             document.player = player;
             render_room();
             get_map();
+            if (player.builder_mode) {
+                render_builder();
+            }
+            render_profile();
+        },
+        error: function(resp) {
+            
+            split_resp = resp.responseText.split(':')
+            split_resp.shift(); // this pops for example 'BAD REQUEST'
+            var processed_response = split_resp.join(':');
+            
+            $("#input_feedback").show();
+            $("#input_feedback").html(processed_response);            
         }
     });
 }
@@ -77,7 +94,9 @@ process_command = function(command){
     // chat
     else if (first == 'chat') {
         t.shift();
-        send_communication('chat', t.join(' '));
+        if (t != '') {
+            send_communication('chat', t.join(' '));
+        }
         return
     }
     

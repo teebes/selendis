@@ -25,7 +25,4 @@ render_room = function() {
     });
     $("#room_mobs").html(mobs);
     
-    if (document.player.builder_mode) {
-        render_builder()
-    }
 }

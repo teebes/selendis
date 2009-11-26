@@ -4,7 +4,14 @@ get_communications = function() {
 
 render_communications = function() {
     $.getJSON("/api/messages.json", function(communications) {
-        var previous_html = $("#communications").html()
+        var previous_html = $("#communications").html();
+        
+        // see if this user is scrolling or if he's at the bottom
+        var scroll_down = false;
+        var comm_div = document.getElementById("communications");
+        if (comm_div.scrollTop - (comm_div.scrollHeight - comm_div.offsetHeight) > 0) {
+            scroll_down = true;
+        }
         
         var html = '';
         $.each(communications, function() {
@@ -17,18 +24,15 @@ render_communications = function() {
         });
         $("#communications").html(html);
         
-        if (html.value != previous_html.value) {
-            var communications_div = document.getElementById("communications");
-            communications_div.scrollTop = communications_div.scrollHeight;
-        }
+        if (scroll_down) {  comm_div.scrollTop = comm_div.scrollHeight; }
 
     });
 }
 
 send_communication = function(type, content) {
-        var data = {}
-        data['content'] = content
-        data['type'] = type
+        var data = {};
+        data['content'] = content;
+        data['type'] = type;
         $.ajax({
             type: "POST",
             url: "/api/messages.json",

@@ -2,6 +2,10 @@
 Stark API
 *********
 
+Stark implements a RESTful API so that any client can interact with the world.
+
+.. _player:
+
 Player
 ======
 
@@ -14,15 +18,19 @@ Player
 
   * ``name``: the player's name
   * ``level``: the player's level
-  * ``items``: the player's inventory
-  * ``room``: the player's room
+  * ``items``: the items in the player's inventory (see :ref:`item`)
+  * ``room``: the the player is in (see :ref:`room`)
   * ``id``: the player's id
   * ``builder_mode``: whether the player is in builder mode
+  * ``mp``: the player's current movement points
+  * ``max_mp``: the player's max possible movement points
 
 * PUT arguments:
 
-  * ``xpos`` (required): must be provided with ypos, will change the player's location 
-  * ``ypos`` (required): must be provided with xpos, will change the player's location
+  * ``xpos``: must be provided with ypos, will change the player's location 
+  * ``ypos``: must be provided with xpos, will change the player's location
+
+.. _room:
 
 Room
 ====
@@ -49,8 +57,8 @@ Room
 
 * POST arguments:
 
-  * ``xpos`` (required): the y coordinate of the new room
-  * ``ypos`` (required): the x coordinate of the new room
+  * ``xpos``: the y coordinate of the new room
+  * ``ypos``: the x coordinate of the new room
   
 * PUT arguments:
 
@@ -58,6 +66,8 @@ Room
   * ``title``: (optional): the new room title
   * ``description``: (optional): the new room description
   * ``type``: (optional): the new room type
+
+.. _map:
 
 Map
 ===
@@ -71,4 +81,52 @@ Map
 
   * ``starting_point``: The coordinates of the point to the most northwest of the map so that the graphical client knows how to interpret the position of the other points
   * ``player_position``: The coordinates of the player's current position
-  * ``rooms``: the list of the room objets that make up the map
+  * ``rooms``: the list of the room objets that make up the map (see :ref:`room`)
+
+.. _item:
+
+Item
+====
+
+``/api/items/<id>.(xml|json)``:
+
+*Allows manipulation of items which are either being carried by players or sitting in rooms*
+
+* Methods: GET, PUT
+* Returns:
+
+  * ``id``: the id of the item
+  * ``type``: the type of the item (weapon, requipment, sustenance, misc)
+  * ``name``: the name of the item
+  
+* PUT arguments:
+
+  * ``owner_type``: Must be provided with ``owner_id``, determines who owns the item (player, mob or room)
+  * ``owner_id`` (optional): Must be provided with ``owner_type``, determines who owns the item
+  
+.. _message:
+  
+Message
+=======
+
+*Messages can be sent in game, either in the form of chats, which are visible by everyone, or private messages intended only for specific players*
+
+* Methods: GET, POST
+* Returns:
+
+  * ``content``: the contents of the message
+  * ``type``: the type of the message, currently:
+  
+    * ``chat``: messages visible by everyone
+    * ``clan``: player-to-clan messages
+    * ``direct``: direct player-to-player messages
+    * ``notification``: system messages such as players moving around
+    
+  * ``created``: when the message was created
+  * ``source``: the label for the source of the message (often the originator's name)
+  
+* POST arguments:
+
+  * ``content``: the contents of the message
+  * ``type``: what kind of message
+  * ``message``: the actual message

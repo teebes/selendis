@@ -18,6 +18,13 @@
 </head>
 <body>
 
+<div id="menu" style="margin: 0 0 5px 5px;">
+    Welcome to Stark
+    <a href="http://github.com/teebes/stark/">source code</a> | <a href="http://stark.teebes.com/doc">documentation</a>
+</div>
+
+<input type="submit" value="test" id="test" />
+
 <div id="communications">
 </div> 
 
@@ -64,6 +71,8 @@
         <div>
         <strong id="player_name"></strong>, level <span id="player_level"></span>
         </div>
+        
+        <div>Movement Points: <span id="mp"></span></div>
         
         <br />Inventory:
         <div id="player_inventory"></div>
@@ -128,6 +137,14 @@
 
 <script type='text/javascript'>
 $(document).ready(function(){
+    $("#test").click(function(e) {
+        var comm_div = document.getElementById("communications");
+        alert((comm_div.scrollHeight - comm_div.offsetHeight) - comm_div.scrollTop);
+        if (comm_div.scrollTop - (comm_div.scrollHeight - comm_div.offsetHeight) > 0) {
+            alert('bottom');
+        } else { alert('not bottom'); }
+    });
+    
     // initial data
     document.map = [];
     document.player = null;
@@ -136,6 +153,8 @@ $(document).ready(function(){
     setup_builder();
 
     get_map();
+
+    var initial = true;
 
     pulse = function() {
         render_communications();
@@ -148,6 +167,14 @@ $(document).ready(function(){
             // render the pages
             render_room();
             render_profile();
+            
+            if (initial) {
+                // functions to only execute once on initial load
+                if (document.player.builder_mode) {
+                    render_builder(); }
+                initial = false;
+            }
+            
         });           
     }
     pulse();

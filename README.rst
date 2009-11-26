@@ -27,9 +27,9 @@ This is a full django project, it can't just be installed as an app. Maybe once 
  
 * add the stark package to the Python path
  
-* syncdb: ::
+* syncdb (**important**: name the created user ``admin``)::
 
-  $ python manage.py syncdb, name the created user 'admin'
+  $ python manage.py syncdb
  
 * start the server: ::
 
@@ -42,3 +42,11 @@ This is a full django project, it can't just be installed as an app. Maybe once 
 * run the timer script: ::
 
   $ python apps/timer
+  
+Demo Data
+=========
+
+There are two fixtures with a (very) basic world:
+
+* ``api/apps/anima/fixtures/demo_data.json`` for players & mobs
+* ``api/apps/world/fixtures/demo_data.json`` for rooms & connectors

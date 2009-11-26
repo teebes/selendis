@@ -249,6 +249,8 @@ class PlayerHandler(BaseHandler):
         'builder_mode',
         'room',
         'items',
+        'mp',
+        'max_mp',
     )
 
     def read(self, request, id=None):
@@ -260,35 +262,39 @@ class PlayerHandler(BaseHandler):
         return player
         
     def update(self, request, id=None):
-        try:# TODO: remove this eventually
+        player = Player.objects.get(user=request.user, status='logged_in')
 
-            player = Player.objects.get(user=request.user, status='logged_in')
-
-            if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
-                x = int(request.PUT['xpos'])
-                y = int(request.PUT['ypos'])
-                from_room = player.room
-                try:
-                    connector = RoomConnector.objects.get(from_room=from_room, to_room__xpos=x, to_room__ypos=y)
-                    player.room = connector.to_room
+        if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
+            x = int(request.PUT['xpos'])
+            y = int(request.PUT['ypos'])
+            print "(%s,%s)" % (x,y)
+            from_room = player.room
+            try:
+                
+                # builders can go directly to any room
+                if player.builder_mode:
+                    player.room = Room.objects.get(xpos=x, ypos=y)
                     player.save()
+                    return player
+                
+                # see if there is a path to the room
+                try:
+                    connector = RoomConnector.objects.get(
+                                            from_room=from_room,
+                                            to_room__xpos=x,
+                                            to_room__ypos=y)
                 except RoomConnector.DoesNotExist:
-                    if player.builder_mode:
-                    # builders can jump to any room
-                        try:
-                            player.room = Room.objects.get(xpos=x, ypos=y)
-                            player.save()
-                            return player
-                        except Room.DoesNotExist:
-                            pass
-                    else:
-                        return rc.BAD_REQUEST
+                    raise Exception("you cannot go that way.")
+                
+                player.move(connector.to_room)
 
-            return player
+            except Exception, e:
+                print e
+                response = rc.BAD_REQUEST
+                response.write(": %s" % e)
+                return response
 
-        except Exception, e:
-            print "exception: %s" % e
-            raise Exception
+        return player
 
     @classmethod
     def items(self, player):
@@ -348,4 +354,7 @@ class PingHandler(BaseHandler):
     allowed_methods = ('GET',)
     
     def read(self, request):
+        response = rc.BAD_REQUEST
+        response.write("some error")
+        return response
         return {'status': 'OK'}

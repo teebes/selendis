@@ -22,6 +22,7 @@ render_profile = function() {
     $("#player_name").html(document.player.name);
     $("#player_level").html(document.player.level);
     
+    $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 
     var inventory = '';
     $.each(document.player.items, function() {
