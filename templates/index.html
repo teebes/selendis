@@ -23,12 +23,14 @@
     <a href="http://github.com/teebes/stark/">source code</a> | <a href="http://stark.teebes.com/doc">documentation</a>
 </div>
 
-<input type="submit" value="test" id="test" />
-
+<!-- communications -->
 <div id="communications">
 </div> 
 
 <div id="left_pane">
+
+<!-- commands -->
+
     <div id="input_bar">
         <div id="input_feedback" style="display: none">Test error message</div>
         <input id="command_text" type='text' /> <br />
@@ -53,10 +55,14 @@
         </table>
     </div>
 
+<!-- map -->
+
     <canvas id="map" width="300px" height="300px"></canvas>
 </div>
 
 <div id="right_pane">
+    
+<!-- player -->
     
     <div id="profile_box" class='page'>
         <div>
@@ -65,7 +71,6 @@
         {% else %}
             <a href="{% url logout_login %}">logout</a>
         {% endif %}
-        | <a href="http://github.com/teebes/stark/blob/master/README">what's all this?</a>
         </div>
         
         <div>
@@ -79,6 +84,8 @@
         
     </div>    
     
+<!-- room -->
+    
     <div id="room_box" class='page'>
         <h2 id="room_title"></h2>
         <p id="room_desc"></p>
@@ -87,6 +94,7 @@
         <div id="room_players"></div>
     </div>
 
+<!-- builder -->
 
     <div id="builder_box" class='page' style='display: none;'>
         <p>coords <span id="builder_x"></span>, <span id="builder_y"></span></p>
@@ -118,14 +126,8 @@
             x: <input type='text' id="jump_x" style='width: 30px;' />
             y: <input type='text' id="jump_y" style='width: 30px;' />
             <input type='submit' id='jump_to' value='Jump To' />
-        </p>
-        
-        <p>
-            x: <input type='text' id="create_x" style='width: 30px;' />
-            y: <input type='text' id="create_y" style='width: 30px;' />
             <input type='submit' id='create_room' value='Create Room' />
         </p>
-
         
         <p><input type='submit' id='delete_room' value='Delete Room'/></p>
         
@@ -137,13 +139,6 @@
 
 <script type='text/javascript'>
 $(document).ready(function(){
-    $("#test").click(function(e) {
-        var comm_div = document.getElementById("communications");
-        alert((comm_div.scrollHeight - comm_div.offsetHeight) - comm_div.scrollTop);
-        if (comm_div.scrollTop - (comm_div.scrollHeight - comm_div.offsetHeight) > 0) {
-            alert('bottom');
-        } else { alert('not bottom'); }
-    });
     
     // initial data
     document.map = [];

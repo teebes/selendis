@@ -267,7 +267,6 @@ class PlayerHandler(BaseHandler):
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
             x = int(request.PUT['xpos'])
             y = int(request.PUT['ypos'])
-            print "(%s,%s)" % (x,y)
             from_room = player.room
             try:
                 

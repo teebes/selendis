@@ -6,16 +6,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 
+from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
 from stark.apps.world.models import Room, RoomConnector
 
 MOVE_COST = 2 #TODO: move to global config
-
-#MOB_TYPES = (
-#    ('humanoid','Humanoid'),
-#    ('beast', 'Beast'),
-#)
-
-#class NotEnoughMoves(Exception): pass
 
 class Anima(models.Model):
     name = models.CharField(max_length=40) # should be unique for player subclass (not enforced @ db level)
@@ -108,13 +102,6 @@ class Anima(models.Model):
     def __unicode__(self):
         return u"%s" % self.name
 
-PLAYER_STATUSES = (
-    ('logged_in', 'Logged In'),
-    ('logged_out', 'Logged Out'),
-    ('guest', 'Guest'),
-    ('inactive', 'Inactive'),
-)
-
 class Player(Anima):
     user = models.ForeignKey(User, related_name='players')
     builder_mode = models.BooleanField(default=False)
@@ -126,14 +113,9 @@ class Player(Anima):
         self.last_activity = datetime.datetime.now()
         return super(Player, self).save(*args, **kwargs)
 
-class Mob(Anima): pass
-
-MESSAGE_TYPES = (
-    ('chat', 'Chat'),
-    ('clan', 'Clan'),
-    ('direct', 'Direct'),
-    ('notification', 'Notifiation'),
-)
+class Mob(Anima):
+    # static mobs can't move
+    static = models.BooleanField(default=False)
 
 class Message(models.Model):
     created = models.DateTimeField(default=datetime.datetime.now(), blank=False)

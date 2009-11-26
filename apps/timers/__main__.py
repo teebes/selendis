@@ -41,7 +41,7 @@ if __name__ == "__main__":
             super(Tick, self).execute()
             
             # move mobs
-            for mob in Mob.objects.all():
+            for mob in Mob.objects.filter(static=False):
                 if random.randint(0, 10) == 0:
                     print 'moving %s' % mob.name
                     mob.move(random=True)

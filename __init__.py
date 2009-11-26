@@ -1,8 +1,8 @@
 """
-run on production:
+Run on prod:
 
-sqlite> alter table anima_player add column "mp" integer;
-sqlite> alter table anima_player add column "max_mp" integer;
-sqlite> alter table anima_mob add column "max_mp" integer;
-sqlite> alter table anima_mob add column "mp" integer;
+In [22]: for mob in Mob.objects.all():
+   ....:   mob.static = False
+   ....:   mob.save()
+   
 """

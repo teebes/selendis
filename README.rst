@@ -27,7 +27,7 @@ This is a full django project, it can't just be installed as an app. Maybe once 
  
 * add the stark package to the Python path
  
-* syncdb (**important**: name the created user ``admin``)::
+* syncdb (go ahead and create a superuser)::
 
   $ python manage.py syncdb
  
@@ -35,9 +35,9 @@ This is a full django project, it can't just be installed as an app. Maybe once 
 
   $ python manage.py runserver
  
-* login to the admin side at http://127.0.0.1:8000/admin (you need to do this otherwise it will create an anonymous account when you load the game)
- 
-* load the game in your browser at http://127.0.0.1:8000
+* go the game at http://127.0.0.1:8000
+
+* click the 'login' link, log on as the superuser you created
  
 * run the timer script: ::
 

@@ -34,7 +34,17 @@ def index(request):
         player = Player.objects.create(user=user, name=user.username, temporary=True, status='logged_in')
         
     else:
-        player = Player.objects.get(user=request.user, status='logged_in')
+        # if the user is already authenticated, get or create their player
+        player, created = Player.objects.get_or_create(
+                                user=request.user,
+                                status='logged_in',
+                                name=request.user.username)
+        
+        # if this is a new user, give them builder mode if they're staff
+        if created:
+            if request.user.is_staff:
+                player.builder_mode = True
+                player.save()
 
 
     return render_to_response("index.html", {

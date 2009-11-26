@@ -1,2802 +1,402 @@
 [
-  {
-    "pk": 13, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_logentry", 
-      "name": "Can add log entry", 
-      "content_type": 5
+    {
+        "pk": 1, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a small black cat", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 12
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a black dog", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 25
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a cute brown deer", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 32
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a zombie", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 32
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a peasant", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 77
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a small black cat", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 72
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a black dog", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 21
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a cute brown deer", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 25
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a zombie", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 41
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a peasant", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 31
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a small black cat", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 46
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a black dog", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 35
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a cute brown deer", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 21
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a zombie", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 30
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a peasant", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 22
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a small black cat", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 3
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a black dog", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 16
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a cute brown deer", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 56
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a zombie", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 52
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a peasant", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 18
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a small black cat", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 12
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a black dog", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 30
+        }
+    }, 
+    {
+        "pk": 23, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a cute brown deer", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 76
+        }
+    }, 
+    {
+        "pk": 24, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a zombie", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 35
+        }
+    }, 
+    {
+        "pk": 25, 
+        "model": "anima.mob", 
+        "fields": {
+            "name": "a peasant", 
+            "max_sp": 20, 
+            "level": 1, 
+            "hp": 20, 
+            "sp": 20, 
+            "static": false, 
+            "mp": 20, 
+            "max_hp": 20, 
+            "max_mp": 20, 
+            "room": 28
+        }
     }
-  }, 
-  {
-    "pk": 14, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_logentry", 
-      "name": "Can change log entry", 
-      "content_type": 5
-    }
-  }, 
-  {
-    "pk": 15, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_logentry", 
-      "name": "Can delete log entry", 
-      "content_type": 5
-    }
-  }, 
-  {
-    "pk": 28, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_mob", 
-      "name": "Can add mob", 
-      "content_type": 10
-    }
-  }, 
-  {
-    "pk": 25, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_player", 
-      "name": "Can add player", 
-      "content_type": 9
-    }
-  }, 
-  {
-    "pk": 29, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_mob", 
-      "name": "Can change mob", 
-      "content_type": 10
-    }
-  }, 
-  {
-    "pk": 26, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_player", 
-      "name": "Can change player", 
-      "content_type": 9
-    }
-  }, 
-  {
-    "pk": 30, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_mob", 
-      "name": "Can delete mob", 
-      "content_type": 10
-    }
-  }, 
-  {
-    "pk": 27, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_player", 
-      "name": "Can delete player", 
-      "content_type": 9
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_group", 
-      "name": "Can add group", 
-      "content_type": 2
-    }
-  }, 
-  {
-    "pk": 10, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_message", 
-      "name": "Can add message", 
-      "content_type": 4
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_permission", 
-      "name": "Can add permission", 
-      "content_type": 1
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_user", 
-      "name": "Can add user", 
-      "content_type": 3
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_group", 
-      "name": "Can change group", 
-      "content_type": 2
-    }
-  }, 
-  {
-    "pk": 11, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_message", 
-      "name": "Can change message", 
-      "content_type": 4
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_permission", 
-      "name": "Can change permission", 
-      "content_type": 1
-    }
-  }, 
-  {
-    "pk": 8, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_user", 
-      "name": "Can change user", 
-      "content_type": 3
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_group", 
-      "name": "Can delete group", 
-      "content_type": 2
-    }
-  }, 
-  {
-    "pk": 12, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_message", 
-      "name": "Can delete message", 
-      "content_type": 4
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_permission", 
-      "name": "Can delete permission", 
-      "content_type": 1
-    }
-  }, 
-  {
-    "pk": 9, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_user", 
-      "name": "Can delete user", 
-      "content_type": 3
-    }
-  }, 
-  {
-    "pk": 16, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_contenttype", 
-      "name": "Can add content type", 
-      "content_type": 6
-    }
-  }, 
-  {
-    "pk": 17, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_contenttype", 
-      "name": "Can change content type", 
-      "content_type": 6
-    }
-  }, 
-  {
-    "pk": 18, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_contenttype", 
-      "name": "Can delete content type", 
-      "content_type": 6
-    }
-  }, 
-  {
-    "pk": 19, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_session", 
-      "name": "Can add session", 
-      "content_type": 7
-    }
-  }, 
-  {
-    "pk": 20, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_session", 
-      "name": "Can change session", 
-      "content_type": 7
-    }
-  }, 
-  {
-    "pk": 21, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_session", 
-      "name": "Can delete session", 
-      "content_type": 7
-    }
-  }, 
-  {
-    "pk": 22, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_site", 
-      "name": "Can add site", 
-      "content_type": 8
-    }
-  }, 
-  {
-    "pk": 23, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_site", 
-      "name": "Can change site", 
-      "content_type": 8
-    }
-  }, 
-  {
-    "pk": 24, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_site", 
-      "name": "Can delete site", 
-      "content_type": 8
-    }
-  }, 
-  {
-    "pk": 31, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_room", 
-      "name": "Can add room", 
-      "content_type": 11
-    }
-  }, 
-  {
-    "pk": 34, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "add_roomconnector", 
-      "name": "Can add room connector", 
-      "content_type": 12
-    }
-  }, 
-  {
-    "pk": 32, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_room", 
-      "name": "Can change room", 
-      "content_type": 11
-    }
-  }, 
-  {
-    "pk": 35, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "change_roomconnector", 
-      "name": "Can change room connector", 
-      "content_type": 12
-    }
-  }, 
-  {
-    "pk": 33, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_room", 
-      "name": "Can delete room", 
-      "content_type": 11
-    }
-  }, 
-  {
-    "pk": 36, 
-    "model": "auth.permission", 
-    "fields": {
-      "codename": "delete_roomconnector", 
-      "name": "Can delete room connector", 
-      "content_type": 12
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "auth.user", 
-    "fields": {
-      "username": "admin", 
-      "first_name": "", 
-      "last_name": "", 
-      "is_active": true, 
-      "is_superuser": true, 
-      "is_staff": true, 
-      "last_login": "2009-11-05 18:31:34", 
-      "groups": [], 
-      "user_permissions": [], 
-      "password": "sha1$39a8e$4a2de45f593e3d7254b4fda46a6336291b6ba920", 
-      "email": "teebes@gmail.com", 
-      "date_joined": "2009-11-05 18:28:51"
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "auth.user", 
-    "fields": {
-      "username": "user_2", 
-      "first_name": "", 
-      "last_name": "", 
-      "is_active": true, 
-      "is_superuser": false, 
-      "is_staff": false, 
-      "last_login": "2009-11-05 18:28:59", 
-      "groups": [], 
-      "user_permissions": [], 
-      "password": "sha1$5295a$4f35c62f0039455c00ad38ccc9ae3b0dd4af358e", 
-      "email": "", 
-      "date_joined": "2009-11-05 18:28:59"
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "admin.logentry", 
-    "fields": {
-      "action_flag": 2, 
-      "action_time": "2009-11-05 18:39:14", 
-      "object_repr": "admin", 
-      "object_id": "1", 
-      "change_message": "Changed builder_mode.", 
-      "user": 1, 
-      "content_type": 9
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "contenttype", 
-      "name": "content type", 
-      "app_label": "contenttypes"
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "group", 
-      "name": "group", 
-      "app_label": "auth"
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "logentry", 
-      "name": "log entry", 
-      "app_label": "admin"
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "message", 
-      "name": "message", 
-      "app_label": "auth"
-    }
-  }, 
-  {
-    "pk": 10, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "mob", 
-      "name": "mob", 
-      "app_label": "anima"
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "permission", 
-      "name": "permission", 
-      "app_label": "auth"
-    }
-  }, 
-  {
-    "pk": 9, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "player", 
-      "name": "player", 
-      "app_label": "anima"
-    }
-  }, 
-  {
-    "pk": 11, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "room", 
-      "name": "room", 
-      "app_label": "world"
-    }
-  }, 
-  {
-    "pk": 12, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "roomconnector", 
-      "name": "room connector", 
-      "app_label": "world"
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "session", 
-      "name": "session", 
-      "app_label": "sessions"
-    }
-  }, 
-  {
-    "pk": 8, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "site", 
-      "name": "site", 
-      "app_label": "sites"
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "contenttypes.contenttype", 
-    "fields": {
-      "model": "user", 
-      "name": "user", 
-      "app_label": "auth"
-    }
-  }, 
-  {
-    "pk": "3c4cb708a7dbb9b57415140bc38381e5", 
-    "model": "sessions.session", 
-    "fields": {
-      "expire_date": "2009-11-19 18:31:34", 
-      "session_data": "gAJ9cQEoVRJfYXV0aF91c2VyX2JhY2tlbmRxAlUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxA1UNX2F1dGhfdXNlcl9pZHEESwF1LmMwMTFlNTBmZjhmZTNkZGU5MTI4\nYzgwNjJkMTdhM2Qw\n"
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "sites.site", 
-    "fields": {
-      "domain": "example.com", 
-      "name": "example.com"
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "anima.player", 
-    "fields": {
-      "temporary": false, 
-      "name": "admin", 
-      "level": 1, 
-      "room": 1, 
-      "user": 1, 
-      "builder_mode": true
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a small black cat", 
-      "room": 30
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a black dog", 
-      "room": 73
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a cute brown deer", 
-      "room": 74
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a zombie", 
-      "room": 33
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a peasant", 
-      "room": 25
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a small black cat", 
-      "room": 39
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a black dog", 
-      "room": 16
-    }
-  }, 
-  {
-    "pk": 8, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a cute brown deer", 
-      "room": 17
-    }
-  }, 
-  {
-    "pk": 9, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a zombie", 
-      "room": 2
-    }
-  }, 
-  {
-    "pk": 10, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a peasant", 
-      "room": 17
-    }
-  }, 
-  {
-    "pk": 11, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a small black cat", 
-      "room": 41
-    }
-  }, 
-  {
-    "pk": 12, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a black dog", 
-      "room": 55
-    }
-  }, 
-  {
-    "pk": 13, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a cute brown deer", 
-      "room": 13
-    }
-  }, 
-  {
-    "pk": 14, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a zombie", 
-      "room": 34
-    }
-  }, 
-  {
-    "pk": 15, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a peasant", 
-      "room": 71
-    }
-  }, 
-  {
-    "pk": 16, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a small black cat", 
-      "room": 38
-    }
-  }, 
-  {
-    "pk": 17, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a black dog", 
-      "room": 26
-    }
-  }, 
-  {
-    "pk": 18, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a cute brown deer", 
-      "room": 74
-    }
-  }, 
-  {
-    "pk": 19, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a zombie", 
-      "room": 72
-    }
-  }, 
-  {
-    "pk": 20, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a peasant", 
-      "room": 18
-    }
-  }, 
-  {
-    "pk": 21, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a small black cat", 
-      "room": 76
-    }
-  }, 
-  {
-    "pk": 22, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a black dog", 
-      "room": 16
-    }
-  }, 
-  {
-    "pk": 23, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a cute brown deer", 
-      "room": 22
-    }
-  }, 
-  {
-    "pk": 24, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a zombie", 
-      "room": 40
-    }
-  }, 
-  {
-    "pk": 25, 
-    "model": "anima.mob", 
-    "fields": {
-      "level": 1, 
-      "name": "a peasant", 
-      "room": 1
-    }
-  }, 
-  {
-    "pk": 1, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "You barely exist.", 
-      "type": "city", 
-      "ypos": 0, 
-      "title": "center of the world"
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "Just to the east of the center of the world.", 
-      "type": "city", 
-      "ypos": 0, 
-      "title": "Eastern terrace"
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "A small garden is here, regularly tended to.", 
-      "type": "field", 
-      "ypos": 1, 
-      "title": "A small garden"
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "A small path that leaves the center of the world, going north.", 
-      "type": "city", 
-      "ypos": -1, 
-      "title": "The northern path"
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -1, 
-      "description": "Just to the west of the center of the world", 
-      "type": "shop", 
-      "ypos": 0, 
-      "title": "The inn"
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 2, 
-      "description": "", 
-      "type": "shop", 
-      "ypos": -1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 12, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Intersection"
-    }
-  }, 
-  {
-    "pk": 13, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 14, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -1, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 15, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 16, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "This is outisde the western gate", 
-      "type": "city", 
-      "ypos": -1, 
-      "title": "Inside the western gate"
-    }
-  }, 
-  {
-    "pk": 17, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 0, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 18, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 19, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 20, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 21, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -1, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 22, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -1, 
-      "description": "", 
-      "type": "shop", 
-      "ypos": 2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 23, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 24, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 3, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 25, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 26, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 27, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 0, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 28, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 29, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 30, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 31, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 3, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 32, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 2, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 33, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "The southern gate"
-    }
-  }, 
-  {
-    "pk": 34, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "", 
-      "type": "city", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 35, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -3, 
-      "description": "", 
-      "type": "road", 
-      "ypos": -1, 
-      "title": "Outisde the western gate"
-    }
-  }, 
-  {
-    "pk": 36, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": -1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 37, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -3, 
-      "description": "", 
-      "type": "field", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 38, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -3, 
-      "description": "", 
-      "type": "field", 
-      "ypos": -3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 39, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "field", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 40, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -5, 
-      "description": "", 
-      "type": "field", 
-      "ypos": -2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 41, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -5, 
-      "description": "", 
-      "type": "road", 
-      "ypos": -1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 42, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -6, 
-      "description": "", 
-      "type": "road", 
-      "ypos": -1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 43, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -6, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 0, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 44, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -7, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 0, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 45, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -8, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 0, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 46, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 0, 
-      "title": "Beginning of a small dirt road"
-    }
-  }, 
-  {
-    "pk": 47, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 1, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 52, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 4, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 53, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -1, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 4, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 54, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 4, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 55, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 4, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 56, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 5, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 57, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 58, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 2, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 59, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 3, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 60, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 4, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 61, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 5, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 62, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 63, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -1, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 64, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 65, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -3, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 66, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 67, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -5, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 68, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -6, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 69, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -7, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 70, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -8, 
-      "description": "", 
-      "type": "water", 
-      "ypos": 6, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 71, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 7, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 72, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 1, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 8, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 73, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 74, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 4, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 75, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -3, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 5, 
-      "title": "On the river bank"
-    }
-  }, 
-  {
-    "pk": 76, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 5, 
-      "title": "Bend by the river bank"
-    }
-  }, 
-  {
-    "pk": 77, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -2, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 5, 
-      "title": "Bend by the river bank"
-    }
-  }, 
-  {
-    "pk": 78, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": -4, 
-      "description": "", 
-      "type": "road", 
-      "ypos": 2, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 79, 
-    "model": "world.room", 
-    "fields": {
-      "xpos": 0, 
-      "description": "", 
-      "type": "city", 
-      "ypos": -3, 
-      "title": "Untitled room"
-    }
-  }, 
-  {
-    "pk": 2, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 1, 
-      "from_room": 4
-    }
-  }, 
-  {
-    "pk": 3, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 1, 
-      "from_room": 3
-    }
-  }, 
-  {
-    "pk": 4, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 3, 
-      "from_room": 1
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 5, 
-      "from_room": 1
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 4, 
-      "from_room": 1
-    }
-  }, 
-  {
-    "pk": 8, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 1, 
-      "from_room": 5
-    }
-  }, 
-  {
-    "pk": 9, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 1, 
-      "from_room": 2
-    }
-  }, 
-  {
-    "pk": 10, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 12, 
-      "from_room": 4
-    }
-  }, 
-  {
-    "pk": 11, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 4, 
-      "from_room": 12
-    }
-  }, 
-  {
-    "pk": 12, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 13, 
-      "from_room": 12
-    }
-  }, 
-  {
-    "pk": 13, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 12, 
-      "from_room": 13
-    }
-  }, 
-  {
-    "pk": 14, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 12, 
-      "from_room": 14
-    }
-  }, 
-  {
-    "pk": 15, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 14, 
-      "from_room": 15
-    }
-  }, 
-  {
-    "pk": 16, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 21, 
-      "from_room": 20
-    }
-  }, 
-  {
-    "pk": 17, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 19, 
-      "from_room": 20
-    }
-  }, 
-  {
-    "pk": 18, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 20, 
-      "from_room": 21
-    }
-  }, 
-  {
-    "pk": 19, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 21, 
-      "from_room": 22
-    }
-  }, 
-  {
-    "pk": 20, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 19, 
-      "from_room": 22
-    }
-  }, 
-  {
-    "pk": 21, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 22, 
-      "from_room": 19
-    }
-  }, 
-  {
-    "pk": 22, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 20, 
-      "from_room": 19
-    }
-  }, 
-  {
-    "pk": 23, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 18, 
-      "from_room": 19
-    }
-  }, 
-  {
-    "pk": 24, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 17, 
-      "from_room": 18
-    }
-  }, 
-  {
-    "pk": 25, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 19, 
-      "from_room": 18
-    }
-  }, 
-  {
-    "pk": 26, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 16, 
-      "from_room": 17
-    }
-  }, 
-  {
-    "pk": 27, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 18, 
-      "from_room": 17
-    }
-  }, 
-  {
-    "pk": 28, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 17, 
-      "from_room": 16
-    }
-  }, 
-  {
-    "pk": 29, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 15, 
-      "from_room": 16
-    }
-  }, 
-  {
-    "pk": 30, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 16, 
-      "from_room": 15
-    }
-  }, 
-  {
-    "pk": 31, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 15, 
-      "from_room": 14
-    }
-  }, 
-  {
-    "pk": 32, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 14, 
-      "from_room": 12
-    }
-  }, 
-  {
-    "pk": 33, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 13, 
-      "from_room": 23
-    }
-  }, 
-  {
-    "pk": 34, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 7, 
-      "from_room": 23
-    }
-  }, 
-  {
-    "pk": 36, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 24, 
-      "from_room": 25
-    }
-  }, 
-  {
-    "pk": 37, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 25, 
-      "from_room": 24
-    }
-  }, 
-  {
-    "pk": 38, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 23, 
-      "from_room": 24
-    }
-  }, 
-  {
-    "pk": 39, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 23, 
-      "from_room": 13
-    }
-  }, 
-  {
-    "pk": 40, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 24, 
-      "from_room": 23
-    }
-  }, 
-  {
-    "pk": 41, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 23, 
-      "from_room": 7
-    }
-  }, 
-  {
-    "pk": 42, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 33, 
-      "from_room": 34
-    }
-  }, 
-  {
-    "pk": 43, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 21, 
-      "from_room": 34
-    }
-  }, 
-  {
-    "pk": 44, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 22, 
-      "from_room": 21
-    }
-  }, 
-  {
-    "pk": 45, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 34, 
-      "from_room": 21
-    }
-  }, 
-  {
-    "pk": 46, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 34, 
-      "from_room": 33
-    }
-  }, 
-  {
-    "pk": 47, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 33, 
-      "from_room": 32
-    }
-  }, 
-  {
-    "pk": 48, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 31, 
-      "from_room": 32
-    }
-  }, 
-  {
-    "pk": 49, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 30, 
-      "from_room": 31
-    }
-  }, 
-  {
-    "pk": 50, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 32, 
-      "from_room": 31
-    }
-  }, 
-  {
-    "pk": 51, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 29, 
-      "from_room": 30
-    }
-  }, 
-  {
-    "pk": 52, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 31, 
-      "from_room": 30
-    }
-  }, 
-  {
-    "pk": 53, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 28, 
-      "from_room": 29
-    }
-  }, 
-  {
-    "pk": 54, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 30, 
-      "from_room": 29
-    }
-  }, 
-  {
-    "pk": 55, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 27, 
-      "from_room": 28
-    }
-  }, 
-  {
-    "pk": 56, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 29, 
-      "from_room": 28
-    }
-  }, 
-  {
-    "pk": 57, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 26, 
-      "from_room": 27
-    }
-  }, 
-  {
-    "pk": 58, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 28, 
-      "from_room": 27
-    }
-  }, 
-  {
-    "pk": 59, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 25, 
-      "from_room": 26
-    }
-  }, 
-  {
-    "pk": 60, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 27, 
-      "from_room": 26
-    }
-  }, 
-  {
-    "pk": 61, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 26, 
-      "from_room": 25
-    }
-  }, 
-  {
-    "pk": 62, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 32, 
-      "from_room": 33
-    }
-  }, 
-  {
-    "pk": 63, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 35, 
-      "from_room": 16
-    }
-  }, 
-  {
-    "pk": 64, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 16, 
-      "from_room": 35
-    }
-  }, 
-  {
-    "pk": 65, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 37, 
-      "from_room": 38
-    }
-  }, 
-  {
-    "pk": 66, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 38, 
-      "from_room": 37
-    }
-  }, 
-  {
-    "pk": 67, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 35, 
-      "from_room": 37
-    }
-  }, 
-  {
-    "pk": 68, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 37, 
-      "from_room": 35
-    }
-  }, 
-  {
-    "pk": 69, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 35, 
-      "from_room": 36
-    }
-  }, 
-  {
-    "pk": 70, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 37, 
-      "from_room": 39
-    }
-  }, 
-  {
-    "pk": 71, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 36, 
-      "from_room": 39
-    }
-  }, 
-  {
-    "pk": 72, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 39, 
-      "from_room": 40
-    }
-  }, 
-  {
-    "pk": 73, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 40, 
-      "from_room": 41
-    }
-  }, 
-  {
-    "pk": 74, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 36, 
-      "from_room": 41
-    }
-  }, 
-  {
-    "pk": 75, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 41, 
-      "from_room": 40
-    }
-  }, 
-  {
-    "pk": 76, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 40, 
-      "from_room": 39
-    }
-  }, 
-  {
-    "pk": 77, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 39, 
-      "from_room": 37
-    }
-  }, 
-  {
-    "pk": 78, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 36, 
-      "from_room": 35
-    }
-  }, 
-  {
-    "pk": 79, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 41, 
-      "from_room": 36
-    }
-  }, 
-  {
-    "pk": 80, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 39, 
-      "from_room": 36
-    }
-  }, 
-  {
-    "pk": 81, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 41, 
-      "from_room": 42
-    }
-  }, 
-  {
-    "pk": 82, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 42, 
-      "from_room": 41
-    }
-  }, 
-  {
-    "pk": 83, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 42, 
-      "from_room": 43
-    }
-  }, 
-  {
-    "pk": 84, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 44, 
-      "from_room": 45
-    }
-  }, 
-  {
-    "pk": 85, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 43, 
-      "from_room": 44
-    }
-  }, 
-  {
-    "pk": 86, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 45, 
-      "from_room": 44
-    }
-  }, 
-  {
-    "pk": 87, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 44, 
-      "from_room": 43
-    }
-  }, 
-  {
-    "pk": 88, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 43, 
-      "from_room": 42
-    }
-  }, 
-  {
-    "pk": 89, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 36, 
-      "from_room": 46
-    }
-  }, 
-  {
-    "pk": 90, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 60, 
-      "from_room": 61
-    }
-  }, 
-  {
-    "pk": 91, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 61, 
-      "from_room": 60
-    }
-  }, 
-  {
-    "pk": 92, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 59, 
-      "from_room": 60
-    }
-  }, 
-  {
-    "pk": 93, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 60, 
-      "from_room": 59
-    }
-  }, 
-  {
-    "pk": 94, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 58, 
-      "from_room": 59
-    }
-  }, 
-  {
-    "pk": 95, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 59, 
-      "from_room": 58
-    }
-  }, 
-  {
-    "pk": 96, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 66, 
-      "from_room": 67
-    }
-  }, 
-  {
-    "pk": 97, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 69, 
-      "from_room": 70
-    }
-  }, 
-  {
-    "pk": 98, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 68, 
-      "from_room": 69
-    }
-  }, 
-  {
-    "pk": 99, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 70, 
-      "from_room": 69
-    }
-  }, 
-  {
-    "pk": 100, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 67, 
-      "from_room": 68
-    }
-  }, 
-  {
-    "pk": 101, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 69, 
-      "from_room": 68
-    }
-  }, 
-  {
-    "pk": 102, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 68, 
-      "from_room": 67
-    }
-  }, 
-  {
-    "pk": 103, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 65, 
-      "from_room": 66
-    }
-  }, 
-  {
-    "pk": 104, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 67, 
-      "from_room": 66
-    }
-  }, 
-  {
-    "pk": 105, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 64, 
-      "from_room": 65
-    }
-  }, 
-  {
-    "pk": 106, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 66, 
-      "from_room": 65
-    }
-  }, 
-  {
-    "pk": 107, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 63, 
-      "from_room": 64
-    }
-  }, 
-  {
-    "pk": 108, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 65, 
-      "from_room": 64
-    }
-  }, 
-  {
-    "pk": 109, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 62, 
-      "from_room": 63
-    }
-  }, 
-  {
-    "pk": 110, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 64, 
-      "from_room": 63
-    }
-  }, 
-  {
-    "pk": 111, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 63, 
-      "from_room": 62
-    }
-  }, 
-  {
-    "pk": 112, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 71, 
-      "from_room": 72
-    }
-  }, 
-  {
-    "pk": 113, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 57, 
-      "from_room": 71
-    }
-  }, 
-  {
-    "pk": 114, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 72, 
-      "from_room": 71
-    }
-  }, 
-  {
-    "pk": 115, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 56, 
-      "from_room": 57
-    }
-  }, 
-  {
-    "pk": 116, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 71, 
-      "from_room": 57
-    }
-  }, 
-  {
-    "pk": 117, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 55, 
-      "from_room": 56
-    }
-  }, 
-  {
-    "pk": 118, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 57, 
-      "from_room": 56
-    }
-  }, 
-  {
-    "pk": 119, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 33, 
-      "from_room": 55
-    }
-  }, 
-  {
-    "pk": 120, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 56, 
-      "from_room": 55
-    }
-  }, 
-  {
-    "pk": 121, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 55, 
-      "from_room": 33
-    }
-  }, 
-  {
-    "pk": 122, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 54, 
-      "from_room": 55
-    }
-  }, 
-  {
-    "pk": 123, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 55, 
-      "from_room": 54
-    }
-  }, 
-  {
-    "pk": 124, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 54, 
-      "from_room": 53
-    }
-  }, 
-  {
-    "pk": 125, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 52, 
-      "from_room": 53
-    }
-  }, 
-  {
-    "pk": 126, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 53, 
-      "from_room": 52
-    }
-  }, 
-  {
-    "pk": 137, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 46, 
-      "from_room": 47
-    }
-  }, 
-  {
-    "pk": 138, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 47, 
-      "from_room": 46
-    }
-  }, 
-  {
-    "pk": 139, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 46, 
-      "from_room": 36
-    }
-  }, 
-  {
-    "pk": 140, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 53, 
-      "from_room": 54
-    }
-  }, 
-  {
-    "pk": 142, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 73, 
-      "from_room": 74
-    }
-  }, 
-  {
-    "pk": 146, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 74, 
-      "from_room": 73
-    }
-  }, 
-  {
-    "pk": 147, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 74, 
-      "from_room": 76
-    }
-  }, 
-  {
-    "pk": 148, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 75, 
-      "from_room": 76
-    }
-  }, 
-  {
-    "pk": 149, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 76, 
-      "from_room": 74
-    }
-  }, 
-  {
-    "pk": 150, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 75, 
-      "from_room": 77
-    }
-  }, 
-  {
-    "pk": 151, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 52, 
-      "from_room": 77
-    }
-  }, 
-  {
-    "pk": 152, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 77, 
-      "from_room": 75
-    }
-  }, 
-  {
-    "pk": 153, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 76, 
-      "from_room": 75
-    }
-  }, 
-  {
-    "pk": 154, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 77, 
-      "from_room": 52
-    }
-  }, 
-  {
-    "pk": 155, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 47, 
-      "from_room": 78
-    }
-  }, 
-  {
-    "pk": 156, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 73, 
-      "from_room": 78
-    }
-  }, 
-  {
-    "pk": 157, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 78, 
-      "from_room": 47
-    }
-  }, 
-  {
-    "pk": 158, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 78, 
-      "from_room": 73
-    }
-  }, 
-  {
-    "pk": 159, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 12, 
-      "from_room": 79
-    }
-  }, 
-  {
-    "pk": 160, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 79, 
-      "from_room": 12
-    }
-  }, 
-  {
-    "pk": 161, 
-    "model": "world.roomconnector", 
-    "fields": {
-      "type": "Normal", 
-      "to_room": 2, 
-      "from_room": 1
-    }
-  }
 ]

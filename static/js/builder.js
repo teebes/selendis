@@ -107,7 +107,7 @@ setup_builder = function () {
     });
  
     $("#create_room").click(function() {
-        create_room($("#create_x").val(), $("#create_y").val());
+        create_room($("#jump_x").val(), $("#jump_y").val());
     });
  
     $("#builder_room_type").change(function () {
