@@ -14,6 +14,24 @@ body { padding-top: 5px; }
     text-decoration: underline;
 }
 
+.clear {
+    clear: both;
+}
+
+.stark_button {
+    display: block;
+    background: #d1d1d1;
+    border: 1px solid #3f3f3f;
+    float: left;
+    font-weight: bold;
+    margin: 5px; 
+    padding: 5px;
+}
+.stark_button:hover { cursor: pointer; }
+
+.inspectable { color: #2970A6; }
+.inspectable:hover { text-decoration: underline; }
+
 #communications {
     background: #ffffff;
     border: 2px solid #000000;

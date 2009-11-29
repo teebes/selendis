@@ -16,48 +16,94 @@ from stark.apps.anima.models import Player, Mob, Message
 ROOM_RANGE = 10
 
 
+def get_item_api(item):
+    contains = []
+    if item.item.capacity:
+        for contained_item in item.owns.all():
+            contains.append({
+                'id': contained_item.id,
+                'type': contained_item.item_type.name,
+                'name': contained_item.item.name,
+            })
+            
+    return {
+        'id': item.id,
+        'type': item.item_type.name,
+        'name': item.item.name,
+        'contains': contains,
+        'capacity': item.item.capacity,
+        'owner_type': item.owner_type.name,
+        'owner_id': item.owner_id
+    }
+
 class ItemHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT')
     model = ItemInstance
 
     def read(self, request, id):
         item = ItemInstance.objects.get(pk=id)
-        return {
-            'id': item.id,
-            'type': item.item_type.name,
-            'name': item.item.name,
-        }
         
+        return get_item_api(item)
 
     def update(self, request, id):
         item = ItemInstance.objects.get(pk=id)
         player = Player.objects.get(status='logged_in', user=request.user)
-        
+
         # update item owner
         try:
             new_owner = ContentType.objects.get(model=request.PUT['owner_type']).model_class().objects.get(pk=request.POST['owner_id'])
-            
-            # Do this if:
-            # - player is a builder or
-            # - player giving to player who are both in the same room or
-            # - player to room if in the same room or
-            # - room to player if in the same room
-            
-            if player.builder_mode or \
-                (item.owner.__class__ is Player and new_owner.__class__ is Player and item.owner.room == new_owner.room) or \
-                (item.owner.__class__ is Player and new_owner.__class__ is Room  and item.owner.room == new_owner) or \
-                (item.owner.__class__ is Room and new_owner.__class__ is Player and item.owner == new_owner.room):
-                    item.owner = new_owner
-                    item.save() # TODO: maybe try removing once super call is in?
-                                
-        #except Exception: pass
-        except Exception, e: print "error: %s" % e
-        
-        return {
-            'id': item.id,
-            'type': item.item_type.name,
-            'name': item.item.name,
-        }
+
+            def save_item():
+                item.owner = new_owner
+                item.save()
+
+            # builder
+            if player.builder_mode:
+                save_item()
+
+            # player to player
+            elif item.owner.__class__ is Player and new_owner.__class__ is Player:
+                # check that both players are the in the same room
+                if item.owner.room == new_owner.room:
+                    save_item()
+
+            # player to room    
+            elif item.owner.__class__ is Player and new_owner.__class__ is Room:
+                # player is in the room
+                if item.owner.room == new_owner: save_item()
+
+            # room to player
+            elif item.owner.__class__ is Room and new_owner.__class__ is Player:
+                # player is in the room
+                if item.owner == new_owner.room: save_item()
+
+            # container to player
+            elif item.owner.__class__ is ItemInstance and new_owner.__class__ is Player:
+                # container is in room
+                if item.owner.owner.__class__ is Room and item.owner.owner == new_owner.room:
+                    save_item()
+
+                # container is in player
+                elif item.owner.owner.__class__ is Player and item.owner.owner == new_owner:
+                    save_item();
+
+            # player to container
+            elif item.owner.__class__ is Player and new_owner.__class__ is ItemInstance:
+                # container is in room
+                if new_owner.owner.__class__ is Room and new_owner.owner == item.owner.room:
+                    save_item();
+
+                # container is in player
+                elif new_owner.owner.__class__ is Player and new_owner.owner == item.owner:
+                    save_item();
+
+            else:
+                return rc.FORBIDDEN
+
+        except Exception, e:
+            print "error: %s" % e
+
+        return get_item_api(item)
 
 
 class RoomHandler(BaseHandler):
@@ -146,19 +192,9 @@ class RoomHandler(BaseHandler):
 
     @classmethod
     def items(self, room):
-        # TODO: ideally, this function should simply be:
-        # return ItemInstance.objects.filter(owner_type__name='room', owner_id=room.id)
-        # since ItemInstance has a defined handler. However, if I do that
-        # django crashes and I can't figure out why for the life of me. As
-        # far as I can tell it's a piston issue...
-        
         result = []
         for i in ItemInstance.objects.filter(owner_type__name='room', owner_id=room.id):
-            result.append({
-                'id': i.id,
-                'type': i.item_type.name,
-                'name': i.item.name,
-            })
+            result.append(get_item_api(i))
         return result
 
     @classmethod
@@ -300,11 +336,7 @@ class PlayerHandler(BaseHandler):
         # refer to RoomHandler.items for explanation for the weirdness below
         result = []
         for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
-            result.append({
-                'id': i.id,
-                'type': i.item_type.name,
-                'name': i.item.name,
-            })
+            result.append(get_item_api(i))
         return result        
 
 class MessageHandler(BaseHandler):

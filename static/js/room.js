@@ -5,13 +5,11 @@ render_room = function() {
     
     $("#room_desc").html(room.description);
     
-    var items = ""
+    $("#room_items").empty();
     $.each(room.items, function() {
-        items += this.name;
-        items += ' [' + this.id + ']';
-        items += " is here<br />";
+        item_link(this).appendTo("#room_items");
     });
-    $("#room_items").html(items);
+    
     
     var players = ""
     $.each(room.player_related, function() {

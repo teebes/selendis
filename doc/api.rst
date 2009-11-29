@@ -98,6 +98,8 @@ Item
   * ``id``: the id of the item
   * ``type``: the type of the item (weapon, requipment, sustenance, misc)
   * ``name``: the name of the item
+  * ``owner_type``: the type of owner of the item (player, mob, room, another item).
+  * ``owner_id``: the id of the owner (within their type)
   
 * PUT arguments:
 

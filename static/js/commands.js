@@ -1,6 +1,17 @@
+// imports:
+//
+// from DOM: document.player
+// from room.js: render_room
+// from data.js: get_map
+// from builder.js: render_builder
+// from player.js: render_profile
+// from builder.js: modify room
+// from communications.js: send_communications
+
 /* utility functions */
 
 move_to = function(x, y) {
+    
     // assume the move went through so that directions can be spammed
     document.player.room.xpos = x;
     document.player.room.ypos = y;
@@ -31,6 +42,23 @@ move_to = function(x, y) {
     });
 }
 
+move_item = function(container, identifier, owner_type, owner_id) {
+    // Moves an item from a container to a new owner, according to a 'keyword'
+    // argument which can be an ID, 'all', or a search word
+
+    $.each(container, function(){
+        if (identifier == 'all'
+            || identifier == this.id
+            || identifier in oc(this.name.split(' '))) {
+            
+            modify_item({id: this.id, owner_type: owner_type, owner_id: owner_id});
+
+            if (identifier != 'all'){ return false; }
+        }
+    });
+
+}
+
 /* bindings & command execution */
 
 setup_commands = function() {
@@ -45,8 +73,13 @@ setup_commands = function() {
     
 }
 
+feedback = function(msg) {
+    $("#input_feedback").show();
+    $("#input_feedback").html(msg);    
+}
+
 process_command = function(command){
-    var t = command.split(' ');
+    var t = tokens = command.split(' '); // t for tokens
     $("#input_feedback").html('');
     $("#input_feedback").hide();
 
@@ -93,54 +126,145 @@ process_command = function(command){
     
     // chat
     else if (first == 'chat') {
-        t.shift();
-        if (t != '') {
-            send_communication('chat', t.join(' '));
+        tokens.shift();
+        if (tokens.length > 0) {
+            send_communication('chat', tokens.join(' '));
+        } else {
+            feedback("Chat syntax: chat msg");
         }
         return
     }
     
-    // get / drop
-    else if (first == 'get' || first == 'drop') {
-        t.shift();
-        if (document.player.room) {
-            var player_items = document.player.items;
-            var room_items = document.player.room.items;
-            
-            var items = null;
-            if (first == 'get') { items = room_items; }
-            else if (first == 'drop') { items = player_items; }
-            
-            $.each(items, function () {
-                split_name = this.name.split(' ');
-                for (var i = 0 ; i < split_name.length ; i++) {
-                    if (t[0] == this.id ||
-                        split_name[i] != 'a' &&
-                        split_name[i] != 'the' &&
-                        split_name[i] == t[0]) {
-                        if (first == 'get') {
-                            modify_item({id: this.id, owner_type: 'player', owner_id: document.player.id});
-                            break;
-                        } else if (first == 'drop') {
-                            modify_item({id: this.id, owner_type: 'room', owner_id: document.player.room.id});
-                            break;
-                        }
+    // ----- get -----------------
+    else if (tokens[0] == 'get') {
+        
+        if (tokens.length == 1) {
+            feedback("Get syntax: get object [container]");
+        }
+        
+        else if (tokens.length == 2) {
+            move_item(document.player.room.items, tokens[1], 'player', document.player.id);
+        }
+
+        
+        else if (tokens.length == 3) {
+            // get in container
+
+            // try the player
+            var found = false;
+            $.each(document.player.items, function() {
+                if (tokens[2] == this.id
+                    || tokens[2] in oc(this.name.split(' '))) {
+                    if (this.capacity > 0) {
+                        move_item(this.contains, tokens[1], 'player', document.player.id);
+                        found = true;
+                        return false;
                     }
                 }
             });
+            
+            // try the room
+            if (!found) { 
+                $.each(document.player.room.items, function() {
+                    if (tokens[2] == this.id
+                        || tokens[2] in oc(this.name.split(' '))) {
+                        if (this.capacity > 0) {
+                            move_item(this.contains, tokens[1], 'player', document.player.id);
+                            return false;
+                        }
+                    }
+                });
+            }
         }
+        
+        return
+    }
+    
+    // ----- put -----------------
+    else if (tokens[0] == 'put') {
+        // put in container
+        if (tokens.length < 3) {
+            feedback('Put syntax: put object container')
+        } else {
+            // try the player
+            var found = false;
+            $.each(document.player.items, function() {
+                if (tokens[2] == this.id
+                    || tokens[2] in oc(this.name.split(' '))) {
+                    if (this.capacity > 0) {
+                        move_item(document.player.items, tokens[1], 'iteminstance', this.id);
+                        found = true;
+                        return false;
+                    }
+                }
+            });
+            
+            // try the room
+            if (!found) {
+                $.each(document.player.room.items, function() {
+                    if (tokens[2] == this.id
+                        || tokens[2] in oc(this.name.split(' '))) {
+                        if (this.capacity > 0) {
+                            move_item(document.player.items, tokens[1], 'iteminstance', this.id);
+                            return false;
+                        }
+                    }
+                });
+            }
+        }
+        return
+        
+    }
+    
+    // ----- drop -----------------
+    else if (tokens[0] == 'drop') {
+        
+        if (tokens.length == 1) {
+            feedback("Drop syntax: drop object");
+            return
+        }
+        
+        move_item(document.player.items, tokens[1], 'room', document.player.room.id);        
+        return
+    }
+    
+    // ----- give --------
+    else if (tokens[0] == 'give') {
+        if (tokens.length < 3) {
+            feedback("Give syntax: give object target");
+        } else {
+            // find the right player
+            var found = false;
+            $.each(document.player.room.player_related, function() {
+                if (tokens[2] == this.name) {
+                    move_item(document.player.items, tokens[1], 'player', this.id);
+                    found = true;
+                    return false;
+                }
+            });
+            
+            // if no player was found, try to find a mob
+            if (!found) {
+                $.each(document.player.room.mob_related, function() {
+                   if (tokens[2] in oc(this.split(' '))) {
+                        move_item(document.player.items, tokens[1], 'mob', this.id);
+                        found = true;
+                        return false;
+                   }
+                });
+            }
+            
+            if (!found) { feedback('give: invalid item or target'); }
+        }
+        
         return
     }
     
     else if (first == 'help') {
-        $("#input_feedback").show();
-        $("#input_feedback").html("Commands: chat north east south west");
+        feedback("Commands: chat north east south west get put drop");
         return
     }
     
-
-    $("#input_feedback").show();
-    $("#input_feedback").html("Invalid command: '" + command + "'");
-
+    feedback("Invalid command: '" + command + "' (try 'help')");
     
 }

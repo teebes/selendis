@@ -24,13 +24,8 @@ render_profile = function() {
     
     $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 
-    var inventory = '';
+    $("#player_inventory").empty();
     $.each(document.player.items, function() {
-        inventory += this.name;
-        if (document.player.builder_mode) {
-            inventory += ' [' + this.id + '] ';
-        }
-        inventory += '<br />';
+        item_link(this).appendTo("#player_inventory");
     });
-    $("#player_inventory").html(inventory);
 }

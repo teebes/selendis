@@ -1,26 +1,38 @@
+<!DOCTYPE html>
 <html>
 <head>
 
-<link rel="stylesheet" href="/static/css/style.css" type="text/css"/>
+<title>Stark - the open visual mud</title>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js"></script>
+<link type="text/css" href="/static/css/style.css" rel="stylesheet"/>
+<link type="text/css" href="http://jqueryui.com/latest/themes/base/ui.all.css" rel="stylesheet" />
 
-<script type="text/javascript" src="/static/js/builder.js"></script>
-<script type="text/javascript" src="/static/js/data.js"></script>
-<script type="text/javascript" src="/static/js/commands.js"></script>
-<script type="text/javascript" src="/static/js/room.js"></script>
-<script type="text/javascript" src="/static/js/communications.js"></script>
-<script type="text/javascript" src="/static/js/player.js"></script>
+<script type="text/javascript" src="http://jqueryui.com/latest/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="http://jqueryui.com/latest/ui/ui.core.js"></script>
+<script type="text/javascript" src="http://jqueryui.com/latest/ui/ui.draggable.js"></script>
+<script type="text/javascript" src="http://jqueryui.com/latest/ui/ui.resizable.js"></script>
+<script type="text/javascript" src="http://jqueryui.com/latest/ui/ui.dialog.js"></script>
 
 <script language="javascript" src="/static/js/lib/processing.js"></script>
-<!--script language="javascript" src="/static/js/lib/init.js"></script-->
+
+<script type="text/javascript" src="/static/js/builder.js"></script>
+<script type="text/javascript" src="/static/js/commands.js"></script>
+<script type="text/javascript" src="/static/js/communications.js"></script>
+<script type="text/javascript" src="/static/js/data.js"></script>
+<script type="text/javascript" src="/static/js/inspect.js"></script>
+<script type="text/javascript" src="/static/js/items.js"></script>
+<script type="text/javascript" src="/static/js/player.js"></script>
+<script type="text/javascript" src="/static/js/room.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
 
 </head>
 <body>
 
 <div id="menu" style="margin: 0 0 5px 5px;">
     Welcome to Stark
-    <a href="http://github.com/teebes/stark/">source code</a> | <a href="http://stark.teebes.com/doc">documentation</a>
+    <a href="http://github.com/teebes/stark/">source code</a>
+    | <a href="http://stark.teebes.com/doc">documentation</a>
+    | <a href="http://github.com/teebes/stark/issues">issues</a>
 </div>
 
 <!-- communications -->
@@ -137,8 +149,13 @@
 
 <div style="clear: both;"></div>
 
+<div id="dialog" title="Dialog Title"></div>
+
+
 <script type='text/javascript'>
 $(document).ready(function(){
+    
+    $("#dialog").dialog({ autoOpen: false });
     
     // initial data
     document.map = [];

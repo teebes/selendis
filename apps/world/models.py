@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
@@ -25,11 +27,9 @@ class Room(models.Model):
                                 through='RoomConnector',
                                 symmetrical=False)
 
-    """
     items = generic.GenericRelation('ItemInstance',
                                     object_id_field='owner_id',
                                     content_type_field='owner_type')
-    """
 
 class BaseItem(models.Model):
     # 
@@ -39,14 +39,33 @@ class BaseItem(models.Model):
     class Meta:
         abstract = True
     
-    container = models.BooleanField(default=False)    
+    capacity = models.IntegerField(default=0)
     name = models.CharField(max_length=40, blank=False)
-    weight = models.IntegerField(default=0)
+    weight = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("0.01"))
     
     def __unicode__(self):
         return "%s" % (self.name)
     
-class Weapon(BaseItem): pass
+WEAPON_CLASSES = (
+    ('short_blade', 'Short Blade'),
+    ('medium_blade', 'Medium Blade'),
+    ('long_blade', 'Long Blade'),
+    ('axe', 'Axe'),
+    ('spear', 'Spear'),
+    ('blunt', 'Blunt'),
+    ('chain', 'Chain'),
+    ('projectile', 'Projectile'),
+)
+    
+class Weapon(BaseItem):
+    # damage is expressed with dice rolls, in the standard form AdX,
+    # A being the number of dice to be rolled
+    # X being the number of faces of the dice
+    num_dice = models.IntegerField(blank=False)
+    num_faces = models.IntegerField(blank=False)
+    weapon_class = models.CharField(max_length=20, choices=WEAPON_CLASSES)
+    two_handed = models.BooleanField(default=False)
+    
 
 class Equipment(BaseItem): pass
 
@@ -63,20 +82,16 @@ class ItemInstance(models.Model):
     owner_type = models.ForeignKey(ContentType, related_name='owner')
     owner_id = models.PositiveIntegerField()
     owner = generic.GenericForeignKey('owner_type', 'owner_id')
-
-    """
-    owns = generic.GenericRelation(
-                    'ItemInstance',
-                    object_id_field='owner_id',
-                    content_type_field='owner_type')
-    """
+    owns = generic.GenericRelation('ItemInstance',
+                                   object_id_field='owner_id',
+                                   content_type_field='owner_type')
 
     # which of the four item types this item is an instance of
     item_type = models.ForeignKey(ContentType, related_name='item')
     item_id = models.PositiveIntegerField()
     item = generic.GenericForeignKey('item_type', 'item_id')
 
-
+    """
     # the container of the item, if applicable
     container_type = models.ForeignKey(ContentType,
                                        blank=True,
@@ -89,9 +104,15 @@ class ItemInstance(models.Model):
                         'ItemInstance',
                         object_id_field='container_id',
                         content_type_field='container_type')
+    """
     
     def __unicode__(self):
-        #if self.owner:
-        #    return u"%s, carried by %s" % (self.item.name, self.owner.name)
-        #else:
-            return u"%s" % (self.item.name)
+        # items carried by players / mobs
+        if self.owner_type.name in ('player', 'mob'):
+            return u"%s, carried by %s" % (self.item.name, self.owner.name)
+
+        # items in containers
+        elif self.owner_type.name == 'item instance':
+            return u"%s, contained by %s #%s" % (self.item.name, self.owner.item.name, self.owner.id)
+
+        return u"%s" % (self.item.name)

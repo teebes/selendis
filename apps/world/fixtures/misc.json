@@ -1,0 +1,11 @@
+[
+    {
+        "pk": 1, 
+        "model": "world.misc", 
+        "fields": {
+            "capacity": 2000, 
+            "name": "the weapons rack", 
+            "weight": "0.01"
+        }
+    }
+]
