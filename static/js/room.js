@@ -10,10 +10,11 @@ render_room = function() {
         item_link(this).appendTo("#room_items");
     });
     
-    
     var players = ""
     $.each(room.player_related, function() {
-        players += this.name + " is here<br />";
+        if (this.name != document.player.name) {
+            players += this.name + " is here<br />";
+        }
     });
     $("#room_players").html(players);
     

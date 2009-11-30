@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 
-from stark.apps.world.constants import CONNECTOR_TYPES, DIRECTIONS, ROOM_TYPES
+from stark.apps.world.constants import CONNECTOR_TYPES, DIRECTIONS, ROOM_TYPES, WEAPON_CLASSES
     
 class RoomConnector(models.Model):
     from_room = models.ForeignKey('Room', related_name='from_room')
@@ -16,6 +16,7 @@ class Room(models.Model):
     xpos = models.IntegerField(blank=False)
     ypos = models.IntegerField(blank=False)
     title = models.CharField(max_length=80, blank=False)
+    name = models.CharField(max_length=80, blank=False)
     description = models.TextField()
     type = models.CharField(max_length=20, choices=ROOM_TYPES)
     
@@ -46,17 +47,6 @@ class BaseItem(models.Model):
     def __unicode__(self):
         return "%s" % (self.name)
     
-WEAPON_CLASSES = (
-    ('short_blade', 'Short Blade'),
-    ('medium_blade', 'Medium Blade'),
-    ('long_blade', 'Long Blade'),
-    ('axe', 'Axe'),
-    ('spear', 'Spear'),
-    ('blunt', 'Blunt'),
-    ('chain', 'Chain'),
-    ('projectile', 'Projectile'),
-)
-    
 class Weapon(BaseItem):
     # damage is expressed with dice rolls, in the standard form AdX,
     # A being the number of dice to be rolled
@@ -75,8 +65,8 @@ class Misc(BaseItem): pass
 
 class ItemInstance(models.Model):
     # these are the true physical objects that players can hold in their
-    # inventory, equip, eat, etc. Each instance is of one of the four basic
-    # item types
+    # inventory, equip, eat, etc. Each instance is of an item of the four basic
+    # types
     
     # the player, mob or room currently holding the item
     owner_type = models.ForeignKey(ContentType, related_name='owner')
@@ -86,33 +76,22 @@ class ItemInstance(models.Model):
                                    object_id_field='owner_id',
                                    content_type_field='owner_type')
 
-    # which of the four item types this item is an instance of
-    item_type = models.ForeignKey(ContentType, related_name='item')
-    item_id = models.PositiveIntegerField()
-    item = generic.GenericForeignKey('item_type', 'item_id')
-
-    """
-    # the container of the item, if applicable
-    container_type = models.ForeignKey(ContentType,
-                                       blank=True,
-                                       null=True,
-                                       related_name='container')
-    container_id = models.PositiveIntegerField(blank=True, null=True)
-    container = generic.GenericForeignKey('container_type', 'container_id')
-    
-    contains = generic.GenericRelation(
-                        'ItemInstance',
-                        object_id_field='container_id',
-                        content_type_field='container_type')
-    """
+    # which item this instance is derived from
+    base_type = models.ForeignKey(ContentType, related_name='base')
+    base_id = models.PositiveIntegerField()
+    base = generic.GenericForeignKey('base_type', 'base_id')
     
     def __unicode__(self):
         # items carried by players / mobs
         if self.owner_type.name in ('player', 'mob'):
-            return u"%s, carried by %s" % (self.item.name, self.owner.name)
+            return u"%s, carried by %s" % (self.base.name, self.owner.name)
+
+        # item lying in room
+        elif self.owner_type.name == 'room':
+            return u"%s, on the ground in %s" % (self.base.name, self.owner.name)
 
         # items in containers
         elif self.owner_type.name == 'item instance':
-            return u"%s, contained by %s #%s" % (self.item.name, self.owner.item.name, self.owner.id)
+            return u"%s, contained by %s #%s" % (self.base.name, self.owner_type.name, self.owner.id)
 
-        return u"%s" % (self.item.name)
+        return u"%s" % (self.base.name)

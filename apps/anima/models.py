@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,7 +8,7 @@ from django.contrib.contenttypes import generic
 from django.db import models
 
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
-from stark.apps.world.models import Room, RoomConnector
+from stark.apps.world.models import Room, RoomConnector, ItemInstance
 
 MOVE_COST = 2 #TODO: move to global config
 
@@ -27,14 +28,19 @@ class Anima(models.Model):
     sp = models.IntegerField(default=10)
     max_sp = models.IntegerField(default=10)
     
+    main_hand = models.ForeignKey(ItemInstance, blank=True, null=True)
+    
+    target_type = models.ForeignKey(ContentType, blank=True, null=True)
+    target_id = models.PositiveIntegerField(blank=True, null=True)
+    target = generic.GenericForeignKey('target_type', 'target_id')
+    
     class Meta:
         abstract = True                
+
+    def notify(self, msg):
+        Message.objects.create(type='notification', destination=self.name, content=msg)
     
-    def move(self, to_room=None, random=False):
-        # for now assumes that, if passed, to_room is a valid room and that a
-        # valid adjacent room exists if random is passed as True
-        # TODO: ^ this should probably be changed to better handling
-        
+    def move(self, to_room=None, random=False):        
         if random:
             connector = RoomConnector.objects.filter(from_room=self.room).order_by('?')[0]
             to_room = connector.to_room
@@ -61,12 +67,11 @@ class Anima(models.Model):
         
         # tell every player in the room the anima was in that it's gone
         for player in Player.objects.filter(room=from_room, status='logged_in'):
-            Message.objects.create(
-                type = 'notification',
-                created = datetime.datetime.now(),
-                destination = player.name,
-                content = "%s leaves %s." % (self.name, connector.direction)
-            )
+                Message.objects.create(
+                    type = 'notification',
+                    destination = player.name,
+                    content = "%s leaves %s." % (self.name, connector.direction),
+                )
         
         rev_direction = None
         if connector.direction == 'north': rev_direction = 'south'
@@ -79,16 +84,115 @@ class Anima(models.Model):
         # performing the action
         for player in Player.objects.filter(room=to_room, status='logged_in'):
             if player == self:
-                content = "You leave %s" % connector.direction
+                Message.objects.create(
+                    type = 'notification',
+                    destination = player.name,
+                    content = "You leave %s" % connector.direction,
+                )
             else:
-                content = "%s has arrived from the %s." % (self.name, rev_direction)
-            Message.objects.create(
-                type = 'notification',
-                created = datetime.datetime.now(),
-                destination = player.name,
-                content = content #"%s has arrived from the %s." % (self.name, rev_direction),
-            )
+                Message.objects.create(
+                    type = 'notification',
+                    destination = player.name,
+                    content = "%s has arrived from the %s." % (self.name, rev_direction),
+                )                
     
+    def give_item(self, item, give_to):
+        
+        if item.owner.room != give_to.room:
+            stark_log = logging.getLogger('StarkLogger')
+            message = "%s can't give item %s to %s because they aren't in the same room" % (self.name, item.name, give_to.name)
+            stark_log.debug(message)
+            raise Exception(message)
+
+        item.owner = give_to
+        item.save()
+
+        for player in self.room.player_related.all():
+            if player == self:
+                Message.objects.create(type='notification', destination=self.name, content="You give %s to %s." % (item.base.name, give_to.name))
+            elif player == give_to:
+                Message.objects.create(type='notification', destination=give_to.name, content="%s gives you %s." % (self.name, item.base.name))
+            else:
+                Message.objects.create(type='notification', destination=player.name, content="%s gives %s to %s" % (self.name, item.base.name, give_to.name))
+
+    def drop_item(self, item):
+        item.owner = self.room
+        item.save()
+        for player in self.room.player_related.all():
+            if player == self:
+                Message.objects.create(type='notification', destination=self.name, content="You drop %s." % item.base.name)
+            else:
+                Message.objects.create(type='notification', destination=player.name, content="%s drops %s." % (self.name, item.base.name))
+
+    def get_item(self, item):
+        if item.owner != self.room:
+            stark_log = logging.getLogger('StarkLogger')
+            message = "%s can't get item %s because they're in different rooms" % (self.name, item.name)
+            stark_log.debug(message)
+            raise Exception(message)
+
+        item.owner = self
+        item.save()
+        
+        for player in self.room.player_related.all():
+            if player == self:
+                Message.objects.create(type='notification', destination=self.name, content="You get %s." % item.base.name)
+            else:
+                Message.objects.create(type='notification', destination=player.name, content="%s gets %s." % (self.name, item.base.name))
+
+    def get_item_from_container(self, item):
+        # container is in player or in player's room
+        if (item.owner.owner.__class__ is Room and item.owner.owner == self.room) or \
+           (item.owner.owner.__class__ is Player and item.owner.owner == self):
+                        
+            for player in self.room.player_related.all():
+                if player == self:
+                    Message.objects.create(type='notification', destination=self.name, content="You get %s from %s." % (item.base.name, item.owner.base.name))
+                else:
+                    Message.objects.create(type='notification', destination=player.name, content="%s gets %s from %s." % (self.name, item.base.name, item.owner.base.name))
+
+            item.owner = self
+            item.save()
+
+        else:
+            stark_log = logging.getLogger('StarkLogger')
+            message = "%s can't get item %s from container %s because they're in different rooms" % (self.name, item.name, item.owner.name)
+            stark_log.debug(message)
+            raise Exception(message)
+
+    def put_item_in_container(self, item, container):
+        # container is in the room
+        if (container.owner.__class__ is Room and container.owner == item.owner.room) or \
+           (container.owner.__class__ is Player and container.owner == item.owner):
+            
+                for player in self.room.player_related.all():
+                    if player == self:
+                        Message.objects.create(type='notification', destination=self.name, content="You put %s in %s." % (item.base.name, container.base.name))
+                    else:
+                        Message.objects.create(type='notification', destination=player.name, content="%s puts %s in %s." % (self.name, item.base.name, container.base.name))
+            
+                item.owner = container
+                item.save()
+
+        else:
+            stark_log = logging.getLogger('StarkLogger')
+            message = "%s can't put item %s in container %s because they're in different rooms" % (self.name, item.base.name, container.base.name)
+            stark_log.debug(message)
+            raise Exception(message)
+        
+
+    def engage(self, target_type, target_id):
+        not_here = "No-one by that name."
+        try:
+            target = ContentType.objects.get(model=target_type).model_class().objects.get(pk=target_id)
+            if self.room != target.room:
+                self.notify(not_here)
+
+            self.target = target
+            self.save()
+        except Exception:
+            self.notify(not_here)
+
     def save(self, *args, **kwargs):
         if not hasattr(self, 'room'):
             try:
@@ -126,6 +230,10 @@ class Message(models.Model):
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     author = generic.GenericForeignKey('content_type', 'object_id')
+    
+    def __init__(self, *args, **kwargs):
+        super(Message, self).__init__(*args, **kwargs)
+        self.created = datetime.datetime.now()
     
     def __unicode__(self):
         return u"%s: %s" % (self.author, self.content)

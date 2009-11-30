@@ -18,20 +18,20 @@ ROOM_RANGE = 10
 
 def get_item_api(item):
     contains = []
-    if item.item.capacity:
+    if item.base.capacity:
         for contained_item in item.owns.all():
             contains.append({
                 'id': contained_item.id,
-                'type': contained_item.item_type.name,
-                'name': contained_item.item.name,
+                'type': contained_item.base_type.name,
+                'name': contained_item.base.name,
             })
             
     return {
         'id': item.id,
-        'type': item.item_type.name,
-        'name': item.item.name,
+        'type': item.base_type.name,
+        'name': item.base.name,
         'contains': contains,
-        'capacity': item.item.capacity,
+        'capacity': item.base.capacity,
         'owner_type': item.owner_type.name,
         'owner_id': item.owner_id
     }
@@ -53,55 +53,38 @@ class ItemHandler(BaseHandler):
         try:
             new_owner = ContentType.objects.get(model=request.PUT['owner_type']).model_class().objects.get(pk=request.POST['owner_id'])
 
-            def save_item():
-                item.owner = new_owner
-                item.save()
-
-            # builder
-            if player.builder_mode:
-                save_item()
-
             # player to player
-            elif item.owner.__class__ is Player and new_owner.__class__ is Player:
-                # check that both players are the in the same room
-                if item.owner.room == new_owner.room:
-                    save_item()
+            if item.owner.__class__ is Player and new_owner.__class__ is Player:
+                player.give_item(item, new_owner)
 
-            # player to room    
+            # player to room
             elif item.owner.__class__ is Player and new_owner.__class__ is Room:
-                # player is in the room
-                if item.owner.room == new_owner: save_item()
+                player.drop_item(item)
 
             # room to player
             elif item.owner.__class__ is Room and new_owner.__class__ is Player:
-                # player is in the room
-                if item.owner == new_owner.room: save_item()
+                player.get_item(item)
 
             # container to player
             elif item.owner.__class__ is ItemInstance and new_owner.__class__ is Player:
-                # container is in room
-                if item.owner.owner.__class__ is Room and item.owner.owner == new_owner.room:
-                    save_item()
-
-                # container is in player
-                elif item.owner.owner.__class__ is Player and item.owner.owner == new_owner:
-                    save_item();
+                player.get_item_from_container(item)
 
             # player to container
             elif item.owner.__class__ is Player and new_owner.__class__ is ItemInstance:
-                # container is in room
-                if new_owner.owner.__class__ is Room and new_owner.owner == item.owner.room:
-                    save_item();
+                player.put_item_in_container(item, new_owner)
 
-                # container is in player
-                elif new_owner.owner.__class__ is Player and new_owner.owner == item.owner:
-                    save_item();
+            elif player.builder_mode:
+                item.owner = new_owner
+                item.save()
 
             else:
                 return rc.FORBIDDEN
 
         except Exception, e:
-            print "error: %s" % e
+            print e
+            response = rc.BAD_REQUEST
+            response.write(": %s" % e)
+            return response
 
         return get_item_api(item)
 
@@ -323,6 +306,15 @@ class PlayerHandler(BaseHandler):
                 
                 player.move(connector.to_room)
 
+            except Exception, e:
+                print e
+                response = rc.BAD_REQUEST
+                response.write(": %s" % e)
+                return response
+
+        if request.PUT.has_key('target_type') and request.PUT.has_key('target_id'):
+            try:
+                player.engage(request.PUT['target_type'], request.PUT['target_id'])
             except Exception, e:
                 print e
                 response = rc.BAD_REQUEST

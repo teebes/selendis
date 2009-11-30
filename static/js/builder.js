@@ -3,7 +3,7 @@
 create_room = function(x, y) {
     $.ajax({
         type: "POST",
-        url: "/api/world/rooms/create/",
+        url: "/api/rooms/create/",
         data: { xpos: x, ypos: y }
     /*dataType: "json",
     success: function(room) { }*/
@@ -13,7 +13,7 @@ create_room = function(x, y) {
 modify_room = function(data) {
     $.ajax({
         type: "PUT",
-        url: "/api/world/rooms/" + data.id + ".json",
+        url: "/api/rooms/" + data.id + ".json",
         data: data,
         dataType: "json",
         success: function(room) {
@@ -27,22 +27,10 @@ modify_room = function(data) {
 delete_room = function(data) {
     $.ajax({
         type: "DELETE",
-        url: "api/world/rooms/" + data.id + ".json",
+        url: "api/rooms/" + data.id + ".json",
         dataType: "json"
     });
 }
-
-// -- Items --
-
-modify_item = function(data) {
-    $.ajax({
-        type: "PUT",
-        url: "/api/world/items/" + data.id + ".json",
-        data: data,
-        dataType: "json",
-    });
-}
-
 
 render_builder = function() {
     $("#builder_box").show();

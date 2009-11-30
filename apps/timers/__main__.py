@@ -6,9 +6,10 @@ if __name__ == "__main__":
 
     import time
 
-    from stark.apps.timers.events import Tick, CleanUp
+    from stark.apps.timers.events import CleanUp, Combat, Tick
 
     events = [
+        Combat(1),
         Tick(10),
         CleanUp(30),
     ]

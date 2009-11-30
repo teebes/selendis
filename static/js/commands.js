@@ -5,10 +5,16 @@
 // from data.js: get_map
 // from builder.js: render_builder
 // from player.js: render_profile
-// from builder.js: modify room
+// from builder.js: modify_room
+// from item.js: modify_item
 // from communications.js: send_communications
 
 /* utility functions */
+
+feedback = function(msg) {
+    $("#input_feedback").show();
+    $("#input_feedback").html(msg);    
+}
 
 move_to = function(x, y) {
     
@@ -36,8 +42,7 @@ move_to = function(x, y) {
             split_resp.shift(); // this pops for example 'BAD REQUEST'
             var processed_response = split_resp.join(':');
             
-            $("#input_feedback").show();
-            $("#input_feedback").html(processed_response);            
+            feedback(processed_response);
         }
     });
 }
@@ -71,11 +76,6 @@ setup_commands = function() {
     $("#move_south").click(function () { process_command('south'); });
     $("#move_west").click(function () { process_command('west'); });
     
-}
-
-feedback = function(msg) {
-    $("#input_feedback").show();
-    $("#input_feedback").html(msg);    
 }
 
 process_command = function(command){
@@ -257,6 +257,35 @@ process_command = function(command){
             if (!found) { feedback('give: invalid item or target'); }
         }
         
+        return
+    }
+    
+    // ----- kill -----------------
+    else if (tokens[0] == 'kill') {
+        if (tokens.length > 2) {
+            feedback('')
+        } else {
+            $.each(document.player.room.player_related, function() {
+                if (this.name != document.player.name && (this.id == tokens[1] || this.name == tokens[1])) {
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/players/me.json",
+                        data: { target_type: 'player', target_id: this.id },
+                        dataType: "json"
+                    });
+                }
+            });
+            $.each(document.player.room.mob_related, function() {
+                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
+                    $.ajax({
+                        type: "PUT",
+                        url: "/api/players/me.json",
+                        data: { target_type: 'mob', target_id: this.id },
+                        dataType: "json"
+                    });
+                }
+            });
+        }
         return
     }
     

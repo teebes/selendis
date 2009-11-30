@@ -6,7 +6,8 @@ import random
 from django.db import transaction
 
 from stark.apps.anima.models import Mob, Player, Message
-from stark.apps.world.models import RoomConnector
+
+from stark.apps.world.models import RoomConnector, Room
 
 # base event class
 class PeriodicEvent(object):
@@ -35,7 +36,6 @@ class Tick(PeriodicEvent):
         # move mobs
         for mob in Mob.objects.filter(static=False):
             if random.randint(0, 10) == 0:
-                print 'moving %s' % mob.name
                 mob.move(random=True)
     
     @transaction.commit_on_success
@@ -58,7 +58,43 @@ class Tick(PeriodicEvent):
         self.log('tick @ %s' % self.last_executed)
         
         return
+
+class Combat(PeriodicEvent):
     
+    @transaction.commit_on_success
+    def combat_round(self):
+        for player in Player.objects.filter(status='logged_in', target_type__isnull=False):
+            print player.name
+            damage = 1
+            player.target.hp -= damage
+            player.target.save()
+            
+            for room_player in player.room.player_related.all():
+                room_player.notify("%s hits %s!" % (player.name, player.target.name))
+            
+            if player.target.hp <= 0:
+                # target is dead
+                
+                for room_player in player.room.player_related.all():
+                    if room_player == player.target:
+                        content = "You are dead! sorry..."
+                    else:
+                        content = "%s is dead!" % player.target.name
+                    Message.objects.create(type='notification', destination=room_player.name, content=content)
+                
+                player.target.room = Room.objects.get(pk=1)
+                player.target.hp = 10
+                player.target.save()
+                
+                player.target = None
+                player.save()
+
+    
+    def execute(self):
+        super(Combat, self).execute()
+        self.combat_round()
+        return
+
 class CleanUp(PeriodicEvent):
     
     @transaction.commit_on_success
