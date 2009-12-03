@@ -262,8 +262,8 @@ process_command = function(command){
     
     // ----- kill -----------------
     else if (tokens[0] == 'kill') {
-        if (tokens.length > 2) {
-            feedback('')
+        if (tokens.length < 2) {
+            feedback('Syntax: kill target')
         } else {
             $.each(document.player.room.player_related, function() {
                 if (this.name != document.player.name && (this.id == tokens[1] || this.name == tokens[1])) {
@@ -285,9 +285,24 @@ process_command = function(command){
                     });
                 }
             });
+        }        
+        return
+    }
+    
+    // ----- wield -----------------
+    else if (tokens[0] == 'wield') {
+        if (tokens.length < 2) {
+            feedback('Syntax: wield weapon')
+        } else {
+            $.each(document.player.items, function() {
+                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
+                    modify_player({main_hand: this.id});
+                }
+            });
         }
         return
     }
+    
     
     else if (first == 'help') {
         feedback("Commands: chat north east south west get put drop");

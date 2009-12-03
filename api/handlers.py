@@ -270,6 +270,7 @@ class PlayerHandler(BaseHandler):
         'items',
         'mp',
         'max_mp',
+        'main_hand',
     )
 
     def read(self, request, id=None):
@@ -320,6 +321,11 @@ class PlayerHandler(BaseHandler):
                 response = rc.BAD_REQUEST
                 response.write(": %s" % e)
                 return response
+
+        print request.PUT
+
+        if request.PUT.get('main_hand'):
+            player.wield(ItemInstance.objects.get(pk=request.PUT['main_hand']))
 
         return player
 

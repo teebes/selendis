@@ -35,7 +35,7 @@ class Anima(models.Model):
     target = generic.GenericForeignKey('target_type', 'target_id')
     
     class Meta:
-        abstract = True                
+        abstract = True
 
     def notify(self, msg):
         Message.objects.create(type='notification', destination=self.name, content=msg)
@@ -180,6 +180,11 @@ class Anima(models.Model):
             stark_log.debug(message)
             raise Exception(message)
         
+
+    def wield(self, weapon):
+        #if weapon.base.__class__ != "weapon":
+        #    raise Exception("You cannot wield %s" % weapon.name)
+        print 'in wield'
 
     def engage(self, target_type, target_id):
         not_here = "No-one by that name."
