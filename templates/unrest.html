@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript"
+        src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js" >
+</script>
+</head>
+<body>
+
+<p>url: <input type='text' id="url"/></p>
+
+<p>type:
+    <select id="request_type">
+        <option value="GET">GET</option>
+        <option value="PUT">PUT</option>
+        <option value="POST">POST</option>
+        <option value="DELETE">DELETE</option>
+    </select>
+</p>
+
+<p><input type='text' id="data" /></p>
+
+<p><input type='submit' id="unrest_button"/></p>
+
+<div id="response"
+     style="border-top: 1px solid #000000; display: none; width: 600px;">
+
+    <p>The request came back in <span id="speed" style="font-weight: bold;"/>
+    ms, and returned:</p>
+    
+    <div id="response_msg"></div>
+    
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    
+    $("#unrest_button").click(function() {
+        // get the request type
+        var url = $("#url").val();
+        var type = $("#request_type").val();
+        var data = $("#data").val();
+        
+  	var start = new Date();
+  	start = Number(start.getTime());        
+        
+        $.ajax({
+                url: url,
+                type: type,
+                data: data,
+                success: function(msg) {
+                    
+                    $("#response").show();
+                    
+                    var end = new Date();
+                    end = Number(end.getTime());
+                    $("#speed").html((end - start) + " ms");
+
+                    $("#response_msg").html(msg);
+                }
+        });
+        
+    });
+    
+});
+</script>
+    
+</body>
+</html>

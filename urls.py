@@ -25,6 +25,7 @@ urlpatterns = patterns('',
     
     (r'^quick/$', 'stark.views.quick'),
     (r'^ping/$', 'django.views.generic.simple.direct_to_template', {'template': 'ping.html'}),
+    (r'^unrest/$', 'django.views.generic.simple.direct_to_template', {'template': 'unrest.html'}),
 )
 
 if settings.DEBUG:
