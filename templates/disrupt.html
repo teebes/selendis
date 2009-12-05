@@ -18,7 +18,17 @@
     </select>
 </p>
 
-<p><input type='text' id="data" /></p>
+</p>Add data to the request:</p>
+
+<div class='data'>
+  <input type='text' class='name' />
+  <input type='text' class='value' />
+</div>
+
+<div class='data'>
+  <input type='text' class='name' />
+  <input type='text' class='value' />
+</div>
 
 <p><input type='submit' id="unrest_button"/></p>
 
@@ -40,7 +50,10 @@ $(document).ready(function(){
         // get the request type
         var url = $("#url").val();
         var type = $("#request_type").val();
-        var data = $("#data").val();
+        $('.data').each(function () {
+            alert($(this).children('.name').val());
+        });
+        //var data = eval($("#data").val());
         
   	var start = new Date();
   	start = Number(start.getTime());        
@@ -48,7 +61,7 @@ $(document).ready(function(){
         $.ajax({
                 url: url,
                 type: type,
-                data: data,
+                //data: data,
                 success: function(msg) {
                     
                     $("#response").show();
