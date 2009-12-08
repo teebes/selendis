@@ -20,6 +20,12 @@ Requirements
  
 You need django and django-piston installed (links above). There are right now no other requirements and as much as possible I'd like to keep it that way.
  
+**Important note**: At time of this writing, you need at least piston 0.2.3rc1 in order for it to work with the latest Django builds. That's more recent than the "latest release" links on bitbucket so be sure to checkout straight form the mercurial repo:
+
+::
+
+  $ hg clone http://bitbucket.org/jespern/django-piston/
+ 
 Installation
 ============
  
@@ -43,10 +49,19 @@ This is a full django project, it can't just be installed as an app. Maybe once 
 
   $ python apps/timer
   
+* If this is your first time trying out Stark, you should seriously consider loading the demo data to get a feel for what the world can be like.
+  
 Demo Data
 =========
 
 There are two fixtures with a (very) basic world:
 
-* ``api/apps/anima/fixtures/demo_data.json`` for players & mobs
 * ``api/apps/world/fixtures/demo_data.json`` for rooms & connectors
+* ``api/apps/anima/fixtures/demo_data.json`` for players & mobs
+
+::
+
+  $ python manage.py loaddata apps/world/fixtures/demo_data.json
+  $ python manage.py loaddata apps/anima/fixtures/demo_data.json
+  
+**Note**: Although I've tested loading the anima data first and the world data second with sqlite and it worked, I have no idea of why, and it shouldn't. I'm attributing it to sqlite3 magic and I definitely recommend loading world first and anima second.

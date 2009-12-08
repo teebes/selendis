@@ -3,5 +3,4 @@
 .DS_Store
 *.kpf
 db
-logs/*
 doc/_build/
