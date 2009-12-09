@@ -73,9 +73,9 @@ render_builder = function() {
     // room types
     $.each($("#builder_room_type").children(), function() {
         if ($(this).attr('value') == document.player.room.type) {
-            $(this).attr('selected', true)
+            $(this).attr('selected', true);
         }
-    })
+    });
     
     // jump to
     $("#jump_x").val(document.player.room.xpos);
@@ -99,9 +99,9 @@ setup_builder = function () {
     });
  
     $("#builder_room_type").change(function () {
-        var data = {}
+        var data = {};
         data['type'] = $(this).val();
-        data['id'] = document.player.room.id
+        data['id'] = document.player.room.id;
         modify_room(data);
     });
     

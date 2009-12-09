@@ -348,7 +348,7 @@ class MessageHandler(BaseHandler):
         
         messages = []
 
-        for message in Message.objects.filter(type='chat').order_by('-created')[:10]:
+        for message in Message.objects.filter(type='chat').order_by('created')[:10]:
             messages.append(message)
 
         for message in Message.objects.filter(type='notification', destination=player.name).order_by('created'):
