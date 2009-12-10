@@ -8,7 +8,7 @@ from django.contrib.contenttypes import generic
 from django.db import models
 
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Equipment
 
 MOVE_COST = 2 #TODO: move to global config
 
@@ -136,9 +136,9 @@ class Anima(models.Model):
         
         for player in self.room.player_related.all():
             if player == self:
-                Message.objects.create(type='notification', destination=self.name, content="You get %s." % item.base.name)
+                self.notify("You get %s." % item.base.name)
             else:
-                Message.objects.create(type='notification', destination=player.name, content="%s gets %s." % (self.name, item.base.name))
+                player.notify("%s gets %s." % (self.name, item.base.name))
 
     def get_item_from_container(self, item):
         # container is in player or in player's room
@@ -147,16 +147,19 @@ class Anima(models.Model):
                         
             for player in self.room.player_related.all():
                 if player == self:
-                    Message.objects.create(type='notification', destination=self.name, content="You get %s from %s." % (item.base.name, item.owner.base.name))
+                    self.notify("You get %s from %s." % \
+                                (item.base.name, item.owner.base.name))
                 else:
-                    Message.objects.create(type='notification', destination=player.name, content="%s gets %s from %s." % (self.name, item.base.name, item.owner.base.name))
+                    player.notify("%s gets %s from %s." % \
+                                  (self.name, item.base.name, item.owner.base.name))
 
             item.owner = self
             item.save()
 
         else:
             stark_log = logging.getLogger('StarkLogger')
-            message = "%s can't get item %s from container %s because they're in different rooms" % (self.name, item.name, item.owner.name)
+            message = "%s can't get item %s from container %s because they're in different rooms" % \
+                      (self.name, item.name, item.owner.name)
             stark_log.debug(message)
             raise Exception(message)
 
@@ -167,37 +170,60 @@ class Anima(models.Model):
             
                 for player in self.room.player_related.all():
                     if player == self:
-                        Message.objects.create(type='notification', destination=self.name, content="You put %s in %s." % (item.base.name, container.base.name))
+                        self.notify("You put %s in %s." % \
+                                    (item.base.name, container.base.name))
                     else:
-                        Message.objects.create(type='notification', destination=player.name, content="%s puts %s in %s." % (self.name, item.base.name, container.base.name))
+                        player.notify(content="%s puts %s in %s." % \
+                            (self.name, item.base.name, container.base.name))
             
                 item.owner = container
                 item.save()
 
         else:
             stark_log = logging.getLogger('StarkLogger')
-            message = "%s can't put item %s in container %s because they're in different rooms" % (self.name, item.base.name, container.base.name)
+            message = "%s can't put item %s in container %s because they're in different rooms" % \
+                      (self.name, item.base.name, container.base.name)
             stark_log.debug(message)
             raise Exception(message)
+
+    def wear(self, item, slot, remove_msg=None, error_msg=None, wear_msg=None):
+        worn_item = getattr(self, slot)
         
+        # item passed is null, empty the specified slot
+        if not item: # remove the item
+            setattr(self, slot, None)
+            self.save()
+            if not remove_msg:
+                remove_msg = "You remove %s" % worn_item.base.name
+            self.notify(remove_msg)
+        
+        # an item is already on that slot
+        elif getattr(self, slot): # something already on that slot
+            if not error_msg:
+                error_msg = "You are already wearing something on your %s" \
+                            % item.base.name
+            self.notify(error_msg)
+        
+        # we're good to go, wear the item
+        else:
+            setattr(self, slot, item)
+            self.save()
+            if not wear_msg:
+                wear_msg = "You wear %s" % item.base.name
+            self.notify(wear_msg)
 
     def wield(self, weapon):
-        try:
-            if weapon.base.__class__ is not Weapon:
-                self.notify("You cannot wield %s" % weapon.base.name)
-                raise Exception("You cannot wield %s" % weapon.base.name)
-            
-            self.main_hand = weapon
-            self.save()
-            self.notify("You wield %s" % weapon.base.name)
-            
-        except Exception, e:
-            print "exception: %s" % e
+        self.wear(
+                weapon,
+                'main_hand',
+                wear_msg = "You wield %s" % weapon.base.name,
+        )
 
     def engage(self, target_type, target_id):
         not_here = "No-one by that name."
         try:
-            target = ContentType.objects.get(model=target_type).model_class().objects.get(pk=target_id)
+            target_type = ContentType.objects.get(model=target_type)
+            target = target_type.model_class().objects.get(pk=target_id)
             if self.room != target.room:
                 self.notify(not_here)
 

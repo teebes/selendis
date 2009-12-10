@@ -17,6 +17,8 @@ ROOM_RANGE = 10
 
 
 def get_item_api(item):
+    if not item:
+        return None
     contains = []
     if item.base.capacity:
         for contained_item in item.owns.all():
@@ -273,10 +275,6 @@ class PlayerHandler(BaseHandler):
         'main_hand',
     )
 
-    @classmethod
-    def main_hand(self, player):
-        return get_item_api(player.main_hand)
-
     def read(self, request, id=None):
         if id == 'me':
             player = Player.objects.get(user=request.user, status='logged_in')
@@ -329,7 +327,12 @@ class PlayerHandler(BaseHandler):
         print request.PUT
 
         if request.PUT.get('main_hand'):
-            player.wield(ItemInstance.objects.get(pk=request.PUT['main_hand']))
+            try:
+                item = ItemInstance.objects.get(pk=request.PUT['main_hand'])
+            except ItemInstance.DoesNotExist:
+                item = None
+            
+            player.wield(item)
 
         return player
 
@@ -340,6 +343,11 @@ class PlayerHandler(BaseHandler):
         for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
             result.append(get_item_api(i))
         return result        
+
+    @classmethod
+    def main_hand(self, player):
+        #return None
+        return get_item_api(player.main_hand)
 
 class MessageHandler(BaseHandler):
     allowed_methods = ('GET', 'POST')
