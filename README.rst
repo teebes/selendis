@@ -59,9 +59,6 @@ There are two fixtures with a (very) basic world:
 * ``api/apps/world/fixtures/demo_data.json`` for rooms & connectors
 * ``api/apps/anima/fixtures/demo_data.json`` for players & mobs
 
-::
+You can load them with: ::
 
-  $ python manage.py loaddata apps/world/fixtures/demo_data.json
-  $ python manage.py loaddata apps/anima/fixtures/demo_data.json
-  
-**Note**: Although I've tested loading the anima data first and the world data second with sqlite and it worked, I have no idea of why, and it shouldn't. I'm attributing it to sqlite3 magic and I definitely recommend loading world first and anima second.
+  $ python manage.py loaddata demo_data

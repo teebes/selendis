@@ -24,6 +24,15 @@ render_profile = function() {
     
     $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 
+    // main hand
+    var main_hand = null;
+    if (document.player.main_hand) {
+        main_hand = document.player.main_hand.name;
+    } else {
+        main_hand = "&lt;empty&gt;";
+    }
+    $("#player_main_hand").html(main_hand);
+
     $("#player_inventory").empty();
     $.each(document.player.items, function() {
         item_link(this).appendTo("#player_inventory");

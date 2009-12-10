@@ -273,6 +273,10 @@ class PlayerHandler(BaseHandler):
         'main_hand',
     )
 
+    @classmethod
+    def main_hand(self, player):
+        return get_item_api(player.main_hand)
+
     def read(self, request, id=None):
         if id == 'me':
             player = Player.objects.get(user=request.user, status='logged_in')

@@ -305,7 +305,7 @@ process_command = function(command){
     
     
     else if (first == 'help') {
-        feedback("Commands: chat north east south west get put drop");
+        feedback("Commands: chat north east south west get put drop kill wield");
         return
     }
     

@@ -8,7 +8,7 @@ from django.contrib.contenttypes import generic
 from django.db import models
 
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
-from stark.apps.world.models import Room, RoomConnector, ItemInstance
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
 
 MOVE_COST = 2 #TODO: move to global config
 
@@ -182,9 +182,17 @@ class Anima(models.Model):
         
 
     def wield(self, weapon):
-        #if weapon.base.__class__ != "weapon":
-        #    raise Exception("You cannot wield %s" % weapon.name)
-        print 'in wield'
+        try:
+            if weapon.base.__class__ is not Weapon:
+                self.notify("You cannot wield %s" % weapon.base.name)
+                raise Exception("You cannot wield %s" % weapon.base.name)
+            
+            self.main_hand = weapon
+            self.save()
+            self.notify("You wield %s" % weapon.base.name)
+            
+        except Exception, e:
+            print "exception: %s" % e
 
     def engage(self, target_type, target_id):
         not_here = "No-one by that name."
