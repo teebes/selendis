@@ -213,11 +213,12 @@ class Anima(models.Model):
             self.notify(wear_msg)
 
     def wield(self, weapon):
-        self.wear(
-                weapon,
-                'main_hand',
-                wear_msg = "You wield %s" % weapon.base.name,
-        )
+        if weapon:
+            wear_msg = "You wield %s" % weapon.base.name
+        else:
+            wear_msg = None
+        
+        self.wear(weapon, 'main_hand', wear_msg=wear_msg)
 
     def engage(self, target_type, target_id):
         not_here = "No-one by that name."

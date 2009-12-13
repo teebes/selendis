@@ -16,6 +16,44 @@ feedback = function(msg) {
     $("#input_feedback").html(msg);    
 }
 
+var commands = {
+    north: 0,
+    east: 0,
+    south: 0,
+    west: 0,
+    chat: 0,
+    get: 0,
+    drop: 0,
+    put: 0,
+    kill: 0,
+    wield: 0,
+    wear: 0,
+    remove: 0
+}
+
+match_command = function(user_input) {
+    /*
+     Takes in a command and matches it against the list of possible commands,
+     returning the canonical command name for further processing.
+     Starts with each command, and takes one letter off the right until
+     there is a match or no more letters.
+     
+     For example, the candidates for "north" are:
+     'north', 'nort', 'nor', 'no', and 'n'
+    */
+
+    for (command in commands) {
+        var cmd_tokens = command.split('');
+        for (var i = 0 ; i < cmd_tokens.length - 1 ; i++) {
+            var candidate = cmd_tokens.slice(0, cmd_tokens.length - i).join('');
+            if (user_input.toLowerCase() == candidate) {
+                return command;
+            }
+        }
+    }
+    return false;
+}
+
 move_to = function(x, y) {
     
     // assume the move went through so that directions can be spammed
@@ -85,19 +123,19 @@ process_command = function(command){
 
     $("#command_text").val('');   
 
-    first = t[0].toLowerCase();
+    first = match_command(tokens[0]);
 
     // directions
-    if (first == 'north' || first == 'nort' || first == 'nor' || first == 'no' || first == 'n') {
+    if (first == 'north') {
         move_to(document.player.room.xpos, document.player.room.ypos - 1);
         return
-    } else if (first == 'east' || first == 'ea' || first == 'e') {
+    } else if (first == 'east') {
         move_to(document.player.room.xpos + 1, document.player.room.ypos);
         return
-    } else if (first == 'south' || first == 'sout' || first == 'sou' || first == 'so' || first == 's') {        
+    } else if (first == 'south') {
         move_to(document.player.room.xpos, document.player.room.ypos + 1);
         return
-    } else if (first == 'west' || first == 'wes' || first == 'we' || first == 'w') {        
+    } else if (first == 'west') {
         move_to(document.player.room.xpos - 1, document.player.room.ypos);
         return
     }
@@ -136,7 +174,7 @@ process_command = function(command){
     }
     
     // ----- get -----------------
-    else if (tokens[0] == 'get') {
+    else if (first == 'get') {
         
         if (tokens.length == 1) {
             feedback("Get syntax: get object [container]");
@@ -181,7 +219,7 @@ process_command = function(command){
     }
     
     // ----- put -----------------
-    else if (tokens[0] == 'put') {
+    else if (first == 'put') {
         // put in container
         if (tokens.length < 3) {
             feedback('Put syntax: put object container')
@@ -217,7 +255,7 @@ process_command = function(command){
     }
     
     // ----- drop -----------------
-    else if (tokens[0] == 'drop') {
+    else if (first == 'drop') {
         
         if (tokens.length == 1) {
             feedback("Drop syntax: drop object");
@@ -229,7 +267,7 @@ process_command = function(command){
     }
     
     // ----- give --------
-    else if (tokens[0] == 'give') {
+    else if (first == 'give') {
         if (tokens.length < 3) {
             feedback("Give syntax: give object target");
         } else {
@@ -261,7 +299,7 @@ process_command = function(command){
     }
     
     // ----- kill -----------------
-    else if (tokens[0] == 'kill') {
+    else if (first == 'kill') {
         if (tokens.length < 2) {
             feedback('Syntax: kill target')
         } else {
@@ -290,9 +328,9 @@ process_command = function(command){
     }
     
     // ----- wield -----------------
-    else if (tokens[0] == 'wield') {
+    else if (first == 'wield') {
         if (tokens.length < 2) {
-            feedback('Syntax: wield weapon')
+            feedback('Syntax: wield weapon');
         } else {
             $.each(document.player.items, function() {
                 if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
@@ -303,9 +341,25 @@ process_command = function(command){
         return
     }
     
+    else if (first == 'remove') {
+        if (tokens.length < 2) {
+            feedback('Syntax: remove item');
+        } else {
+            var equipment = new Array();
+            if (document.player.main_hand) { equipment.push(document.player.main_hand); }
+            $.each(equipment, function() {
+                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
+                    modify_player({main_hand: ''});
+                }
+            });
+        }
+        return
+    }
     
     else if (first == 'help') {
-        feedback("Commands: chat north east south west get put drop kill wield");
+        var help = "Commands: north east south west <br />";
+        help += "chat get drop put kill wield wear remove";
+        feedback(help);
         return
     }
     

@@ -280,10 +280,10 @@ class PlayerHandler(BaseHandler):
             player = Player.objects.get(user=request.user, status='logged_in')
         else:
             return RC.FORBIDDEN
-            #player = Player.objects.get(pk=id) # TODO: this should probably return some kind of error instead
         return player
         
     def update(self, request, id=None):
+        print request.PUT
         player = Player.objects.get(user=request.user, status='logged_in')
 
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
@@ -324,13 +324,16 @@ class PlayerHandler(BaseHandler):
                 response.write(": %s" % e)
                 return response
 
-        print request.PUT
-
-        if request.PUT.get('main_hand'):
-            try:
-                item = ItemInstance.objects.get(pk=request.PUT['main_hand'])
-            except ItemInstance.DoesNotExist:
+        if request.PUT.has_key('main_hand'):
+            if not request.PUT['main_hand']:
                 item = None
+            else:
+                try:
+                    item = ItemInstance.objects.get(pk=request.PUT['main_hand'])
+                except ItemInstance.DoesNotExist:
+                    response = rc.BAD_REQUEST
+                    response.write("Item ID %s does not exist" % request.PUT['main_hand'])
+                    return response
             
             player.wield(item)
 
@@ -341,7 +344,8 @@ class PlayerHandler(BaseHandler):
         # refer to RoomHandler.items for explanation for the weirdness below
         result = []
         for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
-            result.append(get_item_api(i))
+            if i != player.main_hand:
+                result.append(get_item_api(i))
         return result        
 
     @classmethod

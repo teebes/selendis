@@ -14,6 +14,7 @@ modify_player = function(data) {
         dataType: "json",
         success: function(player) {
             document.player = player
+            render_profile();
         }
     });
 }
