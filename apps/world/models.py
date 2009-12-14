@@ -15,14 +15,11 @@ class RoomConnector(models.Model):
 class Room(models.Model):
     xpos = models.IntegerField(blank=False)
     ypos = models.IntegerField(blank=False)
-    title = models.CharField(max_length=80, blank=False)
+    #title = models.CharField(max_length=80, blank=False)
     name = models.CharField(max_length=80, blank=False)
     description = models.TextField()
     type = models.CharField(max_length=20, choices=ROOM_TYPES)
     
-    def __unicode__(self):
-        return u"%s, %s: %s" % (self.xpos, self.ypos, self.title)
-
     connected_rooms = models.ManyToManyField(
                                 'self',
                                 through='RoomConnector',
@@ -31,6 +28,14 @@ class Room(models.Model):
     items = generic.GenericRelation('ItemInstance',
                                     object_id_field='owner_id',
                                     content_type_field='owner_type')
+
+    def notify(self, msg):
+        for player in self.player_related.all():
+            player.notify(msg)
+
+    def __unicode__(self):
+        return u"%s, %s: %s" % (self.xpos, self.ypos, self.title)
+
 
 class BaseItem(models.Model):
     # 

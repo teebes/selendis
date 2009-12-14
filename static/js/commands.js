@@ -1,13 +1,13 @@
-// imports:
-//
-// from DOM: document.player
-// from room.js: render_room
-// from data.js: get_map
-// from builder.js: render_builder
-// from player.js: render_profile
-// from builder.js: modify_room
-// from item.js: modify_item
-// from communications.js: send_communications
+/* Imports:
+  from DOM: document.player
+  from room.js: render_room
+  from data.js: get_map
+  from builder.js: render_builder
+  from player.js: render_profile
+  from builder.js: modify_room
+  from item.js: modify_item
+  from communications.js: send_communications
+*/
 
 /* utility functions */
 
@@ -44,7 +44,7 @@ match_command = function(user_input) {
 
     for (command in commands) {
         var cmd_tokens = command.split('');
-        for (var i = 0 ; i < cmd_tokens.length - 1 ; i++) {
+        for (var i = 0 ; i < cmd_tokens.length ; i++) {
             var candidate = cmd_tokens.slice(0, cmd_tokens.length - i).join('');
             if (user_input.toLowerCase() == candidate) {
                 return command;

@@ -9,7 +9,7 @@ class RoomAdmin(admin.ModelAdmin):
         'id',
         'xpos',
         'ypos',
-        'title',
+        'name',
     )
 
 class EquipmentAdmin(admin.ModelAdmin): pass

@@ -1,6 +1,6 @@
 function item_link(item) {
     // build the item's div
-    var item_div = $("<div class='inspectable'></div>");
+    var item_div = $("<span class='inspectable'></span>");
     
     // print the item's name
     item_div.append(item.name);

@@ -1,19 +1,22 @@
 import datetime
 import logging
+import random
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from django.db import models
+from django.db import models, transaction
 
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Equipment
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Equipment, Misc
+from stark import config
 
 MOVE_COST = 2 #TODO: move to global config
 
 class Anima(models.Model):
-    name = models.CharField(max_length=40) # should be unique for player subclass (not enforced @ db level)
+    # name should be unique for player subclass (not enforced @ db level)
+    name = models.CharField(max_length=40)
     room = models.ForeignKey(Room, related_name="%(class)s_related")
     level = models.IntegerField(default=1)
     
@@ -38,14 +41,20 @@ class Anima(models.Model):
         abstract = True
 
     def notify(self, msg):
-        Message.objects.create(type='notification', destination=self.name, content=msg)
+        Message.objects.create(type='notification',
+                               destination=self.name,
+                               content=msg)
     
+    @transaction.commit_on_success
     def move(self, to_room=None, random=False):        
         if random:
-            connector = RoomConnector.objects.filter(from_room=self.room).order_by('?')[0]
+            connector = RoomConnector.objects\
+                            .filter(from_room=self.room)\
+                            .order_by('?')[0]
             to_room = connector.to_room
         elif to_room:
-            connector = RoomConnector.objects.get(from_room=self.room, to_room=to_room)
+            connector = RoomConnector.objects.get(from_room=self.room,
+                                                  to_room=to_room)
         else:
             raise Exception('in Anima.move(), provide either a valid to_room or set random=True')
 
@@ -93,8 +102,100 @@ class Anima(models.Model):
                 Message.objects.create(
                     type = 'notification',
                     destination = player.name,
-                    content = "%s has arrived from the %s." % (self.name, rev_direction),
+                    content = "%s has arrived from the %s." %
+                                (self.name, rev_direction),
                 )                
+    
+    @transaction.commit_on_success
+    def attack(self):
+        # TODO: if the target is not engaged on something else, the target
+        # should be set to 
+        if self.target.room != self.room:
+            self.target = None
+        
+        # base dmg
+        damage = 1
+        
+        attack_msg = ['hit', 'hits']
+
+        # take the weapon into account
+        if self.main_hand:
+            rolls = self.main_hand.base.num_dice
+            max = self.main_hand.base.num_faces
+            damage += rolls * random.randint(1, max)
+             
+            if self.main_hand.base.weapon_class == 'short_blade':
+                attack_msg = ['stab', 'stabs']
+            if self.main_hand.base.weapon_class in ('medium_blade',
+                                               'long_blade'):
+                attack_msg = ['slash', 'slashes']
+            elif self.main_hand.base.weapon_class == 'spear':
+                attack_msg = ['strike', 'strikes']
+            elif self.main_hand.base.weapon_class == 'chain':
+                attack_msg = ['whip', 'whips']
+            elif self.main_hand.base.weapon_class == 'projectile':
+                attack_msg = ['throw', 'throws']
+            elif self.main_hand.base.weapon_class == 'axe':
+                attack_msg = ['hack', 'hacks']
+
+        # record the hit
+        self.target.hp -= damage
+        self.target.save()
+
+        # source notification (if player)
+        if self.__class__.__name__ == "Player":
+            self.notify("[%s dmg dealt] You %s %s!" % (
+                            damage,
+                            attack_msg[0],
+                            self.target.name))
+        # target notification (if player)
+        if self.target.__class__.__name__ == "Player":
+            self.target.notify("[%s dmg taken] %s %s you!" % (
+                            damage,
+                            self.name,
+                            attack_msg[1]))
+        # room notifications
+        for room_player in self.room.player_related.all():
+            if room_player not in (self, self.target):
+                room_player.notify("%s %s %s!" % (
+                                    self.name,
+                                    attack_msg[1],
+                                    self.target.name))
+
+        # kill the target if applicable
+        if self.target.hp <= 0:
+            self.target.die()
+            self.target = None
+            self.save()
+
+    @transaction.commit_on_success
+    def die(self):
+        # set hp back to full (for now)
+        self.hp = 10
+        self.save()
+
+        # notifications
+        if self.__class__.__name__ == 'Player':
+            self.notify("You are dead! Sorry...")        
+        for room_player in self.room.player_related.all():
+            if room_player != self:
+                room_player.notify("%s is dead!" % self.name)
+
+        # create a corpse
+        corpse = Misc.objects.create(name="The corpse of %s" % self.name)
+        ItemInstance.objects.create(base=corpse, owner=self.room)
+
+        # if it's a player, move to the death room
+        if self.__class__.__name__ == 'Mob':
+            self.delete()
+        elif self.__class__.__name__ == 'Player':
+            death_room_id = getattr(config, 'DEATH_ROOM_ID', 1)
+            try:
+                death_room = Room.objects.get(pk=death_room_id)
+            except Room.DoesNotExist:
+                raise Exception("There must be a room with pk=1")
+            self.room = death_room
+            self.save()
     
     def give_item(self, item, give_to):
         

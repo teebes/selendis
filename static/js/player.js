@@ -22,7 +22,7 @@ modify_player = function(data) {
 render_profile = function() {
     $("#player_name").html(document.player.name);
     $("#player_level").html(document.player.level);
-    
+    $("#hp").html(document.player.hp + ' / ' + document.player.max_hp);    
     $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 
     // main hand
@@ -36,6 +36,9 @@ render_profile = function() {
 
     $("#player_inventory").empty();
     $.each(document.player.items, function() {
-        item_link(this).appendTo("#player_inventory");
+        var line = $("<div></div>");
+        line.append(item_link(this));
+
+        line.appendTo("#player_inventory");
     });
 }

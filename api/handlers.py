@@ -94,7 +94,7 @@ class ItemHandler(BaseHandler):
 class RoomHandler(BaseHandler):
     allowed_methods = ('GET', 'POST', 'PUT', 'DELETE')
     model = Room
-    fields = ('id', 'title', 'description', 'xpos', 'ypos', 'type', 'north', 'east', 'south', 'west',
+    fields = ('id', 'name', 'description', 'xpos', 'ypos', 'type', 'north', 'east', 'south', 'west',
               ('player_related', ('id', 'name')),
               ('mob_related', ('id', 'name')),
               'items',
@@ -272,6 +272,8 @@ class PlayerHandler(BaseHandler):
         'items',
         'mp',
         'max_mp',
+        'hp',
+        'max_hp',
         'main_hand',
     )
 
