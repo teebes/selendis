@@ -210,20 +210,20 @@ class Anima(models.Model):
 
         for player in self.room.player_related.all():
             if player == self:
-                Message.objects.create(type='notification', destination=self.name, content="You give %s to %s." % (item.base.name, give_to.name))
+                self.notify("You give %s to %s." % (item.base.name, give_to.name))
             elif player == give_to:
-                Message.objects.create(type='notification', destination=give_to.name, content="%s gives you %s." % (self.name, item.base.name))
+                give_to.notify("%s gives you %s." % (self.name, item.base.name))
             else:
-                Message.objects.create(type='notification', destination=player.name, content="%s gives %s to %s" % (self.name, item.base.name, give_to.name))
+                player.notify("%s gives %s to %s" % (self.name, item.base.name, give_to.name))
 
     def drop_item(self, item):
         item.owner = self.room
         item.save()
         for player in self.room.player_related.all():
             if player == self:
-                Message.objects.create(type='notification', destination=self.name, content="You drop %s." % item.base.name)
+                self.notify("You drop %s." % item.base.name)
             else:
-                Message.objects.create(type='notification', destination=player.name, content="%s drops %s." % (self.name, item.base.name))
+                self.player("%s drops %s." % (self.name, item.base.name))
 
     def get_item(self, item):
         if item.owner != self.room:
@@ -274,7 +274,7 @@ class Anima(models.Model):
                         self.notify("You put %s in %s." % \
                                     (item.base.name, container.base.name))
                     else:
-                        player.notify(content="%s puts %s in %s." % \
+                        player.notify("%s puts %s in %s." % \
                             (self.name, item.base.name, container.base.name))
             
                 item.owner = container

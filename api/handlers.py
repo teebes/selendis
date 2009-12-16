@@ -48,6 +48,7 @@ class ItemHandler(BaseHandler):
         return get_item_api(item)
 
     def update(self, request, id):
+        print request.PUT
         item = ItemInstance.objects.get(pk=id)
         player = Player.objects.get(status='logged_in', user=request.user)
 

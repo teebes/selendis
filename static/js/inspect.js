@@ -1,3 +1,19 @@
+function button_put_item_in(item, container) {
+    $.each(container, function() {
+        if (this.id != item.id && this.capacity > 0) {
+            var container = $("<div class='stark_button'>Put in </div>")
+            container.append(this.name);
+            var container_id = this.id;
+            container.click(function () {
+                process_command('put ' + item.id + ' ' + container_id);
+                $("#dialog").dialog('close');
+                return
+            });
+            container.appendTo("#dialog");
+        }
+    });
+}
+
 function inspect_element(type, id) {
 
     if (type == 'item') {
@@ -15,7 +31,9 @@ function inspect_element(type, id) {
                 if (item.contains != '') {
                     $("#dialog").append("<p>This item contains:</p>");
                     $.each(item.contains, function() {
-                        item_link(this).appendTo("#dialog");
+                        var line = $("<div></div>");
+                        line.append(item_link(this));
+                        line.appendTo("#dialog");
                     });
                 }
 
@@ -29,36 +47,9 @@ function inspect_element(type, id) {
                     });
                     drop.appendTo("#dialog");
                     
-                    // player container buttons
-                    $.each(document.player.items, function() {
-                        if (this.id != item.id && this.capacity > 0) {
-                            var container = $("<div class='stark_button'>Put in </div>")
-                            container.append(this.name);
-                            var container_id = this.id;
-                            container.click(function () {
-                                process_command('put ' + item.id + ' ' + container_id);
-                                $("#dialog").dialog('close');
-                                return
-                            });
-                            container.appendTo("#dialog");
-                        }
-                    });
-                    
-                    // room container buttons
-                    $.each(document.player.room.items, function() {
-                        if (this.id != item.id && this.capacity > 0) {
-                            var container = $("<div class='stark_button'>Put in </div>")
-                            container.append(this.name);
-                            var container_id = this.id;
-                            container.click(function () {
-                                process_command('put ' + item.id + ' ' + container_id);
-                                $("#dialog").dialog('close');
-                                return
-                            });
-                            container.appendTo("#dialog");
-                        }
-                    });
-                    
+                    // add the put in button for player and room
+                    button_put_item_in(item, document.player.items);
+                    button_put_item_in(item, document.player.room.items);
                 }
                 
                 else if (item.owner_type == 'room') {
