@@ -5,9 +5,10 @@ import random
 
 from django.db import transaction
 
+from stark import config
 from stark.apps.anima.models import Mob, Player, Message
-
 from stark.apps.world.models import RoomConnector, Room
+from stark.utils import zone_reload
 
 # base event class
 class PeriodicEvent(object):
@@ -40,14 +41,16 @@ class Tick(PeriodicEvent):
     
     @transaction.commit_on_success
     def regen(self):
-        # TODO: make the regen amount a configurable value
-        # give each logged in players moves, if they're not at max
-        TICK_MP_REGEN_RATE = 20
+        TICK_HP_REGEN_RATE = getattr(config, 'TICK_HP_REGEN_RATE', 4)
+        TICK_MP_REGEN_RATE = getattr(config, 'TICK_MP_REGEN_RATE', 20)
+        
+        # players regen moves
         for player in Player.objects.filter(status='logged_in').extra(where=['mp < max_mp']):
-            player.mp += TICK_MP_REGEN_RATE
-            if player.mp > player.max_mp:
-                player.mp = player.max_mp
-            player.save()
+            player.regen('mp', TICK_MP_REGEN_RATE)
+            
+        # players regen health
+        for player in Player.objects.filter(status='logged_in').extra(where=['hp < max_hp']):
+            player.regen('hp', TICK_HP_REGEN_RATE)
 
     def execute(self):
         super(Tick, self).execute()
@@ -65,7 +68,9 @@ class Combat(PeriodicEvent):
     def combat_round(self):
         for player in Player.objects.filter(status='logged_in', target_type__isnull=False):
             player.attack()
-            #player.target.attack()
+
+        for mob in Mob.objects.filter(target_type__isnull=False):
+            mob.attack()
     
     def execute(self):
         super(Combat, self).execute()
@@ -87,4 +92,5 @@ class CleanUp(PeriodicEvent):
         super(CleanUp, self).execute()
         
         self.cleanup_messages()
+        zone_reload() #TODO: make that a proper event, coupled with the corpse cleanup
         return

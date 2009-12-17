@@ -22,6 +22,7 @@ modify_player = function(data) {
 render_profile = function() {
     $("#player_name").html(document.player.name);
     $("#player_level").html(document.player.level);
+    $("#player_experience").html(document.player.experience);
     $("#hp").html(document.player.hp + ' / ' + document.player.max_hp);    
     $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 

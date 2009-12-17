@@ -276,6 +276,7 @@ class PlayerHandler(BaseHandler):
         'hp',
         'max_hp',
         'main_hand',
+        'experience',
     )
 
     def read(self, request, id=None):

@@ -19,15 +19,14 @@ class Anima(models.Model):
     name = models.CharField(max_length=40)
     room = models.ForeignKey(Room, related_name="%(class)s_related")
     level = models.IntegerField(default=1)
+    experience = models.IntegerField(default=1)
     
     messages =  generic.GenericRelation('Message')
     
     hp = models.IntegerField(default=10)
-    max_hp = models.IntegerField(default=10)
-    
+    max_hp = models.IntegerField(default=10)    
     mp = models.IntegerField(default=10)
-    max_mp = models.IntegerField(default=10)
-    
+    max_mp = models.IntegerField(default=10)    
     sp = models.IntegerField(default=10)
     max_sp = models.IntegerField(default=10)
     
@@ -88,7 +87,7 @@ class Anima(models.Model):
         if connector.direction == 'south': rev_direction = 'north'
         if connector.direction == 'west': rev_direction = 'east'
             
-        # tell every player in the room the anima is moving to that it's,
+        # tell every player in the room the anima is moving to that it's
         # arrived, or simply that it's moved if the observer is the one
         # performing the action
         for player in Player.objects.filter(room=to_room, status='logged_in'):
@@ -106,12 +105,29 @@ class Anima(models.Model):
                                 (self.name, rev_direction),
                 )                
     
+    def regen(self, attribute, points):
+        """
+        Regen player attribtue (hp, mp or sp) by x points
+        """
+        max = getattr(self, 'max_' + attribute)
+        new = getattr(self, attribute) + points
+        if new > max:
+            new = max
+        setattr(self, attribute, new)
+        self.save()
+    
     @transaction.commit_on_success
-    def attack(self):
-        # TODO: if the target is not engaged on something else, the target
-        # should be set to 
+    def attack(self):        
+        # make sure source and target are in the same room
         if self.target.room != self.room:
             self.target = None
+            return
+        
+        # if the target is not engaged on something else, source becomes
+        # target's target
+        if not self.target.target:
+            self.target.target = self
+            self.target.save()
         
         # base dmg
         damage = 1
@@ -164,6 +180,10 @@ class Anima(models.Model):
 
         # kill the target if applicable
         if self.target.hp <= 0:
+            # if the target was a mob, adjust experience
+            if self.target.__class__.__name__ == "Mob":
+                self.experience += self.target.experience
+            # kill the target anima, reset the target, save
             self.target.die()
             self.target = None
             self.save()
@@ -201,7 +221,8 @@ class Anima(models.Model):
         
         if item.owner.room != give_to.room:
             stark_log = logging.getLogger('StarkLogger')
-            message = "%s can't give item %s to %s because they aren't in the same room" % (self.name, item.name, give_to.name)
+            message = "%s can't give item %s to %s because they aren't in the same room" % \
+                      (self.name, item.name, give_to.name)
             stark_log.debug(message)
             raise Exception(message)
 
@@ -210,11 +231,14 @@ class Anima(models.Model):
 
         for player in self.room.player_related.all():
             if player == self:
-                self.notify("You give %s to %s." % (item.base.name, give_to.name))
+                self.notify("You give %s to %s." % \
+                            (item.base.name, give_to.name))
             elif player == give_to:
-                give_to.notify("%s gives you %s." % (self.name, item.base.name))
+                give_to.notify("%s gives you %s." % \
+                               (self.name, item.base.name))
             else:
-                player.notify("%s gives %s to %s" % (self.name, item.base.name, give_to.name))
+                player.notify("%s gives %s to %s" % \
+                              (self.name, item.base.name, give_to.name))
 
     def drop_item(self, item):
         item.owner = self.room
@@ -228,7 +252,8 @@ class Anima(models.Model):
     def get_item(self, item):
         if item.owner != self.room:
             stark_log = logging.getLogger('StarkLogger')
-            message = "%s can't get item %s because they're in different rooms" % (self.name, item.name)
+            message = "%s can't get item %s because they're in different rooms" % \
+                      (self.name, item.name)
             stark_log.debug(message)
             raise Exception(message)
 

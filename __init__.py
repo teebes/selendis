@@ -1,6 +1,11 @@
 """
 If upgrading from previous versions, you may need to run (in order of upgrades, so most recent is last):
 
+sqlite> alter table anima_mob add column "experience" integer;
+sqlite> alter table anima_player add column "experience" integer;
+sqlite> update anima_mob set experience = 1;
+sqlite> update anima_player set experience = 1;
+
 sqlite> drop table world_weapon;
 sqlite> drop table world_equipment;
 sqlite> drop table world_misc;
