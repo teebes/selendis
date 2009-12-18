@@ -17,7 +17,7 @@ def check_pulse():
     """
     no_pulse = True
     for thread in threading.enumerate():
-        if thread.name == 'stark_pulse_thread':
+        if getattr(thread, 'name', '') == 'stark_pulse_thread':
             no_pulse = False
             break
 
