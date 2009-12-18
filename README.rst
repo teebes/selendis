@@ -44,11 +44,7 @@ This is a full django project, it can't just be installed as an app. Maybe once 
 * go the game at http://127.0.0.1:8000
 
 * click the 'login' link, log on as the superuser you created
- 
-* run the timer script: ::
 
-  $ python apps/timer
-  
 * If this is your first time trying out Stark, you should seriously consider loading the demo data to get a feel for what the world can be like.
   
 Demo Data

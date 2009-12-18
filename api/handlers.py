@@ -10,10 +10,13 @@ from piston.handler import BaseHandler
 from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
+from stark import config
 from stark.apps.anima.models import Player, Mob, Message
+from stark.apps.timers import check_pulse
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
 
 ROOM_RANGE = 10
+MEMORY = getattr(config, 'MESSAGES_RETENTION_TIME', 60 * 5)
 
 
 def get_item_api(item):
@@ -261,6 +264,17 @@ class MapHandler(BaseHandler):
         }
     
 
+class MeHandler(BaseHandler):
+    allowed_methods = ('GET', 'PUT')
+    
+    def read(self, request):
+        ph = PlayerHandler()
+        return ph.read(request, 'me')
+        
+    def update(self, request):
+        ph = PlayerHandler()
+        return ph.update(request, 'me')
+
 class PlayerHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT')
     model = Player
@@ -277,13 +291,23 @@ class PlayerHandler(BaseHandler):
         'max_hp',
         'main_hand',
         'experience',
+        'map',
     )
 
+    @classmethod
+    def map(self, request):
+        map = MapHandler()
+        return map.read(request)
+
     def read(self, request, id=None):
+        
+        # temporary location for the checking / launching of the pulse thread
+        check_pulse()
+        
         if id == 'me':
             player = Player.objects.get(user=request.user, status='logged_in')
         else:
-            return RC.FORBIDDEN
+            return rc.FORBIDDEN
         return player
         
     def update(self, request, id=None):
@@ -364,17 +388,15 @@ class MessageHandler(BaseHandler):
     
     def read(self, request, *args, **kwargs):
         
-        player = Player.objects.get(user=request.user, status='logged_in') 
+        player = Player.objects.get(user=request.user, status='logged_in')
         
-        messages = []
+        mem_time = datetime.datetime.now() - datetime.timedelta(seconds=MEMORY)
+        chats = Message.objects.filter(type='chat')
+        notifications = Message.objects.filter(type='notification',
+                                               destination=player.name)
+        messages = chats | notifications
+        messages = messages.filter(created__gt=mem_time).order_by('created')
 
-        for message in Message.objects.filter(type='chat').order_by('created')[:10]:
-            messages.append(message)
-
-        for message in Message.objects.filter(type='notification', destination=player.name).order_by('created'):
-            messages.append(message)
-
-        messages = sorted(messages, lambda x, y: cmp(x.created, y.created))
         return messages
     
     def create(self, request, *args, **kwargs):

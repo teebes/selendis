@@ -192,10 +192,10 @@ $(document).ready(function(){
     pulse = function() {
         render_communications();
         
-        $.getJSON("/api/players/me.json", function(player) {
+        $.getJSON("/api/me.json", function(player) {
             document.player = player;
             
-            get_map();
+            //get_map();
             
             // render the pages
             render_room();

@@ -1,5 +1,5 @@
 get_player = function() {
-    $.getJSON("/api/players/me.json", function(player) {
+    $.getJSON("/api/me.json", function(player) {
         document.player = player;
     });
 }
@@ -9,7 +9,7 @@ get_player = function() {
 modify_player = function(data) {
     $.ajax({
         type: "PUT",
-        url: "/api/players/me.json",
+        url: "/api/me.json",
         data: data,
         dataType: "json",
         success: function(player) {

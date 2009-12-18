@@ -11,24 +11,3 @@ get_map = function() {
         document.map = map;
     });
 }
-
-/*
-get_player = function() {
-    $.getJSON("/api/players/me.json", function(player) {
-        document.player = player;
-    });
-}
-
-modify_player = function(data) {
-    $.ajax({
-        type: "PUT",
-        url: "/api/players/me.json",
-        data: data,
-        dataType: "json",
-        success: function(player) {
-            document.player = player
-        }
-    });
-}
-*/
-

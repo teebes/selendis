@@ -17,6 +17,7 @@ feedback = function(msg) {
 }
 
 var commands = {
+    help: 0,
     north: 0,
     east: 0,
     south: 0,
@@ -62,7 +63,7 @@ move_to = function(x, y) {
     
     $.ajax({
         type: "PUT",
-        url: "/api/players/me.json",
+        url: "/api/me.json",
         data: { xpos: x, ypos: y },
         dataType: "json",
         success: function(player) {
@@ -307,7 +308,7 @@ process_command = function(command){
                 if (this.name != document.player.name && (this.id == tokens[1] || this.name == tokens[1])) {
                     $.ajax({
                         type: "PUT",
-                        url: "/api/players/me.json",
+                        url: "/api/me.json",
                         data: { target_type: 'player', target_id: this.id },
                         dataType: "json"
                     });
@@ -317,7 +318,7 @@ process_command = function(command){
                 if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
                     $.ajax({
                         type: "PUT",
-                        url: "/api/players/me.json",
+                        url: "/api/me.json",
                         data: { target_type: 'mob', target_id: this.id },
                         dataType: "json"
                     });

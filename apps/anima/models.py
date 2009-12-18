@@ -192,6 +192,8 @@ class Anima(models.Model):
     def die(self):
         # set hp back to full (for now)
         self.hp = 10
+        
+        self.target = None # useful if it's a player
         self.save()
 
         # notifications
