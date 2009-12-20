@@ -44,23 +44,42 @@ class Anima(models.Model):
                                destination=self.name,
                                content=msg)
     
-    @transaction.commit_on_success
-    def move(self, to_room=None, random=False):        
-        if random:
-            connector = RoomConnector.objects\
+    def move(self, xpos=None, ypos=None, to_room=None, random=False):
+        
+        # get the connector based on the input provided
+        if xpos and ypos:
+            try:
+                connector = RoomConnector.objects.get(from_room=self.room,
+                                                      to_room__xpos=xpos,
+                                                      to_room__ypos=ypos)
+            except RoomConnector.DoesNotExist:
+                self.notify("You cannot go that way.")
+                raise Exception("No connector exists to provied x/y coords")
+        elif to_room:
+            try:
+                connector = RoomConnector.objects.get(from_room=self.room,
+                                                      to_room=to_room)
+            except RoomConnector.DoesNotExist:
+                self.notify("You cannot go that way.")
+                raise Exception("No connector exists to provided to_room")
+        elif random:
+            try:
+                connector = RoomConnector.objects\
                             .filter(from_room=self.room)\
                             .order_by('?')[0]
-            to_room = connector.to_room
-        elif to_room:
-            connector = RoomConnector.objects.get(from_room=self.room,
-                                                  to_room=to_room)
+            except RoomConnector.DoesNotExist:
+                raise Exception("No exit out of this room exists")
         else:
-            raise Exception('in Anima.move(), provide either a valid to_room or set random=True')
+            raise Exception('provide either x/y coords or set random=True')
+
+        to_room = connector.to_room
 
         # unless in builder mode, check for move points and deduct points
         if not (self.__class__.__name__ == 'Mob' or hasattr(self, 'builder_mode') and self.builder_mode == True):
             if self.mp < MOVE_COST:
-                raise Exception("Not enough movement points to move.")
+                msg = "Not enough movement points to move."
+                self.notify(msg)
+                raise Exception(msg)
             else:
                 self.mp -= MOVE_COST
 
@@ -75,35 +94,23 @@ class Anima(models.Model):
         
         # tell every player in the room the anima was in that it's gone
         for player in Player.objects.filter(room=from_room, status='logged_in'):
-                Message.objects.create(
-                    type = 'notification',
-                    destination = player.name,
-                    content = "%s leaves %s." % (self.name, connector.direction),
-                )
+            player.notify("%s leaves %s." % (self.name, connector.direction))
         
         rev_direction = None
         if connector.direction == 'north': rev_direction = 'south'
-        if connector.direction == 'east': rev_direction = 'west'
-        if connector.direction == 'south': rev_direction = 'north'
-        if connector.direction == 'west': rev_direction = 'east'
+        elif connector.direction == 'east': rev_direction = 'west'
+        elif connector.direction == 'south': rev_direction = 'north'
+        elif connector.direction == 'west': rev_direction = 'east'
             
         # tell every player in the room the anima is moving to that it's
         # arrived, or simply that it's moved if the observer is the one
         # performing the action
         for player in Player.objects.filter(room=to_room, status='logged_in'):
             if player == self:
-                Message.objects.create(
-                    type = 'notification',
-                    destination = player.name,
-                    content = "You leave %s" % connector.direction,
-                )
+                self.notify("You leave %s" % connector.direction)
             else:
-                Message.objects.create(
-                    type = 'notification',
-                    destination = player.name,
-                    content = "%s has arrived from the %s." %
-                                (self.name, rev_direction),
-                )                
+                player.notify("%s has arrived from the %s." %
+                                (self.name, rev_direction))                
     
     def regen(self, attribute, points):
         """

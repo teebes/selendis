@@ -266,79 +266,47 @@ class MapHandler(BaseHandler):
 
 class MeHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT')
-    
-    def read(self, request):
-        ph = PlayerHandler()
-        return ph.read(request, 'me')
-        
-    def update(self, request):
-        ph = PlayerHandler()
-        return ph.update(request, 'me')
 
-class PlayerHandler(BaseHandler):
-    allowed_methods = ('GET', 'PUT')
-    model = Player
     fields = (
-        'id',
-        'name',
-        'level',
         'builder_mode',
-        'room',
         'items',
         'mp',
         'max_mp',
-        'hp',
-        'max_hp',
-        'main_hand',
         'experience',
-        'map',
     )
 
-    @classmethod
-    def map(self, request):
-        map = MapHandler()
-        return map.read(request)
-
-    def read(self, request, id=None):
+    def read(self, request):
         
-        # temporary location for the checking / launching of the pulse thread
         check_pulse()
         
-        if id == 'me':
-            player = Player.objects.get(user=request.user, status='logged_in')
-        else:
-            return rc.FORBIDDEN
-        return player
+        player = Player.objects.get(user=request.user, status='logged_in')        
+        result = {}
+
+        for field in PlayerHandler.fields + self.fields:
+            if hasattr(player, field):
+                result[field] = getattr(player, field)
+
+        items = []
+        for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
+            if i != player.main_hand:
+                items.append(get_item_api(i))
+        result['items'] = items
+
+        # if 'map' is in any of the requests, give the map
+        if getattr(request, request.method).get('map', None):
+            map = MapHandler()
+            result['map'] = map.read(request)
+
+        return result
         
-    def update(self, request, id=None):
-        print request.PUT
+    def update(self, request):
         player = Player.objects.get(user=request.user, status='logged_in')
 
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
-            x = int(request.PUT['xpos'])
-            y = int(request.PUT['ypos'])
-            from_room = player.room
             try:
-                
-                # builders can go directly to any room
-                if player.builder_mode:
-                    player.room = Room.objects.get(xpos=x, ypos=y)
-                    player.save()
-                    return player
-                
-                # see if there is a path to the room
-                try:
-                    connector = RoomConnector.objects.get(
-                                            from_room=from_room,
-                                            to_room__xpos=x,
-                                            to_room__ypos=y)
-                except RoomConnector.DoesNotExist:
-                    raise Exception("you cannot go that way.")
-                
-                player.move(connector.to_room)
-
+                player.move(xpos=request.PUT['xpos'],
+                            ypos=request.PUT['ypos'])
             except Exception, e:
-                print e
                 response = rc.BAD_REQUEST
                 response.write(": %s" % e)
                 return response
@@ -364,22 +332,42 @@ class PlayerHandler(BaseHandler):
                     return response
             
             player.wield(item)
+        
+        return self.read(request)
 
-        return player
-
-    @classmethod
-    def items(self, player):
-        # refer to RoomHandler.items for explanation for the weirdness below
-        result = []
-        for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
-            if i != player.main_hand:
-                result.append(get_item_api(i))
-        return result        
+class PlayerHandler(BaseHandler):
+    allowed_methods = ('GET', 'PUT')
+    model = Player
+    fields = (
+        'id',
+        'name',
+        'level',
+        #'builder_mode',
+        'room',
+        #'items',
+        #'mp',
+        #'max_mp',
+        'hp',
+        'max_hp',
+        'main_hand',
+        #'experience',
+        #'map',
+    )
 
     @classmethod
     def main_hand(self, player):
-        #return None
         return get_item_api(player.main_hand)
+
+    def read(self, request, id=None):
+        
+        # temporary location for the checking / launching of the pulse thread
+        check_pulse()
+        
+        if id == 'me':
+            player = Player.objects.get(user=request.user, status='logged_in')
+        else:
+            return rc.FORBIDDEN
+        return player
 
 class MessageHandler(BaseHandler):
     allowed_methods = ('GET', 'POST')

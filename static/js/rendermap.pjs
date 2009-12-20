@@ -25,8 +25,8 @@ void draw()
     var margin = 10;
     background(240);
 
-    map = document.player.map
-    if (map.rooms) {
+    if (document.map) {
+        map = document.map;
         $.each(map.rooms, function() {
             // determine x & y coords
             var x =  0 + (size * (this.xpos - map.starting_point.xpos));
@@ -35,11 +35,10 @@ void draw()
             var width = size - margin;
             
             // -- draw the room --
-            // type based coloring
             stroke(0);
-            if (map.player_position.xpos == this.xpos && map.player_position.ypos == this.ypos) {
-                // if this is the player's room
-                //fill(0);
+            if (document.player.room.xpos == this.xpos &&
+                document.player.room.ypos == this.ypos) {
+                // player's room
                 stroke(#0000ff);
                 strokeWeight(2);
             }

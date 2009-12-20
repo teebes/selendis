@@ -1,12 +1,19 @@
+/*
 get_player = function() {
     $.getJSON("/api/me.json", function(player) {
         document.player = player;
     });
 }
+*/
 
 /* modifiers */
 
 modify_player = function(data) {
+    /*
+        Modify the player without a response event other than setting the
+        player. This should probably be called 'modify_me' instead since it
+        interacts with MeHandler in piston
+    */
     $.ajax({
         type: "PUT",
         url: "/api/me.json",
@@ -14,7 +21,7 @@ modify_player = function(data) {
         dataType: "json",
         success: function(player) {
             document.player = player
-            render_profile();
+            //render_profile();
         }
     });
 }

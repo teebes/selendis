@@ -192,9 +192,18 @@ $(document).ready(function(){
     pulse = function() {
         render_communications();
         
-        $.getJSON("/api/me.json", function(player) {
+        $.ajax({
+            type: "GET",
+            url: "/api/me.json",
+            data: { map: true },
+            dataType: "json",
+            success: function(player) {
+        
+        
+            //$.getJSON("/api/me.json", function(player) {
+
             document.player = player;
-            
+            document.map = player.map;
             //get_map();
             
             // render the pages
@@ -206,6 +215,7 @@ $(document).ready(function(){
                 if (document.player.builder_mode) {
                     render_builder(); }
                 initial = false;
+            }
             }
             
         });           

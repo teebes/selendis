@@ -57,9 +57,12 @@ match_command = function(user_input) {
 
 move_to = function(x, y) {
     
+    // if the player has enough moves,
     // assume the move went through so that directions can be spammed
-    document.player.room.xpos = x;
-    document.player.room.ypos = y;
+    if (document.player.mp > 2) {
+        document.player.room.xpos = x;
+        document.player.room.ypos = y;
+    }
     
     $.ajax({
         type: "PUT",
@@ -69,19 +72,11 @@ move_to = function(x, y) {
         success: function(player) {
             document.player = player;
             render_room();
-            get_map();
+
             if (player.builder_mode) {
                 render_builder();
             }
             render_profile();
-        },
-        error: function(resp) {
-            
-            split_resp = resp.responseText.split(':')
-            split_resp.shift(); // this pops for example 'BAD REQUEST'
-            var processed_response = split_resp.join(':');
-            
-            feedback(processed_response);
         }
     });
 }
