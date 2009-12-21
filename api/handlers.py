@@ -18,37 +18,38 @@ from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
 ROOM_RANGE = 10
 MEMORY = getattr(config, 'MESSAGES_RETENTION_TIME', 60 * 5)
 
-
-def get_item_api(item):
-    if not item:
-        return None
-    contains = []
-    if item.base.capacity:
-        for contained_item in item.owns.all():
-            contains.append({
-                'id': contained_item.id,
-                'type': contained_item.base_type.name,
-                'name': contained_item.base.name,
-            })
-            
-    return {
-        'id': item.id,
-        'type': item.base_type.name,
-        'name': item.base.name,
-        'contains': contains,
-        'capacity': item.base.capacity,
-        'owner_type': item.owner_type.name,
-        'owner_id': item.owner_id
-    }
-
 class ItemHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT')
     model = ItemInstance
+    fields = (
+        'id',
+        'owner_id',
+        # computed fields
+        'name',
+        'type',
+        'capacity',
+        'owner_type',        
+        'contains',
+    )
 
-    def read(self, request, id):
-        item = ItemInstance.objects.get(pk=id)
-        
-        return get_item_api(item)
+    @classmethod
+    def name(self, item): return item.base.name
+    @classmethod
+    def type(self, item): return item.base_type.name
+    @classmethod
+    def capacity(self, item): return item.base.capacity
+    @classmethod
+    def owner_type(self, item): return item.owner_type.name
+    @classmethod
+    def contains(self, item):
+        contained_items = []
+        for contained_item in item.owns.all():
+            contained_items.append({
+                    'id': contained_item.id,
+                    'type': contained_item.base_type.name,
+                    'name': contained_item.base.name,
+            })
+        return contained_items
 
     def update(self, request, id):
         print request.PUT
@@ -92,7 +93,7 @@ class ItemHandler(BaseHandler):
             response.write(": %s" % e)
             return response
 
-        return get_item_api(item)
+        return item
 
 
 class RoomHandler(BaseHandler):
@@ -103,6 +104,10 @@ class RoomHandler(BaseHandler):
               ('mob_related', ('id', 'name')),
               'items',
               )
+
+    @classmethod
+    def items(self, room):
+        return room.items.all()
 
     def create(self, request, *args, **kwargs):
         if not Player.objects.get(user=request.user, status='logged_in').builder_mode:
@@ -178,13 +183,6 @@ class RoomHandler(BaseHandler):
         room.delete()
         
         return rc.DELETED
-
-    @classmethod
-    def items(self, room):
-        result = []
-        for i in ItemInstance.objects.filter(owner_type__name='room', owner_id=room.id):
-            result.append(get_item_api(i))
-        return result
 
     @classmethod
     def __determine_connection(self, room, direction):
@@ -289,7 +287,7 @@ class MeHandler(BaseHandler):
         items = []
         for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
             if i != player.main_hand:
-                items.append(get_item_api(i))
+                items.append(i)
         result['items'] = items
 
         # if 'map' is in any of the requests, give the map
@@ -331,7 +329,7 @@ class MeHandler(BaseHandler):
                     response.write("Item ID %s does not exist" % request.PUT['main_hand'])
                     return response
             
-            player.wield(item)
+            player.wield(item)            
         
         return self.read(request)
 
@@ -342,21 +340,20 @@ class PlayerHandler(BaseHandler):
         'id',
         'name',
         'level',
-        #'builder_mode',
         'room',
-        #'items',
-        #'mp',
-        #'max_mp',
         'hp',
         'max_hp',
         'main_hand',
-        #'experience',
-        #'map',
+        'eq_head',
+        'eq_chest',
+        'eq_arms',
+        'eq_legs',
+        'eq_feet',
     )
 
     @classmethod
     def main_hand(self, player):
-        return get_item_api(player.main_hand)
+        return player.main_hand
 
     def read(self, request, id=None):
         

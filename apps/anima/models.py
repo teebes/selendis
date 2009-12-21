@@ -30,11 +30,34 @@ class Anima(models.Model):
     sp = models.IntegerField(default=10)
     max_sp = models.IntegerField(default=10)
     
-    main_hand = models.ForeignKey(ItemInstance, blank=True, null=True)
+    main_hand = models.ForeignKey(ItemInstance,
+                                  related_name="%(class)s_mainhand",
+                                  blank=True, null=True)
     
     target_type = models.ForeignKey(ContentType, blank=True, null=True)
     target_id = models.PositiveIntegerField(blank=True, null=True)
     target = generic.GenericForeignKey('target_type', 'target_id')
+    
+    eq_head = models.ForeignKey(ItemInstance,
+                                related_name="%(class)s_head",
+                                blank=True, null=True)
+    
+    eq_chest = models.ForeignKey(ItemInstance,
+                                 related_name="%(class)s_chest",
+                                 blank=True, null=True)
+    
+    eq_arms = models.ForeignKey(ItemInstance,
+                                related_name="%(class)s_arms",
+                                blank=True, null=True)
+    
+    eq_legs = models.ForeignKey(ItemInstance,
+                                related_name="%(class)s_legs",
+                                blank=True, null=True)
+
+    eq_feet = models.ForeignKey(ItemInstance,
+                                related_name="%(class)s_feet",
+                                blank=True, null=True)
+    
     
     class Meta:
         abstract = True
@@ -380,6 +403,7 @@ class Anima(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.name
+
 
 class Player(Anima):
     user = models.ForeignKey(User, related_name='players')

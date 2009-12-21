@@ -3,7 +3,9 @@ get_communications = function() {
 }
 
 render_communications = function() {
+
     $.getJSON("/api/messages.json", function(communications) {
+        
         var previous_html = $("#communications").html();
         
         // see if this user is scrolling or if he's at the bottom
@@ -15,14 +17,17 @@ render_communications = function() {
         
         var html = '';
         $.each(communications, function() {
-            html += "<div class='comm_" + this.type + "'>";
+            html += '<div class="comm_' + this.type + '">';
             if (this.type == 'chat') {
-                html += '<strong>' + this.source + "</strong>: ";                
+                html += '<strong>' + this.source + '</strong>: ';
             }
             html += this.content;
-            html += "</div>\n";
+            html += '</div>\n';
         });
-        $("#communications").html(html);
+
+        if (previous_html != html) {
+            $("#communications").html(html);
+        }
         
         if (scroll_down) {  comm_div.scrollTop = comm_div.scrollHeight; }
 

@@ -107,9 +107,16 @@ not work it it. Please use either Firefox, Chrome, Safari or Opera.</h1>
             Movement Points: <span id="mp"></span>
         </div>
         
+        <!--
         <div id="player_equipment">
             Wielded: <span id="player_main_hand"></span><br />
+            Worn on head: <span id="player_eq_head"></span><br />
+            Worn on chest: <span id="player_eq_chest"></span><br />
+            Worn on arms: <span id="player_eq_arms"></span><br />
+            Worn on legs: <span id="player_eq_legs"></span><br />
+            Worn on feet: <span id="player_eq-feet"></span><br />
         </div>
+        -->
         
         <br />
         Inventory:
@@ -198,26 +205,20 @@ $(document).ready(function(){
             data: { map: true },
             dataType: "json",
             success: function(player) {
-        
-        
-            //$.getJSON("/api/me.json", function(player) {
-
-            document.player = player;
-            document.map = player.map;
-            //get_map();
-            
-            // render the pages
-            render_room();
-            render_profile();
-            
-            if (initial) {
+                document.player = player;
+                document.map = player.map;
+                
+                // render the pages
+                render_room();
+                render_profile();
+                
                 // functions to only execute once on initial load
-                if (document.player.builder_mode) {
-                    render_builder(); }
-                initial = false;
+                if (initial) {
+                    if (document.player.builder_mode) {
+                        render_builder(); }
+                    initial = false;
+                }
             }
-            }
-            
         });           
     }
     pulse();

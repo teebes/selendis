@@ -34,7 +34,7 @@ class Room(models.Model):
             player.notify(msg)
 
     def __unicode__(self):
-        return u"%s, %s: %s" % (self.xpos, self.ypos, self.title)
+        return u"%s, %s: %s" % (self.xpos, self.ypos, self.name )
 
 
 class BaseItem(models.Model):
@@ -80,7 +80,7 @@ class ItemInstance(models.Model):
     owns = generic.GenericRelation('ItemInstance',
                                    object_id_field='owner_id',
                                    content_type_field='owner_type')
-
+    
     # which item this instance is derived from
     base_type = models.ForeignKey(ContentType, related_name='base')
     base_id = models.PositiveIntegerField()

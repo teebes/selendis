@@ -59,7 +59,7 @@ move_to = function(x, y) {
     
     // if the player has enough moves,
     // assume the move went through so that directions can be spammed
-    if (document.player.mp > 2) {
+    if (document.player.mp > 2) {   
         document.player.room.xpos = x;
         document.player.room.ypos = y;
     }
@@ -336,6 +336,20 @@ process_command = function(command){
         }
         return
     }
+    
+    /*
+    else if (first == 'wear') {
+        if (tokens.length < 2) {
+            feedback('Syntax: wear item');
+        } else {
+            $.each(document.player.items, function() {
+                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
+                    modify_player({wear: this.id});
+                }
+            });
+        }
+    }
+    */
     
     else if (first == 'remove') {
         if (tokens.length < 2) {

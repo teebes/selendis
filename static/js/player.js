@@ -1,13 +1,3 @@
-/*
-get_player = function() {
-    $.getJSON("/api/me.json", function(player) {
-        document.player = player;
-    });
-}
-*/
-
-/* modifiers */
-
 modify_player = function(data) {
     /*
         Modify the player without a response event other than setting the
@@ -34,13 +24,15 @@ render_profile = function() {
     $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 
     // main hand
-    var main_hand = null;
-    if (document.player.main_hand) {
-        main_hand = document.player.main_hand.name;
-    } else {
-        main_hand = "&lt;empty&gt;";
-    }
+    var main_hand = "&lt;empty&gt;";
+    if (document.player.main_hand) { main_hand = document.player.main_hand.name; }
     $("#player_main_hand").html(main_hand);
+
+    // head
+    // chest
+    // arms
+    // legs
+    // feet
 
     $("#player_inventory").empty();
     $.each(document.player.items, function() {
