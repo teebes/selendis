@@ -324,6 +324,7 @@ process_command = function(command){
     }
     
     // ----- wield -----------------
+    /*
     else if (first == 'wield') {
         if (tokens.length < 2) {
             feedback('Syntax: wield weapon');
@@ -336,9 +337,9 @@ process_command = function(command){
         }
         return
     }
+    */
     
-    /*
-    else if (first == 'wear') {
+    else if (first == 'wear' || first == 'wield') {
         if (tokens.length < 2) {
             feedback('Syntax: wear item');
         } else {
@@ -348,18 +349,21 @@ process_command = function(command){
                 }
             });
         }
+        return
     }
-    */
     
     else if (first == 'remove') {
         if (tokens.length < 2) {
             feedback('Syntax: remove item');
         } else {
-            var equipment = new Array();
-            if (document.player.main_hand) { equipment.push(document.player.main_hand); }
+            //var equipment = new Array();
+            //if (document.player.main_hand) { equipment.push(document.player.main_hand); }
+            var equipment = document.player.equipment;
             $.each(equipment, function() {
                 if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
-                    modify_player({main_hand: ''});
+                    //modify_player({main_hand: ''});
+                    modify_player({remove: this.id});
+                    //alert("Want to send " + this.name);
                 }
             });
         }

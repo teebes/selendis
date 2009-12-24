@@ -11,7 +11,7 @@ from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
 from stark import config
-from stark.apps.anima.models import Player, Mob, Message
+from stark.apps.anima.models import Anima, Player, Mob, Message
 from stark.apps.timers import check_pulse
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
 
@@ -30,6 +30,8 @@ class ItemHandler(BaseHandler):
         'capacity',
         'owner_type',        
         'contains',
+        # only for equipment
+        'slot',
     )
 
     @classmethod
@@ -50,6 +52,10 @@ class ItemHandler(BaseHandler):
                     'name': contained_item.base.name,
             })
         return contained_items
+    @classmethod
+    def slot(self, item):
+        if item.base.__class__.__name__ == "Equipment":
+            return item.base.slot
 
     def update(self, request, id):
         print request.PUT
@@ -289,6 +295,8 @@ class MeHandler(BaseHandler):
             if i != player.main_hand:
                 items.append(i)
         result['items'] = items
+        
+        result['equipment'] = PlayerHandler.equipment(player)
 
         # if 'map' is in any of the requests, give the map
         if getattr(request, request.method).get('map', None):
@@ -318,6 +326,7 @@ class MeHandler(BaseHandler):
                 response.write(": %s" % e)
                 return response
 
+        """
         if request.PUT.has_key('main_hand'):
             if not request.PUT['main_hand']:
                 item = None
@@ -329,7 +338,28 @@ class MeHandler(BaseHandler):
                     response.write("Item ID %s does not exist" % request.PUT['main_hand'])
                     return response
             
-            player.wield(item)            
+            player.wield(item)
+        """
+        
+        if request.PUT.get('wear', None):
+            try:
+                item = ItemInstance.objects.get(pk=request.PUT['wear'])
+            except ItemInstance.DoesNotExist:
+                response = rc.BAD_REQUEST
+                response.write("Item ID %s does not exist" % request.PUT['wear'])
+                return response
+
+            player.wear(item)
+            
+        if request.PUT.get('remove', None):
+            try:
+                item = ItemInstance.objects.get(pk=request.PUT['remove'])
+            except ItemInstance.DoesNotExist:
+                response = rc.BAD_REQUEST
+                response.write("Item ID %s does not exist" % request.PUT['remove'])
+                return response
+            
+            player.remove(item)
         
         return self.read(request)
 
@@ -344,27 +374,28 @@ class PlayerHandler(BaseHandler):
         'hp',
         'max_hp',
         'main_hand',
-        'eq_head',
-        'eq_chest',
-        'eq_arms',
-        'eq_legs',
-        'eq_feet',
+        'equipment',
+        #'eq_head',
+        #'eq_chest',
+        #'eq_arms',
+        #'eq_legs',
+        #'eq_feet',
     )
+
+    @classmethod
+    def equipment(self, player):
+        eq = {}
+        for field in Anima.__dict__.keys():
+            if field[0:3] == 'eq_':
+                eq[field[3:]] = getattr(player, field)
+        eq['main_hand'] = player.main_hand
+        return eq
 
     @classmethod
     def main_hand(self, player):
         return player.main_hand
 
-    def read(self, request, id=None):
-        
-        # temporary location for the checking / launching of the pulse thread
-        check_pulse()
-        
-        if id == 'me':
-            player = Player.objects.get(user=request.user, status='logged_in')
-        else:
-            return rc.FORBIDDEN
-        return player
+    #def read(self, request, id=None):
 
 class MessageHandler(BaseHandler):
     allowed_methods = ('GET', 'POST')

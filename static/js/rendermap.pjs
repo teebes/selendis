@@ -25,7 +25,7 @@ void draw()
     var margin = 10;
     background(240);
 
-    if (document.map) {
+    if (document.map && document.player) {
         map = document.map;
         $.each(map.rooms, function() {
             // determine x & y coords

@@ -1,6 +1,8 @@
 """
 If upgrading from previous versions, you may need to run (in order of upgrades, so most recent is last):
 
+alter table world_equipment add column "slot" varchar(40);
+
 alter table anima_player add column "eq_head_id" integer REFERENCES "world_iteminstance" ("id");
 alter table anima_player add column "eq_chest_id" integer REFERENCES "world_iteminstance" ("id");
 alter table anima_player add column "eq_arms_id" integer REFERENCES "world_iteminstance" ("id");

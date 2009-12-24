@@ -344,15 +344,56 @@ class Anima(models.Model):
             stark_log.debug(message)
             raise Exception(message)
 
-    def wear(self, item, slot, remove_msg=None, error_msg=None, wear_msg=None):
-        worn_item = getattr(self, slot)
+
+    def wear(self, item, wear_verb='wear'):
+        if item.base.__class__.__name__ == "Weapon":
+            slot = 'main_hand'
+            if wear_verb == 'wear':
+                wear_verb = 'wield'
+        elif item.base.__class__.__name__ == "Equipment":
+            slot = item.base.slot
         
-        # item passed is null, empty the specified slot
+        if getattr(self, slot):
+            self.notify("You're already wearing something on this slot.")
+            raise Exception("Slot occupied")
+        
+        setattr(self, slot, item)
+        self.save()
+        
+        for player in self.room.player_related.all():
+            if player == self:
+                self.notify("You %s %s." % (wear_verb, item.base.name))
+            else:
+                player.notify("%s %ss %s." % (self.name, wear_verb, item.base.name))
+
+    def remove(self, item):
+        if item.base.__class__.__name__ == "Weapon":
+            slot = 'main_hand'
+        elif item.base.__class__.__name__ == "Equipment":
+            slot = item.base.slot
+        
+        if not getattr(self, slot):
+            self.notify("This slot is empty.")
+            raise Exception("Slot empty")
+            
+        setattr(self, slot, None)
+        self.save()
+        
+        for player in self.room.player_related.all():
+            if player == self:
+                self.notify("You remove %s." % item.base.name)
+            else:
+                player.notify("%s removes %s." % (self.name, item.base.name))
+
+    def old_wear(self, item, slot=None, remove_msg=None, error_msg=None, wear_msg=None):
+
+        # if the item passed is null, empty the specified slot
+        previously_worn_item = getattr(self, slot)
         if not item: # remove the item
             setattr(self, slot, None)
             self.save()
             if not remove_msg:
-                remove_msg = "You remove %s" % worn_item.base.name
+                remove_msg = "You remove %s" % previously_worn_item.base.name
             self.notify(remove_msg)
         
         # an item is already on that slot
@@ -370,6 +411,7 @@ class Anima(models.Model):
                 wear_msg = "You wear %s" % item.base.name
             self.notify(wear_msg)
 
+    """
     def wield(self, weapon):
         if weapon:
             wear_msg = "You wield %s" % weapon.base.name
@@ -377,6 +419,7 @@ class Anima(models.Model):
             wear_msg = None
         
         self.wear(weapon, 'main_hand', wear_msg=wear_msg)
+    """
 
     def engage(self, target_type, target_id):
         not_here = "No-one by that name."

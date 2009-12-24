@@ -62,7 +62,19 @@ class Weapon(BaseItem):
     two_handed = models.BooleanField(default=False)
     
 
-class Equipment(BaseItem): pass
+# get the possible slots
+# this should be:
+# SLOT_CHOICES = [(elem, elem) for elem in Anima.__dict__.keys() if elem[0:3] == 'eq_']
+# but using 'from stark.apps.anima.models import Anima' keeps giving me problems
+SLOT_CHOICES = [('eq_chest', 'eq_chest'),
+                ('eq_head', 'eq_head'),
+                ('eq_arms', 'eq_arms'),
+                ('eq_legs', 'eq_legs'),
+                ('eq_feet', 'eq_feet')]
+
+class Equipment(BaseItem):
+    slot = models.CharField(max_length=40, choices=SLOT_CHOICES, blank=False)
+    pass
 
 class Sustenance(BaseItem): pass
 
