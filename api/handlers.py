@@ -11,6 +11,7 @@ from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
 from stark import config
+from stark.api.commands import parse_command
 from stark.apps.anima.models import Anima, Player, Mob, Message
 from stark.apps.timers import check_pulse
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
@@ -280,7 +281,6 @@ class MeHandler(BaseHandler):
     )
 
     def read(self, request):
-        
         check_pulse()
         
         player = Player.objects.get(user=request.user, status='logged_in')        
@@ -307,6 +307,9 @@ class MeHandler(BaseHandler):
         
     def update(self, request):
         player = Player.objects.get(user=request.user, status='logged_in')
+
+        if request.PUT.has_key('command'):
+            parse_command(request.PUT['command'])
 
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
             try:

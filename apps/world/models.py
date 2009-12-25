@@ -80,6 +80,13 @@ class Sustenance(BaseItem): pass
 
 class Misc(BaseItem): pass
 
+class ItemManager(models.Manager):
+    def owned_by(self, owner):
+        return super(ItemManager, self).filter(
+                owner_type__name = owner.__class__.__name__.lower(),
+                owner_id = owner.id,
+        )
+
 class ItemInstance(models.Model):
     # these are the true physical objects that players can hold in their
     # inventory, equip, eat, etc. Each instance is of an item of the four basic
@@ -97,6 +104,8 @@ class ItemInstance(models.Model):
     base_type = models.ForeignKey(ContentType, related_name='base')
     base_id = models.PositiveIntegerField()
     base = generic.GenericForeignKey('base_type', 'base_id')
+    
+    objects = ItemManager()
     
     def __unicode__(self):
         # items carried by players / mobs

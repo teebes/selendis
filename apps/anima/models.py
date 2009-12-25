@@ -8,9 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models, transaction
 
+from stark import config
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Equipment, Misc
-from stark import config
 
 MOVE_COST = 2 #TODO: move to global config
 
@@ -58,9 +58,38 @@ class Anima(models.Model):
                                 related_name="%(class)s_feet",
                                 blank=True, null=True)
     
-    
     class Meta:
         abstract = True
+
+    def equipment(self):
+        eq = []
+        
+        for attr in Anima.__dict__.keys():
+            if (attr[0:3] == 'eq_' or attr == 'main_hand') and getattr(self, attr, None):
+                eq.append(getattr(self, attr))
+        return eq
+
+    """
+    def inventory(self):
+        #eq = self.equipment()
+        inv = []
+        for item in ItemInstance.objects.owned_by(self):
+            # way 1
+            if item.base.__class__.__name__ == 'Weapon':
+                slot = main_hand
+            elif item.base.__class__.__name__ == 'Equipment':
+                slot = item.base.slot
+            
+            
+            
+            if hasattr(item.base, 'slot'):# and getattr(self, item.base.slot, None):
+                print slot
+                inv.append(item)
+            # way 2
+            #if item not in eq:
+            #    inv.append(item)
+        return inv
+    """
 
     def notify(self, msg):
         Message.objects.create(type='notification',
