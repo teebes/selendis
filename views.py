@@ -92,6 +92,9 @@ def logout_login(request):
     return HttpResponseRedirect(reverse('login'))
 
 def quick(request):
+    from stark.apps.anima.models import Player
+    p = Player.objects.get(name='teebes')
+    p.command('get corpse')
     return HttpResponse('ok')
 
     

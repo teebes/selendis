@@ -126,15 +126,15 @@ setup_commands = function() {
 
 process_command = function(command){
     var t = tokens = command.split(' '); // t for tokens
-    if (tokens[1] in commands) {
-        send_command(command);
-    }
-    return
     
     $("#input_feedback").html('');
     $("#input_feedback").hide();
 
     $("#command_text").val('');   
+
+    send_command(command);
+    return
+
 
     first = match_command(tokens[0]);
 

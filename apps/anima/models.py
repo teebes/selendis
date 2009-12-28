@@ -113,20 +113,16 @@ class Anima(models.Model):
                 raise Exception('User is not wearing designated item to remove')
         # - get -
         if tokens[0] == 'get':
-            """
-            if len(tokens) < 2:
-                self.notify('Usage: get item')
-                raise Exception('Not enough tokens for get command')
-            """
             # simple get from room
-            if len(tokens) == 2: # get from room
+            if len(tokens) == 2:
                 items = find_items_in_container(tokens[1], self.room.items.all())
                 for item in items:
-                    self.get_item(items)
+                    self.get_item(item)
                 if not items:
                     error = 'There is no %s in this room.' % tokens[1]
                     self.notify(error)
                     raise Exception(error)
+            
             # get from container
             elif len(tokens) == 3:
                 # try to get the container from the player's equipment
@@ -161,7 +157,7 @@ class Anima(models.Model):
                 raise Exception('Not enough tokens for drop command')
             items = find_items_in_container(tokens[1], self.inventory())
             for item in items:
-                self.drop_item(items)
+                self.drop_item(item)
             if not items:
                 self.notify('You are not carrying a %s.' % tokens[1])
                 raise Exception('User is not holding designated item to drop')
@@ -383,13 +379,13 @@ class Anima(models.Model):
             if player == self:
                 self.notify("You drop %s." % item.base.name)
             else:
-                self.player("%s drops %s." % (self.name, item.base.name))
+                player.notify("%s drops %s." % (self.name, item.base.name))
 
     def get_item(self, item):
         if item.owner != self.room:
             stark_log = logging.getLogger('StarkLogger')
             message = "%s can't get item %s because they're in different rooms" % \
-                      (self.name, item.name)
+                      (self.name, item.base.name)
             stark_log.debug(message)
             raise Exception(message)
 

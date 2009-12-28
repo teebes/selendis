@@ -1,9 +1,12 @@
 def find_items_in_container(keyword, container):
+    if keyword == 'all':
+        return container
+    
     items = []
     for item in container:
         item_words = item.base.name.split(' ')
-        if keyword == 'all' or \
-           keyword == item.id or \
+        if keyword == item.id or \
            keyword in item_words:
-            items.append(item)
+            return [item]
+
     return items
