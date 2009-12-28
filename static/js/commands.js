@@ -55,6 +55,18 @@ match_command = function(user_input) {
     return false;
 }
 
+var send_command = function(command) {
+    $.ajax({
+        type: "PUT",
+        url: "/api/me.json",
+        data: { command: command },
+        dataType: "json",
+        success: function(player) {
+            document.player = player;
+        }
+    });
+}
+
 move_to = function(x, y) {
     
     // if the player has enough moves,
@@ -114,6 +126,11 @@ setup_commands = function() {
 
 process_command = function(command){
     var t = tokens = command.split(' '); // t for tokens
+    if (tokens[1] in commands) {
+        send_command(command);
+    }
+    return
+    
     $("#input_feedback").html('');
     $("#input_feedback").hide();
 
@@ -171,7 +188,8 @@ process_command = function(command){
     
     // ----- get -----------------
     else if (first == 'get') {
-        
+        send_command(command);
+        /*        
         if (tokens.length == 1) {
             feedback("Get syntax: get object [container]");
         }
@@ -210,7 +228,7 @@ process_command = function(command){
                 });
             }
         }
-        
+        */
         return
     }
     
@@ -252,13 +270,15 @@ process_command = function(command){
     
     // ----- drop -----------------
     else if (first == 'drop') {
-        
+        send_command(command);
+        /*
         if (tokens.length == 1) {
             feedback("Drop syntax: drop object");
             return
         }
         
-        move_item(document.player.items, tokens[1], 'room', document.player.room.id);        
+        move_item(document.player.items, tokens[1], 'room', document.player.room.id);
+        */
         return
     }
     
@@ -323,53 +343,17 @@ process_command = function(command){
         return
     }
     
-    // ----- wield -----------------
-    /*
-    else if (first == 'wield') {
-        if (tokens.length < 2) {
-            feedback('Syntax: wield weapon');
-        } else {
-            $.each(document.player.items, function() {
-                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
-                    modify_player({main_hand: this.id});
-                }
-            });
-        }
+    else if (first == 'wear' ||
+             first == 'wield' ||
+             first == 'remove' ||
+             first == 'get' ||
+             first == 'drop' ||
+             first == 'put' ||
+             first == 'kill') {
+        send_command(command);
         return
     }
-    */
-    
-    else if (first == 'wear' || first == 'wield') {
-        if (tokens.length < 2) {
-            feedback('Syntax: wear item');
-        } else {
-            $.each(document.player.items, function() {
-                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
-                    modify_player({wear: this.id});
-                }
-            });
-        }
-        return
-    }
-    
-    else if (first == 'remove') {
-        if (tokens.length < 2) {
-            feedback('Syntax: remove item');
-        } else {
-            //var equipment = new Array();
-            //if (document.player.main_hand) { equipment.push(document.player.main_hand); }
-            var equipment = document.player.equipment;
-            $.each(equipment, function() {
-                if (this.id == tokens[1] || tokens[1] in oc(this.name.split(' '))) {
-                    //modify_player({main_hand: ''});
-                    modify_player({remove: this.id});
-                    //alert("Want to send " + this.name);
-                }
-            });
-        }
-        return
-    }
-    
+        
     else if (first == 'help') {
         var help = "Commands: north east south west <br />";
         help += "chat get drop put kill wield wear remove";

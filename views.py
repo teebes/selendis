@@ -92,7 +92,6 @@ def logout_login(request):
     return HttpResponseRedirect(reverse('login'))
 
 def quick(request):
-    # TODO: move this to urls only
-    return render_to_response('quick.html')
+    return HttpResponse('ok')
 
     

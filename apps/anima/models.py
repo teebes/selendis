@@ -9,10 +9,12 @@ from django.contrib.contenttypes import generic
 from django.db import models, transaction
 
 from stark import config
-from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES
+from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES, ARMOR_SLOTS, WEAPON_SLOTS
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Equipment, Misc
+from stark.apps.world.utils import find_items_in_container
 
 MOVE_COST = 2 #TODO: move to global config
+
 
 class Anima(models.Model):
     # name should be unique for player subclass (not enforced @ db level)
@@ -30,66 +32,139 @@ class Anima(models.Model):
     sp = models.IntegerField(default=10)
     max_sp = models.IntegerField(default=10)
     
+    # equipment (weapons + armor)
     main_hand = models.ForeignKey(ItemInstance,
                                   related_name="%(class)s_mainhand",
                                   blank=True, null=True)
-    
-    target_type = models.ForeignKey(ContentType, blank=True, null=True)
-    target_id = models.PositiveIntegerField(blank=True, null=True)
-    target = generic.GenericForeignKey('target_type', 'target_id')
-    
-    eq_head = models.ForeignKey(ItemInstance,
+        
+    head = models.ForeignKey(ItemInstance,
                                 related_name="%(class)s_head",
                                 blank=True, null=True)
     
-    eq_chest = models.ForeignKey(ItemInstance,
+    chest = models.ForeignKey(ItemInstance,
                                  related_name="%(class)s_chest",
                                  blank=True, null=True)
     
-    eq_arms = models.ForeignKey(ItemInstance,
+    arms = models.ForeignKey(ItemInstance,
                                 related_name="%(class)s_arms",
                                 blank=True, null=True)
     
-    eq_legs = models.ForeignKey(ItemInstance,
+    legs = models.ForeignKey(ItemInstance,
                                 related_name="%(class)s_legs",
                                 blank=True, null=True)
 
-    eq_feet = models.ForeignKey(ItemInstance,
+    feet = models.ForeignKey(ItemInstance,
                                 related_name="%(class)s_feet",
                                 blank=True, null=True)
-    
+
+    target_type = models.ForeignKey(ContentType, blank=True, null=True)
+    target_id = models.PositiveIntegerField(blank=True, null=True)
+    target = generic.GenericForeignKey('target_type', 'target_id')
+
     class Meta:
         abstract = True
 
     def equipment(self):
-        eq = []
-        
-        for attr in Anima.__dict__.keys():
-            if (attr[0:3] == 'eq_' or attr == 'main_hand') and getattr(self, attr, None):
-                eq.append(getattr(self, attr))
+        eq = {}
+        for attr in ARMOR_SLOTS + WEAPON_SLOTS:
+            item = getattr(self, attr)
+            if item:
+                eq[attr] = item
+            else:
+                # this ensures that the api calls don't return the string 'None'
+                eq[attr] = ''
         return eq
 
-    """
     def inventory(self):
-        #eq = self.equipment()
+        equipment = self.equipment()
         inv = []
         for item in ItemInstance.objects.owned_by(self):
-            # way 1
-            if item.base.__class__.__name__ == 'Weapon':
-                slot = main_hand
-            elif item.base.__class__.__name__ == 'Equipment':
-                slot = item.base.slot
-            
-            
-            
-            if hasattr(item.base, 'slot'):# and getattr(self, item.base.slot, None):
-                print slot
+            if item not in equipment.values():
                 inv.append(item)
-            # way 2
-            #if item not in eq:
-            #    inv.append(item)
         return inv
-    """
+
+    def command(self, cmd):
+        tokens = map(lambda x: x.lower(), cmd.split(' '))
+        
+        # - wear / wield -
+        if tokens[0] in ('wear', 'wield'):
+            if len(tokens) < 2:
+                self.notify('Usage: wear item')
+                raise Exception('Not enough tokens for wear command')
+                # TODO: handle better multiple items being returned?
+            items = find_items_in_container(tokens[1], self.inventory())
+            if items:
+                self.wear(items[0])
+            else:
+                self.notify('You have no %s to wear.' % tokens[1])
+                raise Exception('User does not have designated item to wear')
+            
+        # - remove -
+        if tokens[0] == 'remove':
+            if len(tokens) < 2:
+                self.notify('Usage: remove item')
+                raise Exception('Not enough tokens for remove command')
+            eq = filter(lambda x: x, self.equipment().values())
+            items = find_items_in_container(tokens[1], eq)
+            if items:
+                self.remove(items[0])
+            else:
+                self.notify('You are not wearing a %s.' % tokens[1])
+                raise Exception('User is not wearing designated item to remove')
+        # - get -
+        if tokens[0] == 'get':
+            """
+            if len(tokens) < 2:
+                self.notify('Usage: get item')
+                raise Exception('Not enough tokens for get command')
+            """
+            # simple get from room
+            if len(tokens) == 2: # get from room
+                items = find_items_in_container(tokens[1], self.room.items.all())
+                for item in items:
+                    self.get_item(items)
+                if not items:
+                    error = 'There is no %s in this room.' % tokens[1]
+                    self.notify(error)
+                    raise Exception(error)
+            # get from container
+            elif len(tokens) == 3:
+                # try to get the container from the player's equipment
+                eq = filter(lambda x: x, self.equipment().values())
+                container = find_items_in_container(tokens[2], eq)
+                # next, try the player's inventory
+                if not container:
+                    container = find_items_in_container(tokens[2], self.inventory())
+                # next, try the room
+                if not container:
+                    container = find_items_in_container(tokens[2], self.room.items.all())
+                # still no container found? raise error
+                if not container:
+                    error = 'No such container: %s' % tokens[2]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                # get the item from the found container
+                # TODO: should this support getting stuff from multiple container?
+                items = find_items_in_container(tokens[1], container[0])
+                for item in items:
+                    self.get_item(item)
+                if not items:
+                    error = 'There is no %s in %s' % (tokens[1], tokens[2])
+                    self.notify(error)
+                    raise Exception(error)
+
+        # - drop -
+        if tokens[0] == 'drop':
+            if len(tokens) < 2:
+                self.notify('Usage: drop item')
+                raise Exception('Not enough tokens for drop command')
+            items = find_items_in_container(tokens[1], self.inventory())
+            for item in items:
+                self.drop_item(items)
+            if not items:
+                self.notify('You are not carrying a %s.' % tokens[1])
+                raise Exception('User is not holding designated item to drop')
 
     def notify(self, msg):
         Message.objects.create(type='notification',
@@ -376,17 +451,14 @@ class Anima(models.Model):
 
     def wear(self, item, wear_verb='wear'):
         if item.base.__class__.__name__ == "Weapon":
-            slot = 'main_hand'
             if wear_verb == 'wear':
                 wear_verb = 'wield'
-        elif item.base.__class__.__name__ == "Equipment":
-            slot = item.base.slot
         
-        if getattr(self, slot):
+        if getattr(self, item.base.slot):
             self.notify("You're already wearing something on this slot.")
             raise Exception("Slot occupied")
         
-        setattr(self, slot, item)
+        setattr(self, item.base.slot, item)
         self.save()
         
         for player in self.room.player_related.all():
@@ -395,17 +467,12 @@ class Anima(models.Model):
             else:
                 player.notify("%s %ss %s." % (self.name, wear_verb, item.base.name))
 
-    def remove(self, item):
-        if item.base.__class__.__name__ == "Weapon":
-            slot = 'main_hand'
-        elif item.base.__class__.__name__ == "Equipment":
-            slot = item.base.slot
-        
-        if not getattr(self, slot):
+    def remove(self, item):        
+        if not getattr(self, item.base.slot):
             self.notify("This slot is empty.")
             raise Exception("Slot empty")
             
-        setattr(self, slot, None)
+        setattr(self, item.base.slot, None)
         self.save()
         
         for player in self.room.player_related.all():
@@ -414,41 +481,6 @@ class Anima(models.Model):
             else:
                 player.notify("%s removes %s." % (self.name, item.base.name))
 
-    def old_wear(self, item, slot=None, remove_msg=None, error_msg=None, wear_msg=None):
-
-        # if the item passed is null, empty the specified slot
-        previously_worn_item = getattr(self, slot)
-        if not item: # remove the item
-            setattr(self, slot, None)
-            self.save()
-            if not remove_msg:
-                remove_msg = "You remove %s" % previously_worn_item.base.name
-            self.notify(remove_msg)
-        
-        # an item is already on that slot
-        elif getattr(self, slot): # something already on that slot
-            if not error_msg:
-                error_msg = "You are already wearing something on your %s" \
-                            % item.base.name
-            self.notify(error_msg)
-        
-        # we're good to go, wear the item
-        else:
-            setattr(self, slot, item)
-            self.save()
-            if not wear_msg:
-                wear_msg = "You wear %s" % item.base.name
-            self.notify(wear_msg)
-
-    """
-    def wield(self, weapon):
-        if weapon:
-            wear_msg = "You wield %s" % weapon.base.name
-        else:
-            wear_msg = None
-        
-        self.wear(weapon, 'main_hand', wear_msg=wear_msg)
-    """
 
     def engage(self, target_type, target_id):
         not_here = "No-one by that name."

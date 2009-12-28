@@ -4,8 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models
 
+from stark.apps.anima.constants import WEAPON_SLOTS, ARMOR_SLOTS
 from stark.apps.world.constants import CONNECTOR_TYPES, DIRECTIONS, ROOM_TYPES, WEAPON_CLASSES
-    
+
 class RoomConnector(models.Model):
     from_room = models.ForeignKey('Room', related_name='from_room')
     to_room = models.ForeignKey('Room', related_name='to_room')
@@ -51,7 +52,8 @@ class BaseItem(models.Model):
     
     def __unicode__(self):
         return "%s" % (self.name)
-    
+
+_WEAPON_SLOTS = map(lambda x: (x, x), WEAPON_SLOTS)
 class Weapon(BaseItem):
     # damage is expressed with dice rolls, in the standard form AdX,
     # A being the number of dice to be rolled
@@ -60,21 +62,15 @@ class Weapon(BaseItem):
     num_faces = models.IntegerField(blank=False)
     weapon_class = models.CharField(max_length=20, choices=WEAPON_CLASSES)
     two_handed = models.BooleanField(default=False)
-    
-
-# get the possible slots
-# this should be:
-# SLOT_CHOICES = [(elem, elem) for elem in Anima.__dict__.keys() if elem[0:3] == 'eq_']
-# but using 'from stark.apps.anima.models import Anima' keeps giving me problems
-SLOT_CHOICES = [('eq_chest', 'eq_chest'),
-                ('eq_head', 'eq_head'),
-                ('eq_arms', 'eq_arms'),
-                ('eq_legs', 'eq_legs'),
-                ('eq_feet', 'eq_feet')]
+    slot = models.CharField(max_length=40, choices=_WEAPON_SLOTS, blank=False)
 
 class Equipment(BaseItem):
-    slot = models.CharField(max_length=40, choices=SLOT_CHOICES, blank=False)
-    pass
+    """This class is deperacted, 'Equipment' is now Armor + Weapons"""
+    slot = models.CharField(max_length=40, choices=[], blank=False)
+
+_ARMOR_SLOTS = map(lambda x: (x, x), ARMOR_SLOTS)
+class Armor(BaseItem):    
+    slot = models.CharField(max_length=40, choices=_ARMOR_SLOTS, blank=False)
 
 class Sustenance(BaseItem): pass
 

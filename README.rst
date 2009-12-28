@@ -7,9 +7,10 @@ What is Stark?
  
 Stark is an attempt at a web-based visual mud. It built using open
 technologies that revolve around the browser and is therefore completely
-cross-platform (including all modern smart phones).
+cross-platform (including all modern smart phones) with the notable exception
+of IE (until it supports HTML5).
  
-* All client-server interactions are `RESTful <http://en.wikipedia.org/wiki/REST>`_, which therefore means that anyone can write clients and apps in any language that interact with that world
+* Client-server interactions are based on a (mostly) `RESTful <http://en.wikipedia.org/wiki/REST>`_ public api so that anyone who would like to build their own client to interact with that world can.
  
 * Server-side is `Django <http://djangoproject.com/>`_ served by Apache with mod-wsgi using `django_piston <http://bitbucket.org/jespern/django-piston/wiki/Home>`_ for the REST api and sqlite3 as the db (for now)
  
@@ -29,7 +30,7 @@ You need django and django-piston installed (links above). There are right now n
 Installation
 ============
  
-This is a full django project, it can't just be installed as an app. Maybe once django supports nested apps... so, for now:
+This is a full django project, it can't just be installed as an app:
  
 * add the stark package to the Python path
  

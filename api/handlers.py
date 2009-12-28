@@ -11,10 +11,9 @@ from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
 from stark import config
-from stark.api.commands import parse_command
 from stark.apps.anima.models import Anima, Player, Mob, Message
 from stark.apps.timers import check_pulse
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor
 
 ROOM_RANGE = 10
 MEMORY = getattr(config, 'MESSAGES_RETENTION_TIME', 60 * 5)
@@ -55,7 +54,7 @@ class ItemHandler(BaseHandler):
         return contained_items
     @classmethod
     def slot(self, item):
-        if item.base.__class__.__name__ == "Equipment":
+        if item.base.__class__.__name__ in ('Armor', 'Weapon'):
             return item.base.slot
 
     def update(self, request, id):
@@ -290,13 +289,9 @@ class MeHandler(BaseHandler):
             if hasattr(player, field):
                 result[field] = getattr(player, field)
 
-        items = []
-        for i in ItemInstance.objects.filter(owner_type__name='player', owner_id=player.id):
-            if i != player.main_hand:
-                items.append(i)
-        result['items'] = items
-        
+        result['inventory'] = player.inventory()
         result['equipment'] = PlayerHandler.equipment(player)
+        
 
         # if 'map' is in any of the requests, give the map
         if getattr(request, request.method).get('map', None):
@@ -309,7 +304,10 @@ class MeHandler(BaseHandler):
         player = Player.objects.get(user=request.user, status='logged_in')
 
         if request.PUT.has_key('command'):
-            parse_command(request.PUT['command'])
+            try:
+                player.command(request.PUT['command'])
+            except Exception, e:
+                print e
 
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
             try:
@@ -329,21 +327,6 @@ class MeHandler(BaseHandler):
                 response.write(": %s" % e)
                 return response
 
-        """
-        if request.PUT.has_key('main_hand'):
-            if not request.PUT['main_hand']:
-                item = None
-            else:
-                try:
-                    item = ItemInstance.objects.get(pk=request.PUT['main_hand'])
-                except ItemInstance.DoesNotExist:
-                    response = rc.BAD_REQUEST
-                    response.write("Item ID %s does not exist" % request.PUT['main_hand'])
-                    return response
-            
-            player.wield(item)
-        """
-        
         if request.PUT.get('wear', None):
             try:
                 item = ItemInstance.objects.get(pk=request.PUT['wear'])
@@ -366,6 +349,7 @@ class MeHandler(BaseHandler):
         
         return self.read(request)
 
+
 class PlayerHandler(BaseHandler):
     allowed_methods = ('GET', 'PUT')
     model = Player
@@ -376,23 +360,14 @@ class PlayerHandler(BaseHandler):
         'room',
         'hp',
         'max_hp',
-        'main_hand',
+        #'main_hand',
         'equipment',
-        #'eq_head',
-        #'eq_chest',
-        #'eq_arms',
-        #'eq_legs',
-        #'eq_feet',
     )
 
+    
     @classmethod
     def equipment(self, player):
-        eq = {}
-        for field in Anima.__dict__.keys():
-            if field[0:3] == 'eq_':
-                eq[field[3:]] = getattr(player, field)
-        eq['main_hand'] = player.main_hand
-        return eq
+        return player.equipment()
 
     @classmethod
     def main_hand(self, player):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from stark.apps.world.models import Equipment, ItemInstance, Misc, Room, Sustenance, Weapon
+from stark.apps.world.models import Armor, ItemInstance, Misc, Room, Sustenance, Weapon
 
 from django.contrib.contenttypes import generic
 
@@ -12,10 +12,11 @@ class RoomAdmin(admin.ModelAdmin):
         'name',
     )
 
-class EquipmentAdmin(admin.ModelAdmin): pass
+#class EquipmentAdmin(admin.ModelAdmin): pass
 class MiscAdmin(admin.ModelAdmin): pass
 class SustenanceAdmin(admin.ModelAdmin): pass
 class WeaponAdmin(admin.ModelAdmin): pass
+class ArmorAdmin(admin.ModelAdmin): pass
 
 class ItemInstanceInline(generic.GenericTabularInline):
     model = ItemInstance
@@ -30,7 +31,8 @@ class ItemInstanceAdmin(admin.ModelAdmin):
 # registers
 admin.site.register(Room, RoomAdmin)
 
-admin.site.register(Equipment, EquipmentAdmin)
+#admin.site.register(Equipment, EquipmentAdmin)
+admin.site.register(Armor, ArmorAdmin)
 admin.site.register(Misc, MiscAdmin)
 admin.site.register(Sustenance, SustenanceAdmin)
 admin.site.register(Weapon, WeaponAdmin)
