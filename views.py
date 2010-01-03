@@ -11,9 +11,11 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stark.apps.world.models import Room
-from stark.apps.anima.models import Player
+from stark.apps.anima.models import Player, MobLoader
+from stark import config
 
 def index(request):
+    initial_room = Room.objects.get(pk=getattr(config, 'INITIAL_ROOM', 1))
     if not request.user.is_authenticated():
         """
         To promote new users, the site automatically creates a throwaway
@@ -31,21 +33,28 @@ def index(request):
         user.save()
         authenticated_user = authenticate(username=user.username, password=password)
         contrib_login(request, authenticated_user)
-        player = Player.objects.create(user=user, name=user.username, temporary=True, status='logged_in')
+        print initial_room
+        player = Player.objects.create(user=user,
+                                       name=user.username,
+                                       temporary=True,
+                                       status='logged_in',
+                                       room=initial_room)
+        player.update()
         
     else:
         # if the user is already authenticated, get or create their player
         player, created = Player.objects.get_or_create(
                                 user=request.user,
                                 status='logged_in',
-                                name=request.user.username)
+                                name=request.user.username,
+                                defaults={'room': initial_room})
         
-        # if this is a new user, give them builder mode if they're staff
         if created:
+            # if new user, give them builder mode if they're staff
             if request.user.is_staff:
                 player.builder_mode = True
                 player.save()
-
+            player.update()
 
     return render_to_response("index.html", {
         'player': player,
@@ -92,9 +101,8 @@ def logout_login(request):
     return HttpResponseRedirect(reverse('login'))
 
 def quick(request):
-    from stark.apps.anima.models import Player
-    p = Player.objects.get(name='teebes')
-    p.command('get corpse')
+    for loader in MobLoader.objects.all():
+        loader.run()
     return HttpResponse('ok')
 
     

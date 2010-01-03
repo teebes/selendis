@@ -9,28 +9,38 @@ from django.contrib.contenttypes import generic
 from django.db import models, transaction
 
 from stark import config
+from stark.apps.anima.combat import determine_attack_outcome
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES, ARMOR_SLOTS, WEAPON_SLOTS
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Equipment, Misc
+from stark.apps.anima.levels import get_level_for_exp
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor, Misc, Sustenance
 from stark.apps.world.utils import find_items_in_container
+from stark.utils import roll_percent
 
 MOVE_COST = 2 #TODO: move to global config
-
 
 class Anima(models.Model):
     # name should be unique for player subclass (not enforced @ db level)
     name = models.CharField(max_length=40)
     room = models.ForeignKey(Room, related_name="%(class)s_related")
+
     level = models.IntegerField(default=1)
     experience = models.IntegerField(default=1)
+    next_level = models.IntegerField(default=1)
+    
+    description = models.TextField(blank=True)
     
     messages =  generic.GenericRelation('Message')
     
     hp = models.IntegerField(default=10)
-    max_hp = models.IntegerField(default=10)    
+    max_hp = models.IntegerField(default=10)
     mp = models.IntegerField(default=10)
-    max_mp = models.IntegerField(default=10)    
+    max_mp = models.IntegerField(default=10)
     sp = models.IntegerField(default=10)
     max_sp = models.IntegerField(default=10)
+    
+    strength = models.IntegerField(default=10)
+    agility = models.IntegerField(default=10)
+    constitution = models.IntegerField(default=10)
     
     # equipment (weapons + armor)
     main_hand = models.ForeignKey(ItemInstance,
@@ -48,6 +58,10 @@ class Anima(models.Model):
     arms = models.ForeignKey(ItemInstance,
                                 related_name="%(class)s_arms",
                                 blank=True, null=True)
+
+    hands = models.ForeignKey(ItemInstance,
+                                related_name="%(class)s_hands",
+                                blank=True, null=True)
     
     legs = models.ForeignKey(ItemInstance,
                                 related_name="%(class)s_legs",
@@ -61,106 +75,23 @@ class Anima(models.Model):
     target_id = models.PositiveIntegerField(blank=True, null=True)
     target = generic.GenericForeignKey('target_type', 'target_id')
 
-    class Meta:
-        abstract = True
-
-    def equipment(self):
-        eq = {}
-        for attr in ARMOR_SLOTS + WEAPON_SLOTS:
-            item = getattr(self, attr)
-            if item:
-                eq[attr] = item
-            else:
-                # this ensures that the api calls don't return the string 'None'
-                eq[attr] = ''
-        return eq
-
-    def inventory(self):
-        equipment = self.equipment()
-        inv = []
-        for item in ItemInstance.objects.owned_by(self):
-            if item not in equipment.values():
-                inv.append(item)
-        return inv
-
-    def command(self, cmd):
-        tokens = map(lambda x: x.lower(), cmd.split(' '))
+    #############
+    # Utilities #
+    #############
+    def update(self):
+        """
+        Function that checks certain base data about the anima like level &
+        max_hp
+        """
+        # check the level
+        (new_level, next_level) = get_level_for_exp(self.experience)
+        if new_level > self.level:
+            self.notify('You gain a level!')
+            self.level = new_level
+            self.next_level = next_level
         
-        # - wear / wield -
-        if tokens[0] in ('wear', 'wield'):
-            if len(tokens) < 2:
-                self.notify('Usage: wear item')
-                raise Exception('Not enough tokens for wear command')
-                # TODO: handle better multiple items being returned?
-            items = find_items_in_container(tokens[1], self.inventory())
-            if items:
-                self.wear(items[0])
-            else:
-                self.notify('You have no %s to wear.' % tokens[1])
-                raise Exception('User does not have designated item to wear')
-            
-        # - remove -
-        if tokens[0] == 'remove':
-            if len(tokens) < 2:
-                self.notify('Usage: remove item')
-                raise Exception('Not enough tokens for remove command')
-            eq = filter(lambda x: x, self.equipment().values())
-            items = find_items_in_container(tokens[1], eq)
-            if items:
-                self.remove(items[0])
-            else:
-                self.notify('You are not wearing a %s.' % tokens[1])
-                raise Exception('User is not wearing designated item to remove')
-        # - get -
-        if tokens[0] == 'get':
-            # simple get from room
-            if len(tokens) == 2:
-                items = find_items_in_container(tokens[1], self.room.items.all())
-                for item in items:
-                    self.get_item(item)
-                if not items:
-                    error = 'There is no %s in this room.' % tokens[1]
-                    self.notify(error)
-                    raise Exception(error)
-            
-            # get from container
-            elif len(tokens) == 3:
-                # try to get the container from the player's equipment
-                eq = filter(lambda x: x, self.equipment().values())
-                container = find_items_in_container(tokens[2], eq)
-                # next, try the player's inventory
-                if not container:
-                    container = find_items_in_container(tokens[2], self.inventory())
-                # next, try the room
-                if not container:
-                    container = find_items_in_container(tokens[2], self.room.items.all())
-                # still no container found? raise error
-                if not container:
-                    error = 'No such container: %s' % tokens[2]
-                    self.notify(error)
-                    raise Exception(error)
-                
-                # get the item from the found container
-                # TODO: should this support getting stuff from multiple container?
-                items = find_items_in_container(tokens[1], container[0])
-                for item in items:
-                    self.get_item(item)
-                if not items:
-                    error = 'There is no %s in %s' % (tokens[1], tokens[2])
-                    self.notify(error)
-                    raise Exception(error)
-
-        # - drop -
-        if tokens[0] == 'drop':
-            if len(tokens) < 2:
-                self.notify('Usage: drop item')
-                raise Exception('Not enough tokens for drop command')
-            items = find_items_in_container(tokens[1], self.inventory())
-            for item in items:
-                self.drop_item(item)
-            if not items:
-                self.notify('You are not carrying a %s.' % tokens[1])
-                raise Exception('User is not holding designated item to drop')
+        self.max_hp = self.constitution * 10 + self.level * 2
+        self.save()
 
     def notify(self, msg):
         Message.objects.create(type='notification',
@@ -168,6 +99,10 @@ class Anima(models.Model):
                                content=msg)
     
     def move(self, xpos=None, ypos=None, to_room=None, random=False):
+        
+        if self.target:
+            self.notify('You cannot move while in combat.')
+            return
         
         # get the connector based on the input provided
         if xpos and ypos:
@@ -190,8 +125,10 @@ class Anima(models.Model):
                 connector = RoomConnector.objects\
                             .filter(from_room=self.room)\
                             .order_by('?')[0]
-            except RoomConnector.DoesNotExist:
-                raise Exception("No exit out of this room exists")
+            except (RoomConnector.DoesNotExist, IndexError):
+                # no exits, don't move at all
+                return
+                # raise Exception("No exit out of this room exists")
         else:
             raise Exception('provide either x/y coords or set random=True')
 
@@ -206,7 +143,7 @@ class Anima(models.Model):
             else:
                 self.mp -= MOVE_COST
 
-        # save where the user was before the move
+        # store where the user was before the move
         from_room = self.room
         
         # move the user
@@ -214,6 +151,9 @@ class Anima(models.Model):
 
         # save
         self.save()
+        
+        # track this movement
+        # RoomTracker.objects.create(room=self.room, content=self)
         
         # tell every player in the room the anima was in that it's gone
         for player in Player.objects.filter(room=from_room, status='logged_in'):
@@ -245,9 +185,26 @@ class Anima(models.Model):
             new = max
         setattr(self, attribute, new)
         self.save()
+
+    ##########
+    # Combat #
+    ##########
     
-    @transaction.commit_on_success
-    def attack(self):        
+    def engage(self, target_type, target_id):
+        not_here = "No-one by that name."
+        try:
+            target_type = ContentType.objects.get(model=target_type)
+            target = target_type.model_class().objects.get(pk=target_id)
+            if self.room != target.room:
+                self.notify(not_here)
+
+            self.target = target
+            self.save()
+        except Exception:
+            self.notify(not_here)
+    
+    def combat_round(self):
+        """Runs an actual combat round as called by the events app"""
         # make sure source and target are in the same room
         if self.target.room != self.room:
             self.target = None
@@ -259,102 +216,99 @@ class Anima(models.Model):
             self.target.target = self
             self.target.save()
         
-        # base dmg
-        damage = 1
+        self.attack(self.target)
+    
+    def attack(self, target):
+        # pluggable function to determine the outcome of a round
+        (hit, damage) = determine_attack_outcome(self, target)
         
-        attack_msg = ['hit', 'hits']
-
-        # take the weapon into account
+        # get the hit messages from the weapon, if applicable
+        hit_messages = ['hit', 'hits']
         if self.main_hand:
-            rolls = self.main_hand.base.num_dice
-            max = self.main_hand.base.num_faces
-            damage += rolls * random.randint(1, max)
-             
-            if self.main_hand.base.weapon_class == 'short_blade':
-                attack_msg = ['stab', 'stabs']
-            if self.main_hand.base.weapon_class in ('medium_blade',
-                                               'long_blade'):
-                attack_msg = ['slash', 'slashes']
-            elif self.main_hand.base.weapon_class == 'spear':
-                attack_msg = ['strike', 'strikes']
-            elif self.main_hand.base.weapon_class == 'chain':
-                attack_msg = ['whip', 'whips']
-            elif self.main_hand.base.weapon_class == 'projectile':
-                attack_msg = ['throw', 'throws']
-            elif self.main_hand.base.weapon_class == 'axe':
-                attack_msg = ['hack', 'hacks']
-
-        # record the hit
-        self.target.hp -= damage
-        self.target.save()
-
-        # source notification (if player)
-        if self.__class__.__name__ == "Player":
-            self.notify("[%s dmg dealt] You %s %s!" % (
-                            damage,
-                            attack_msg[0],
-                            self.target.name))
-        # target notification (if player)
-        if self.target.__class__.__name__ == "Player":
-            self.target.notify("[%s dmg taken] %s %s you!" % (
-                            damage,
-                            self.name,
-                            attack_msg[1]))
-        # room notifications
-        for room_player in self.room.player_related.all():
-            if room_player not in (self, self.target):
-                room_player.notify("%s %s %s!" % (
-                                    self.name,
-                                    attack_msg[1],
-                                    self.target.name))
-
-        # kill the target if applicable
-        if self.target.hp <= 0:
-            # if the target was a mob, adjust experience
-            if self.target.__class__.__name__ == "Mob":
-                self.experience += self.target.experience
-            # kill the target anima, reset the target, save
-            self.target.die()
-            self.target = None
-            self.save()
-
-    @transaction.commit_on_success
-    def die(self):
-        # set hp back to full (for now)
-        self.hp = 10
+            hit_messages = self.main_hand.base.hit_messages()
         
-        self.target = None # useful if it's a player
-        self.save()
+        # send notifications
+        for player in self.room.player_related.all():
+            if player == self: # attacker
+                if hit:
+                    msg = "[%s dmg dealt] You %s %s." % \
+                            (damage, hit_messages[0], target.name)
+                else:
+                    msg = "%s defends against your attack." % target.name
+                player.notify(msg)
+            elif player == target: # defender
+                if hit:
+                    msg = "[%s dmg taken] %s %s you." % \
+                              (damage, self.name, hit_messages[1])
+                else:
+                    msg = "You defend against %s's attack" % self.name                    
+                player.notify(msg)
+            else: # bystander
+                if hit:
+                    msg = ("%s %s %s" %
+                              (self.name, hit_messages[1], target.name))
+                else:
+                    msg = "%s defends against %s' attack" \
+                          (target.name, self.name)
+                player.notify(msg)
 
-        # notifications
-        if self.__class__.__name__ == 'Player':
-            self.notify("You are dead! Sorry...")        
+        # record the hit, if applicable
+        if hit:
+            target.hp -= damage
+            target.save()
+    
+            # kill the target if applicable
+            if target.hp <= 0:
+                target.die()
+                self.target = None
+                self.save()
+                self.update()
+
+    def die(self):
         for room_player in self.room.player_related.all():
             if room_player != self:
                 room_player.notify("%s is dead!" % self.name)
 
         # create a corpse
-        corpse = Misc.objects.create(name="The corpse of %s" % self.name)
-        ItemInstance.objects.create(base=corpse, owner=self.room)
+        corpse = ItemInstance.objects.create(base=Misc.objects.get(pk=1),
+                                             owner=self.room,
+                                             name='the corpse of %s' %
+                                                    self.name)
+        
+        # transfer all items to the corpse
+        for item in ItemInstance.objects.owned_by(self):
+            item.owner = corpse
+            item.save()
 
-        # if it's a player, move to the death room
-        if self.__class__.__name__ == 'Mob':
-            self.delete()
-        elif self.__class__.__name__ == 'Player':
-            death_room_id = getattr(config, 'DEATH_ROOM_ID', 1)
-            try:
-                death_room = Room.objects.get(pk=death_room_id)
-            except Room.DoesNotExist:
-                raise Exception("There must be a room with pk=1")
-            self.room = death_room
-            self.save()
-    
+    #####################
+    # Item Interactions #
+    #####################
+
+    def equipment(self):
+        eq = {}
+        for attr in ARMOR_SLOTS + WEAPON_SLOTS:
+            item = getattr(self, attr)
+            if item:
+                eq[attr] = item
+            else:
+                # ensures that the api calls don't return the string 'None'
+                eq[attr] = ''
+        return eq
+
+    def inventory(self):
+        equipment = self.equipment()
+        inv = []
+        for item in ItemInstance.objects.owned_by(self):
+            if item not in equipment.values():
+                inv.append(item)
+        return inv    
     def give_item(self, item, give_to):
         
         if item.owner.room != give_to.room:
             stark_log = logging.getLogger('StarkLogger')
-            message = "%s can't give item %s to %s because they aren't in the same room" % \
-                      (self.name, item.name, give_to.name)
+            message = ("%s can't give item %s to %s because they aren't"
+                       " in the same room" %
+                        (self.name, item.name, give_to.name))
             stark_log.debug(message)
             raise Exception(message)
 
@@ -422,7 +376,7 @@ class Anima(models.Model):
             raise Exception(message)
 
     def put_item_in_container(self, item, container):
-        # container is in the room
+        # container is in the room or a player
         if (container.owner.__class__ is Room and container.owner == item.owner.room) or \
            (container.owner.__class__ is Player and container.owner == item.owner):
             
@@ -439,8 +393,8 @@ class Anima(models.Model):
 
         else:
             stark_log = logging.getLogger('StarkLogger')
-            message = "%s can't put item %s in container %s because they're in different rooms" % \
-                      (self.name, item.base.name, container.base.name)
+            message = ("Can't put %s in %s because you don't have access"
+                       "to it.") % (item.base.name, container.base.name)
             stark_log.debug(message)
             raise Exception(message)
 
@@ -461,7 +415,8 @@ class Anima(models.Model):
             if player == self:
                 self.notify("You %s %s." % (wear_verb, item.base.name))
             else:
-                player.notify("%s %ss %s." % (self.name, wear_verb, item.base.name))
+                player.notify("%s %ss %s." % (self.name, wear_verb,
+                                              item.base.name))
 
     def remove(self, item):        
         if not getattr(self, item.base.slot):
@@ -477,32 +432,314 @@ class Anima(models.Model):
             else:
                 player.notify("%s removes %s." % (self.name, item.base.name))
 
+    ################
+    # Django stuff #
+    ################
 
-    def engage(self, target_type, target_id):
-        not_here = "No-one by that name."
-        try:
-            target_type = ContentType.objects.get(model=target_type)
-            target = target_type.model_class().objects.get(pk=target_id)
-            if self.room != target.room:
-                self.notify(not_here)
+    class Meta:
+        abstract = True
 
-            self.target = target
-            self.save()
-        except Exception:
-            self.notify(not_here)
+    def command(self, cmd):
+        tokens = map(lambda x: x.lower(), cmd.split(' '))
 
-    def save(self, *args, **kwargs):
-        if not hasattr(self, 'room'):
-            try:
-                room = Room.objects.get(pk=1)
-                self.room = room
-            except Room.DoesNotExist:
-                raise Exception("There needs to be a Room object with pk = 1")
-        super(Anima, self).save(*args, **kwargs)
-        return self
+        # - help
+        if tokens[0] == 'help':
+            self.notify('Commands:')
+            self.notify('- north east south west kill')
+            self.notify('- get drop put wear wield remove')
+            self.notify('- chat help')
+        
+        # - wear / wield -
+        if tokens[0] in ('wear', 'wield'):
+            if len(tokens) < 2:
+                self.notify('Usage: wear item')
+                raise Exception('Not enough tokens for wear command')
+                # TODO: handle better multiple items being returned?
+            items = find_items_in_container(tokens[1], self.inventory())
+            for item in items:
+                self.wear(item)
+            if not items:
+                self.notify('You have no %s to wear.' % tokens[1])
+                raise Exception('User does not have designated item to wear')
+            
+        # - remove -
+        if tokens[0] == 'remove':
+            if len(tokens) < 2:
+                self.notify('Usage: remove item')
+                raise Exception('Not enough tokens for remove command')
+            eq = filter(lambda x: x, self.equipment().values())
+            items = find_items_in_container(tokens[1], eq)
+            if items:
+                self.remove(items[0])
+            else:
+                self.notify('You are not wearing a %s.' % tokens[1])
+                raise Exception('User is not wearing designated item to '
+                                'remove')
+        # - get -
+        if tokens[0] == 'get':
+            # simple get from room
+            if len(tokens) == 0:
+                self.notify('Usage: get item [container]')
+                raise Exception('Not enough tokens for get command.')                
+            elif len(tokens) == 2:
+                items = find_items_in_container(tokens[1],
+                                                self.room.items.all())
+                for item in items:
+                    self.get_item(item)
+                if not items:
+                    error = 'There is no %s in this room.' % tokens[1]
+                    self.notify(error)
+                    raise Exception(error)
+            
+            # get from container
+            elif len(tokens) >= 3:
+                # try to get the container from the player's equipment, inv
+                # or the room
+                eq = filter(lambda x: x, self.equipment().values())
+                container = find_items_in_container(tokens[2], eq,
+                                                    find_container=True)
+                if not container:
+                    container = find_items_in_container(tokens[2],
+                                                        self.inventory(),
+                                                        find_container=True)
+                if not container:
+                    container = find_items_in_container(tokens[2],
+                                                        self.room.items.all(),
+                                                        find_container=True)
+                
+                # if no suitable container has been found, raise eror
+                if not container:
+                    error = 'No such container: %s' % tokens[2]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                # get the item from the found container
+                # TODO: should this support getting stuff from
+                # multiple container?
+                items = find_items_in_container(tokens[1],
+                                                container[0].owns.all())
+                for item in items:
+                    self.get_item_from_container(item)
+                if not items:
+                    error = 'There is no %s in %s' % (tokens[1], tokens[2])
+                    self.notify(error)
+                    raise Exception(error)
+
+        # - put -
+        if tokens[0] == 'put':
+            if len(tokens) < 3:
+                self.notify("Usage: put item container")
+                raise Exception('Not enough tokens for put command')
+            else:
+                # get the items that the user wants to put somewhere
+                items = find_items_in_container(tokens[1], self.inventory())
+                if not items:
+                    error = 'There is no %s in your inventory' % tokens[1]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                # get the best match from eq, inv and room
+                eq = filter(lambda x: x, self.equipment().values())
+                containers = find_items_in_container(tokens[2], eq,
+                                                     find_container=True)
+                if not containers:
+                    containers = find_items_in_container(tokens[2],
+                                                         self.inventory(),
+                                                         find_container=True)
+                if not containers:
+                    containers = find_items_in_container(tokens[2],
+                                                         self.room.items.all(),
+                                                         find_container=True)
+                if not containers:
+                    error = 'There is no %s in your inventory' % tokens[2]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                for item in items:
+                    self.put_item_in_container(item, containers[0])
+
+        # - drop -
+        if tokens[0] == 'drop':
+            if len(tokens) < 2:
+                self.notify('Usage: drop item')
+                raise Exception('Not enough tokens for drop command')
+            items = find_items_in_container(tokens[1], self.inventory())
+            for item in items:
+                self.drop_item(item)
+            if not items:
+                self.notify('You are not carrying a %s.' % tokens[1])
+                raise Exception('User is not holding designated item to drop')
+
+        # - kill -
+        if tokens[0] == 'kill':
+            if len(tokens) < 2:
+                self.notify('Usage: kill target')
+                raise Exception('Not enough tokens for kill command')
+            target = None
+            for player in self.room.player_related.all():
+                if tokens[1] in (player.id, player.name):
+                    self.engage('player', player.id)
+                    return
+            for mob in self.room.mob_related.all():
+                print mob
+                if tokens[1] in [mob.id] + mob.name.split(' '):
+                    self.engage('mob', mob.id)
+                    return
 
     def __unicode__(self):
         return u"%s" % self.name
+
+    ############
+    # Commands #
+    ############
+
+    def command(self, cmd):
+        tokens = map(lambda x: x.lower(), cmd.split(' '))
+
+        # - help
+        if tokens[0] == 'help':
+            self.notify('Commands:')
+            self.notify('- north east south west kill')
+            self.notify('- get drop put wear wield remove')
+            self.notify('- chat help')
+        
+        # - wear / wield -
+        if tokens[0] in ('wear', 'wield'):
+            if len(tokens) < 2:
+                self.notify('Usage: wear item')
+                raise Exception('Not enough tokens for wear command')
+                # TODO: handle better multiple items being returned?
+            items = find_items_in_container(tokens[1], self.inventory())
+            for item in items:
+                self.wear(item)
+            if not items:
+                self.notify('You have no %s to wear.' % tokens[1])
+                raise Exception('User does not have designated item to wear')
+            
+        # - remove -
+        if tokens[0] == 'remove':
+            if len(tokens) < 2:
+                self.notify('Usage: remove item')
+                raise Exception('Not enough tokens for remove command')
+            eq = filter(lambda x: x, self.equipment().values())
+            items = find_items_in_container(tokens[1], eq)
+            if items:
+                self.remove(items[0])
+            else:
+                self.notify('You are not wearing a %s.' % tokens[1])
+                raise Exception('User is not wearing designated item to '
+                                'remove')
+        # - get -
+        if tokens[0] == 'get':
+            # simple get from room
+            if len(tokens) == 0:
+                self.notify('Usage: get item [container]')
+                raise Exception('Not enough tokens for get command.')                
+            elif len(tokens) == 2:
+                items = find_items_in_container(tokens[1],
+                                                self.room.items.all())
+                for item in items:
+                    self.get_item(item)
+                if not items:
+                    error = 'There is no %s in this room.' % tokens[1]
+                    self.notify(error)
+                    raise Exception(error)
+            
+            # get from container
+            elif len(tokens) >= 3:
+                # try to get the container from the player's equipment, inv
+                # or the room
+                eq = filter(lambda x: x, self.equipment().values())
+                container = find_items_in_container(tokens[2], eq,
+                                                    find_container=True)
+                if not container:
+                    container = find_items_in_container(tokens[2],
+                                                        self.inventory(),
+                                                        find_container=True)
+                if not container:
+                    container = find_items_in_container(tokens[2],
+                                                        self.room.items.all(),
+                                                        find_container=True)
+                
+                # if no suitable container has been found, raise eror
+                if not container:
+                    error = 'No such container: %s' % tokens[2]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                # get the item from the found container
+                # TODO: should this support getting stuff from
+                # multiple container?
+                items = find_items_in_container(tokens[1],
+                                                container[0].owns.all())
+                for item in items:
+                    self.get_item_from_container(item)
+                if not items:
+                    error = 'There is no %s in %s' % (tokens[1], tokens[2])
+                    self.notify(error)
+                    raise Exception(error)
+
+        # - put -
+        if tokens[0] == 'put':
+            if len(tokens) < 3:
+                self.notify("Usage: put item container")
+                raise Exception('Not enough tokens for put command')
+            else:
+                # get the items that the user wants to put somewhere
+                items = find_items_in_container(tokens[1], self.inventory())
+                if not items:
+                    error = 'There is no %s in your inventory' % tokens[1]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                # get the best match from eq, inv and room
+                eq = filter(lambda x: x, self.equipment().values())
+                containers = find_items_in_container(tokens[2], eq,
+                                                     find_container=True)
+                if not containers:
+                    containers = find_items_in_container(tokens[2],
+                                                         self.inventory(),
+                                                         find_container=True)
+                if not containers:
+                    containers = find_items_in_container(tokens[2],
+                                                         self.room.items.all(),
+                                                         find_container=True)
+                if not containers:
+                    error = 'There is no %s in your inventory' % tokens[2]
+                    self.notify(error)
+                    raise Exception(error)
+                
+                for item in items:
+                    self.put_item_in_container(item, containers[0])
+
+        # - drop -
+        if tokens[0] == 'drop':
+            if len(tokens) < 2:
+                self.notify('Usage: drop item')
+                raise Exception('Not enough tokens for drop command')
+            items = find_items_in_container(tokens[1], self.inventory())
+            for item in items:
+                self.drop_item(item)
+            if not items:
+                self.notify('You are not carrying a %s.' % tokens[1])
+                raise Exception('User is not holding designated item to drop')
+
+        # - kill -
+        if tokens[0] == 'kill':
+            if len(tokens) < 2:
+                self.notify('Usage: kill target')
+                raise Exception('Not enough tokens for kill command')
+            target = None
+            for player in self.room.player_related.all():
+                if tokens[1] in (player.id, player.name):
+                    self.engage('player', player.id)
+                    return
+            for mob in self.room.mob_related.all():
+                print mob
+                if tokens[1] in [mob.id] + mob.name.split(' '):
+                    self.engage('mob', mob.id)
+                    return
+
 
 
 class Player(Anima):
@@ -511,6 +748,22 @@ class Player(Anima):
     temporary = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=PLAYER_STATUSES)
     last_activity = models.DateTimeField(blank=True, null=True)
+
+    def die(self, killer=None):
+        self.target = None
+        self.hp = 1
+        
+        death_room_id = getattr(config, 'DEATH_ROOM_ID', 1)
+        try:
+            death_room = Room.objects.get(pk=death_room_id)
+        except Room.DoesNotExist:
+            raise Exception("There must be a room with pk=1")
+        self.room = death_room
+        self.save()
+        
+        self.notify("You are dead! Sorry...")
+
+        super(Player, self).die()
     
     def save(self, *args, **kwargs):
         self.last_activity = datetime.datetime.now()
@@ -520,8 +773,68 @@ class Mob(Anima):
     # static mobs can't move
     static = models.BooleanField(default=False)
 
+    # these are template mobs from which other mobs get created
+    template = models.BooleanField(default=False)
+    
+    def notify(self): pass
+
+    def die(self, killer=None):
+        
+        if killer:
+            killer.experience += self.experience
+            killer.save()
+        
+        super(Mob, self).die()
+        
+        self.delete()
+
+
+class MobLoader(models.Model):
+    # optional name for the loader
+    name = models.CharField(max_length=20, blank=True, null=True)
+
+    # spawn control
+    batch_size = models.IntegerField(default=1)
+    spawn_chance = models.IntegerField(default=100)
+    zone_limit = models.IntegerField(default=1)
+    
+    # mob tracking
+    template_mob = models.ForeignKey(Mob, related_name='loaders')
+    spawned_mobs = models.ManyToManyField(Mob, blank=True)
+
+    # items
+    armor = models.ManyToManyField(Armor, blank=True)
+    weapon = models.ManyToManyField(Weapon, blank=True)
+    misc = models.ManyToManyField(Misc, blank=True)
+    sustenance = models.ManyToManyField(Sustenance, blank=True)
+    
+    # rooms
+    spawn_in = models.ManyToManyField(Room)
+    
+    def run(self):
+        # check to see if a load needs to happen
+        if self.spawned_mobs.count() >= self.zone_limit:
+            return
+        
+        for i in range(0, self.batch_size):
+            if not roll_percent(self.spawn_chance):
+                break
+            for room in self.spawn_in.all():
+                mob = self.template_mob
+                mob.id = None
+                mob.room = room
+                mob.template = False
+                mob.save()
+
+                for attribute in ['armor', 'weapon', 'misc', 'sustenance']:
+                    for base in getattr(self, attribute).all():
+                        item = ItemInstance.objects.create(owner = mob,
+                                                           base = base)
+                        self.spawned_mobs.add(mob)
+    
 class Message(models.Model):
-    created = models.DateTimeField(default=datetime.datetime.now(), blank=False)
+    created = models.DateTimeField(default=datetime.datetime.now(),
+                                   blank=False)
     type = models.CharField(max_length=20, choices=MESSAGE_TYPES, blank=False)
     content = models.TextField(blank=False)
     destination = models.CharField(max_length=40, blank=True)

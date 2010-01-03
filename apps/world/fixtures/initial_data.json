@@ -1,13 +1,42 @@
 [
     {
         "pk": 1, 
+        "model": "world.zone", 
+        "fields": {
+            "name": "Capital"
+        }
+    }, 
+    {
+        "pk": 1, 
         "model": "world.room", 
         "fields": {
             "xpos": 0, 
             "description": "You barely exist.", 
+            "zone": 1, 
             "ypos": 0, 
+            "type": "hidden", 
+            "name": "The Void"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": 0, 
+            "description": "The center of the world.", 
+            "zone": 1, 
+            "ypos": -1, 
             "type": "city", 
             "name": "Center of the World"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "world.misc", 
+        "fields": {
+            "capacity": 1000, 
+            "name": "a corpse", 
+            "weight": "100"
         }
     }
 ]

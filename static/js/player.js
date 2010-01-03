@@ -1,3 +1,8 @@
+/*
+ Imports:
+ item_link from items.js
+*/
+
 modify_player = function(data) {
     /*
         Modify the player without a response event other than setting the
@@ -9,10 +14,7 @@ modify_player = function(data) {
         url: "/api/me.json",
         data: data,
         dataType: "json",
-        success: function(player) {
-            document.player = player
-            //render_profile();
-        }
+        success: function(player) { document.player = player; }
     });
 }
 
@@ -23,15 +25,21 @@ render_profile = function() {
     $("#hp").html(document.player.hp + ' / ' + document.player.max_hp);    
     $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
 
+    // equipment
     $.each(document.player.equipment, function(key, value) {
-        if (!value) {
-            var html = "&lt;empty&gt;" ;
+        var span_id = "player_" + key;
+        if (value) {
+            var link = item_link(value);
+            link.attr('id', span_id);
+            $("#"+span_id).replaceWith(link);
         } else {
-            var html = value.name;
+            var empty = str_format("<span id='{0}'>&lt;empty&gt;</span>",
+                                   span_id);
+            $("#"+span_id).replaceWith(empty);
         }
-        $("#player_" + key).html(html);
     });
 
+    //inventory
     $("#player_inventory").empty();
     $.each(document.player.inventory, function() {
         var line = $("<div></div>");

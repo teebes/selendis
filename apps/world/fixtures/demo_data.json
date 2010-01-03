@@ -1,72 +1,9 @@
 [
     {
-        "pk": 2, 
-        "model": "world.roomconnector", 
+        "pk": 1, 
+        "model": "world.zone", 
         "fields": {
-            "type": "Normal", 
-            "direction": "south", 
-            "to_room": 1, 
-            "from_room": 4
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "north", 
-            "to_room": 1, 
-            "from_room": 3
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "south", 
-            "to_room": 3, 
-            "from_room": 1
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "west", 
-            "to_room": 5, 
-            "from_room": 1
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "north", 
-            "to_room": 4, 
-            "from_room": 1
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "east", 
-            "to_room": 1, 
-            "from_room": 5
-        }
-    }, 
-    {
-        "pk": 9, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "west", 
-            "to_room": 1, 
-            "from_room": 2
+            "name": "Capital"
         }
     }, 
     {
@@ -1430,16 +1367,6 @@
         }
     }, 
     {
-        "pk": 161, 
-        "model": "world.roomconnector", 
-        "fields": {
-            "type": "Normal", 
-            "direction": "east", 
-            "to_room": 2, 
-            "from_room": 1
-        }
-    }, 
-    {
         "pk": 162, 
         "model": "world.roomconnector", 
         "fields": {
@@ -1490,36 +1417,119 @@
         }
     }, 
     {
+        "pk": 173, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "east", 
+            "to_room": 4, 
+            "from_room": 84
+        }
+    }, 
+    {
+        "pk": 174, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "west", 
+            "to_room": 84, 
+            "from_room": 4
+        }
+    }, 
+    {
+        "pk": 176, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "west", 
+            "to_room": 5, 
+            "from_room": 2
+        }
+    }, 
+    {
+        "pk": 177, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "east", 
+            "to_room": 3, 
+            "from_room": 2
+        }
+    }, 
+    {
+        "pk": 178, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "north", 
+            "to_room": 4, 
+            "from_room": 2
+        }
+    }, 
+    {
+        "pk": 180, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "west", 
+            "to_room": 2, 
+            "from_room": 3
+        }
+    }, 
+    {
+        "pk": 181, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "east", 
+            "to_room": 2, 
+            "from_room": 5
+        }
+    }, 
+    {
+        "pk": 182, 
+        "model": "world.roomconnector", 
+        "fields": {
+            "type": "Normal", 
+            "direction": "south", 
+            "to_room": 2, 
+            "from_room": 4
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "world.room", 
         "fields": {
             "xpos": 0, 
             "description": "You barely exist.", 
-            "name": "center of the world", 
+            "zone": 1, 
             "ypos": 0, 
-            "type": "city"
+            "type": "hidden", 
+            "name": "The Void"
         }
     }, 
     {
         "pk": 2, 
         "model": "world.room", 
         "fields": {
-            "xpos": 1, 
-            "description": "Just to the east of the center of the world.", 
-            "name": "Eastern terrace", 
-            "ypos": 0, 
-            "type": "city"
+            "xpos": 0, 
+            "description": "The center of the world.", 
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "city", 
+            "name": "Center of the World"
         }
     }, 
     {
         "pk": 3, 
         "model": "world.room", 
         "fields": {
-            "xpos": 0, 
-            "description": "A small garden is here, regularly tended to.", 
-            "name": "A small garden", 
-            "ypos": 1, 
-            "type": "field"
+            "xpos": 1, 
+            "description": "Just to the east of the center of the world.", 
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "city", 
+            "name": "Eastern terrace"
         }
     }, 
     {
@@ -1528,9 +1538,10 @@
         "fields": {
             "xpos": 0, 
             "description": "A small path that leaves the center of the world, going north.", 
-            "name": "The northern path", 
-            "ypos": -1, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "city", 
+            "name": "The northern path"
         }
     }, 
     {
@@ -1539,9 +1550,10 @@
         "fields": {
             "xpos": -1, 
             "description": "Just to the west of the center of the world", 
-            "name": "The inn", 
-            "ypos": 0, 
-            "type": "shop"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "shop", 
+            "name": "The inn"
         }
     }, 
     {
@@ -1550,9 +1562,10 @@
         "fields": {
             "xpos": 2, 
             "description": "", 
-            "name": "The armory", 
-            "ypos": -1, 
-            "type": "shop"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "shop", 
+            "name": "The armory"
         }
     }, 
     {
@@ -1561,9 +1574,10 @@
         "fields": {
             "xpos": 0, 
             "description": "", 
-            "name": "Intersection", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "Intersection"
         }
     }, 
     {
@@ -1572,9 +1586,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "Outside merchant row", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "Outside merchant row"
         }
     }, 
     {
@@ -1583,9 +1598,10 @@
         "fields": {
             "xpos": -1, 
             "description": "", 
-            "name": "A well-lit street", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "A well-lit street"
         }
     }, 
     {
@@ -1594,9 +1610,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Bend in the road", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "Bend in the road"
         }
     }, 
     {
@@ -1605,9 +1622,10 @@
         "fields": {
             "xpos": -2, 
             "description": "This is outisde the western gate", 
-            "name": "Inside the western gate", 
-            "ypos": -1, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "city", 
+            "name": "Inside the western gate"
         }
     }, 
     {
@@ -1616,9 +1634,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "South of the western gate", 
-            "ypos": 0, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "city", 
+            "name": "South of the western gate"
         }
     }, 
     {
@@ -1627,9 +1646,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Along the western wall", 
-            "ypos": 1, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 0, 
+            "type": "city", 
+            "name": "Along the western wall"
         }
     }, 
     {
@@ -1638,9 +1658,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Outside the cheese shop", 
-            "ypos": 2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 1, 
+            "type": "city", 
+            "name": "Outside the cheese shop"
         }
     }, 
     {
@@ -1649,9 +1670,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Bend in the road", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "Bend in the road"
         }
     }, 
     {
@@ -1660,9 +1682,10 @@
         "fields": {
             "xpos": -1, 
             "description": "", 
-            "name": "Along the southern wall", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "Along the southern wall"
         }
     }, 
     {
@@ -1671,9 +1694,10 @@
         "fields": {
             "xpos": -1, 
             "description": "", 
-            "name": "The cheese shop", 
-            "ypos": 2, 
-            "type": "shop"
+            "zone": 1, 
+            "ypos": 1, 
+            "type": "shop", 
+            "name": "The cheese shop"
         }
     }, 
     {
@@ -1682,9 +1706,10 @@
         "fields": {
             "xpos": 2, 
             "description": "", 
-            "name": "Merchant row", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "Merchant row"
         }
     }, 
     {
@@ -1693,9 +1718,10 @@
         "fields": {
             "xpos": 3, 
             "description": "", 
-            "name": "Merchant row", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "Merchant row"
         }
     }, 
     {
@@ -1704,9 +1730,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "North-East corner of the city", 
-            "ypos": -2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "city", 
+            "name": "North-East corner of the city"
         }
     }, 
     {
@@ -1715,9 +1742,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "A quiet street", 
-            "ypos": -1, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "city", 
+            "name": "A quiet street"
         }
     }, 
     {
@@ -1726,9 +1754,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "A dark, shady street", 
-            "ypos": 0, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "city", 
+            "name": "A dark, shady street"
         }
     }, 
     {
@@ -1737,9 +1766,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "A dark, shady street", 
-            "ypos": 1, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 0, 
+            "type": "city", 
+            "name": "A dark, shady street"
         }
     }, 
     {
@@ -1748,9 +1778,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "A deserted plaza", 
-            "ypos": 2, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 1, 
+            "type": "city", 
+            "name": "A deserted plaza"
         }
     }, 
     {
@@ -1759,9 +1790,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "South-East corner of the city", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "South-East corner of the city"
         }
     }, 
     {
@@ -1770,9 +1802,10 @@
         "fields": {
             "xpos": 3, 
             "description": "", 
-            "name": "A small street", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "A small street"
         }
     }, 
     {
@@ -1781,9 +1814,10 @@
         "fields": {
             "xpos": 2, 
             "description": "", 
-            "name": "East of the southern gate", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "East of the southern gate"
         }
     }, 
     {
@@ -1792,9 +1826,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "The southern gate", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "The southern gate"
         }
     }, 
     {
@@ -1803,9 +1838,10 @@
         "fields": {
             "xpos": 0, 
             "description": "", 
-            "name": "West of the southern gate", 
-            "ypos": 3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "city", 
+            "name": "West of the southern gate"
         }
     }, 
     {
@@ -1814,9 +1850,10 @@
         "fields": {
             "xpos": -3, 
             "description": "", 
-            "name": "Outisde the western gate", 
-            "ypos": -1, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "road", 
+            "name": "Outisde the western gate"
         }
     }, 
     {
@@ -1825,9 +1862,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Intersection in the road", 
-            "ypos": -1, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "road", 
+            "name": "Intersection in the road"
         }
     }, 
     {
@@ -1836,9 +1874,10 @@
         "fields": {
             "xpos": -3, 
             "description": "", 
-            "name": "Green fields by the road", 
-            "ypos": -2, 
-            "type": "field"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "field", 
+            "name": "Green fields by the road"
         }
     }, 
     {
@@ -1847,9 +1886,10 @@
         "fields": {
             "xpos": -3, 
             "description": "", 
-            "name": "Entrance to a dense forest", 
-            "ypos": -3, 
-            "type": "field"
+            "zone": 1, 
+            "ypos": -4, 
+            "type": "field", 
+            "name": "Entrance to a dense forest"
         }
     }, 
     {
@@ -1858,9 +1898,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Green fields by the road", 
-            "ypos": -2, 
-            "type": "field"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "field", 
+            "name": "Green fields by the road"
         }
     }, 
     {
@@ -1869,9 +1910,10 @@
         "fields": {
             "xpos": -5, 
             "description": "", 
-            "name": "A small farm", 
-            "ypos": -2, 
-            "type": "field"
+            "zone": 1, 
+            "ypos": -3, 
+            "type": "field", 
+            "name": "A small farm"
         }
     }, 
     {
@@ -1880,9 +1922,10 @@
         "fields": {
             "xpos": -5, 
             "description": "", 
-            "name": "Road outside the farm", 
-            "ypos": -1, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "road", 
+            "name": "Road outside the farm"
         }
     }, 
     {
@@ -1891,9 +1934,10 @@
         "fields": {
             "xpos": -6, 
             "description": "", 
-            "name": "Northern bend in the road", 
-            "ypos": -1, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "road", 
+            "name": "Northern bend in the road"
         }
     }, 
     {
@@ -1902,9 +1946,10 @@
         "fields": {
             "xpos": -6, 
             "description": "", 
-            "name": "Southern bend in the road", 
-            "ypos": 0, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "road", 
+            "name": "Southern bend in the road"
         }
     }, 
     {
@@ -1913,9 +1958,10 @@
         "fields": {
             "xpos": -7, 
             "description": "", 
-            "name": "A dusty road", 
-            "ypos": 0, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "road", 
+            "name": "A dusty road"
         }
     }, 
     {
@@ -1924,9 +1970,10 @@
         "fields": {
             "xpos": -8, 
             "description": "", 
-            "name": "End of the world", 
-            "ypos": 0, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "road", 
+            "name": "End of the world"
         }
     }, 
     {
@@ -1935,9 +1982,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Beginning of a small dirt road", 
-            "ypos": 0, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": -1, 
+            "type": "road", 
+            "name": "Beginning of a small dirt road"
         }
     }, 
     {
@@ -1946,9 +1994,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Along a small dirt road", 
-            "ypos": 1, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 0, 
+            "type": "road", 
+            "name": "Along a small dirt road"
         }
     }, 
     {
@@ -1957,9 +2006,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Bend before the river", 
-            "ypos": 4, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 3, 
+            "type": "road", 
+            "name": "Bend before the river"
         }
     }, 
     {
@@ -1968,9 +2018,10 @@
         "fields": {
             "xpos": -1, 
             "description": "", 
-            "name": "Outside the city walls", 
-            "ypos": 4, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 3, 
+            "type": "road", 
+            "name": "Outside the city walls"
         }
     }, 
     {
@@ -1979,9 +2030,10 @@
         "fields": {
             "xpos": 0, 
             "description": "", 
-            "name": "On a small path", 
-            "ypos": 4, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 3, 
+            "type": "road", 
+            "name": "On a small path"
         }
     }, 
     {
@@ -1990,9 +2042,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "Outside the southern gate", 
-            "ypos": 4, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 3, 
+            "type": "road", 
+            "name": "Outside the southern gate"
         }
     }, 
     {
@@ -2001,9 +2054,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "Before the river", 
-            "ypos": 5, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 4, 
+            "type": "road", 
+            "name": "Before the river"
         }
     }, 
     {
@@ -2012,9 +2066,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "On a bridge over the river", 
-            "ypos": 6, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "road", 
+            "name": "On a bridge over the river"
         }
     }, 
     {
@@ -2023,9 +2078,10 @@
         "fields": {
             "xpos": 2, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2034,9 +2090,10 @@
         "fields": {
             "xpos": 3, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2045,9 +2102,10 @@
         "fields": {
             "xpos": 4, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2056,9 +2114,10 @@
         "fields": {
             "xpos": 5, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2067,9 +2126,10 @@
         "fields": {
             "xpos": 0, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2078,9 +2138,10 @@
         "fields": {
             "xpos": -1, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2089,9 +2150,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2100,9 +2162,10 @@
         "fields": {
             "xpos": -3, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2111,9 +2174,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2122,9 +2186,10 @@
         "fields": {
             "xpos": -5, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2133,9 +2198,10 @@
         "fields": {
             "xpos": -6, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2144,9 +2210,10 @@
         "fields": {
             "xpos": -7, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2155,9 +2222,10 @@
         "fields": {
             "xpos": -8, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 6, 
-            "type": "water"
+            "zone": 1, 
+            "ypos": 5, 
+            "type": "water", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2166,9 +2234,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "Down the dusty road", 
-            "ypos": 7, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 6, 
+            "type": "road", 
+            "name": "Down the dusty road"
         }
     }, 
     {
@@ -2177,9 +2246,10 @@
         "fields": {
             "xpos": 1, 
             "description": "", 
-            "name": "The end of the world", 
-            "ypos": 8, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 7, 
+            "type": "road", 
+            "name": "The end of the world"
         }
     }, 
     {
@@ -2188,9 +2258,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 3, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 2, 
+            "type": "road", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2199,9 +2270,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 4, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 3, 
+            "type": "road", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2210,9 +2282,10 @@
         "fields": {
             "xpos": -3, 
             "description": "", 
-            "name": "On the river bank", 
-            "ypos": 5, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 4, 
+            "type": "road", 
+            "name": "On the river bank"
         }
     }, 
     {
@@ -2221,9 +2294,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Bend by the river bank", 
-            "ypos": 5, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 4, 
+            "type": "road", 
+            "name": "Bend by the river bank"
         }
     }, 
     {
@@ -2232,9 +2306,10 @@
         "fields": {
             "xpos": -2, 
             "description": "", 
-            "name": "Bend by the river bank", 
-            "ypos": 5, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 4, 
+            "type": "road", 
+            "name": "Bend by the river bank"
         }
     }, 
     {
@@ -2243,9 +2318,10 @@
         "fields": {
             "xpos": -4, 
             "description": "", 
-            "name": "Untitled room", 
-            "ypos": 2, 
-            "type": "road"
+            "zone": 1, 
+            "ypos": 1, 
+            "type": "road", 
+            "name": "Untitled room"
         }
     }, 
     {
@@ -2254,9 +2330,10 @@
         "fields": {
             "xpos": 0, 
             "description": "", 
-            "name": "Cul de sac", 
-            "ypos": -3, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": -4, 
+            "type": "city", 
+            "name": "Cul de sac"
         }
     }, 
     {
@@ -2265,9 +2342,10 @@
         "fields": {
             "xpos": 2, 
             "description": "If you are here it's because you've been idle for a while. Go 1w to interact with the world again.", 
-            "name": "The Idle Room", 
-            "ypos": 5, 
-            "type": "city"
+            "zone": 1, 
+            "ypos": 4, 
+            "type": "city", 
+            "name": "The Idle Room"
         }
     }, 
     {
@@ -2276,9 +2354,10 @@
         "fields": {
             "xpos": 3, 
             "description": "", 
-            "name": "The tanner", 
-            "ypos": -1, 
-            "type": "shop"
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "shop", 
+            "name": "The tanner"
         }
     }, 
     {
@@ -2287,20 +2366,36 @@
         "fields": {
             "xpos": 2, 
             "description": "", 
-            "name": "The apothecary", 
-            "ypos": -3, 
-            "type": "shop"
+            "zone": 1, 
+            "ypos": -4, 
+            "type": "shop", 
+            "name": "The apothecary"
+        }
+    }, 
+    {
+        "pk": 84, 
+        "model": "world.room", 
+        "fields": {
+            "xpos": -1, 
+            "description": "", 
+            "zone": 1, 
+            "ypos": -2, 
+            "type": "city", 
+            "name": "The Guard Room"
         }
     }, 
     {
         "pk": 1, 
         "model": "world.weapon", 
         "fields": {
+            "slot": "", 
             "capacity": 0, 
             "name": "a short dagger", 
             "weight": "0.01", 
             "two_handed": false, 
             "num_dice": 2, 
+            "hit_third": "", 
+            "hit_first": "", 
             "num_faces": 2, 
             "weapon_class": "short_blade"
         }
@@ -2309,52 +2404,107 @@
         "pk": 2, 
         "model": "world.weapon", 
         "fields": {
+            "slot": "", 
             "capacity": 0, 
             "name": "a wooden stick", 
             "weight": "0.01", 
             "two_handed": false, 
             "num_dice": 1, 
+            "hit_third": "", 
+            "hit_first": "", 
             "num_faces": 1, 
             "weapon_class": "blunt"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "world.weapon", 
+        "fields": {
+            "slot": "main_hand", 
+            "capacity": 0, 
+            "name": "a rusty blade", 
+            "weight": "5", 
+            "two_handed": false, 
+            "num_dice": 2, 
+            "hit_third": "", 
+            "hit_first": "", 
+            "num_faces": 3, 
+            "weapon_class": "long_blade"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "world.weapon", 
+        "fields": {
+            "slot": "main_hand", 
+            "capacity": 0, 
+            "name": "a flaming crystal sword", 
+            "weight": "15", 
+            "two_handed": false, 
+            "num_dice": 20, 
+            "hit_third": "", 
+            "hit_first": "", 
+            "num_faces": 30, 
+            "weapon_class": "long_blade"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "world.armor", 
+        "fields": {
+            "slot": "head", 
+            "capacity": 0, 
+            "name": "an old leather helmet", 
+            "weight": "3"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "world.armor", 
+        "fields": {
+            "slot": "chest", 
+            "capacity": 0, 
+            "name": "an old leather breastplate", 
+            "weight": "7"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "world.armor", 
+        "fields": {
+            "slot": "feet", 
+            "capacity": 0, 
+            "name": "a pair of rugged leather boots", 
+            "weight": "2"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "world.armor", 
+        "fields": {
+            "slot": "hands", 
+            "capacity": 0, 
+            "name": "a pair of dark leather gloves", 
+            "weight": "1"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "world.armor", 
+        "fields": {
+            "slot": "feet", 
+            "capacity": 0, 
+            "name": "a pair of light leather pants", 
+            "weight": "2"
         }
     }, 
     {
         "pk": 1, 
         "model": "world.misc", 
         "fields": {
-            "capacity": 2000, 
-            "name": "the weapons rack", 
-            "weight": "0.01"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "world.iteminstance", 
-        "fields": {
-            "owner_type": 13, 
-            "base_type": 17, 
-            "base_id": 1, 
-            "owner_id": 1
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "world.iteminstance", 
-        "fields": {
-            "owner_type": 13, 
-            "base_type": 14, 
-            "base_id": 1, 
-            "owner_id": 1
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "world.iteminstance", 
-        "fields": {
-            "owner_type": 13, 
-            "base_type": 14, 
-            "base_id": 2, 
-            "owner_id": 1
+            "capacity": 1000, 
+            "name": "a corpse", 
+            "weight": "100"
         }
     }
 ]

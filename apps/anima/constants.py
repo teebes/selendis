@@ -1,5 +1,5 @@
 # equipment slots
-ARMOR_SLOTS = ['head', 'chest', 'arms', 'legs', 'feet']
+ARMOR_SLOTS = ['head', 'chest', 'hands', 'legs', 'feet']
 WEAPON_SLOTS = ['main_hand']
 
 

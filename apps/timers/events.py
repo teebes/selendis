@@ -6,9 +6,8 @@ import random
 from django.db import transaction
 
 from stark import config
-from stark.apps.anima.models import Mob, Player, Message
-from stark.apps.world.models import RoomConnector, Room
-from stark.utils import zone_reload
+from stark.apps.anima.models import Mob, MobLoader, Player, Message
+from stark.apps.world.models import RoomConnector, Room, ItemInstance
 
 # base event class
 class PeriodicEvent(object):
@@ -38,7 +37,7 @@ class Tick(PeriodicEvent):
         for mob in Mob.objects.filter(static=False):
             if random.randint(0, 5) == 0:
                 mob.move(random=True)
-    
+            
     @transaction.commit_on_success
     def regen(self):
         TICK_HP_REGEN_RATE = getattr(config, 'TICK_HP_REGEN_RATE', 4)
@@ -55,6 +54,10 @@ class Tick(PeriodicEvent):
     def execute(self):
         super(Tick, self).execute()
         
+        # mob loaders
+        for loader in MobLoader.objects.all():
+            loader.run()
+        
         self.move_mobs()
         self.regen()
         
@@ -67,10 +70,10 @@ class Combat(PeriodicEvent):
     @transaction.commit_on_success
     def combat_round(self):
         for player in Player.objects.filter(status='logged_in', target_type__isnull=False):
-            player.attack()
+            player.combat_round()
 
         for mob in Mob.objects.filter(target_type__isnull=False):
-            mob.attack()
+            mob.combat_round()
     
     def execute(self):
         super(Combat, self).execute()
@@ -87,10 +90,19 @@ class CleanUp(PeriodicEvent):
             count += 1
             
         self.log('deleted %s messages' % count)
+
+    """    
+    def cleanup_corpses(self):
+        print 'cleaning up corpses'            
+        for corpse in Misc.objects.filter(name__startswith='the corpse of'):
+            corpse_type = ContentType.objects.get_for_model(corpse)
+            corpse_instance = ItemInstance.objects.filter(base_type__pk=corpse_type.id, base_id=corpse.id).delete()
+            corpse.delete()
+        """
     
     def execute(self):
         super(CleanUp, self).execute()
         
         self.cleanup_messages()
-        zone_reload() #TODO: make that a proper event, coupled with the corpse cleanup
+        #self.cleanup_corpses()
         return

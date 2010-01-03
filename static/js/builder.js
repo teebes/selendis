@@ -38,10 +38,10 @@ render_builder = function() {
     $("#builder_x").html(document.player.room.xpos);
     $("#builder_y").html(document.player.room.ypos);
     
-    $("#builder_room_title").val(document.player.room.title);
-    $("#builder_room_title").unbind();
-    $("#builder_room_title").blur(function() {
-        modify_room({title: $(this).val(), id: document.player.room.id});
+    $("#builder_room_name").val(document.player.room.name);
+    $("#builder_room_name").unbind();
+    $("#builder_room_name").blur(function() {
+        modify_room({name: $(this).val(), id: document.player.room.id});
     });
     
     $("#builder_room_description").val(document.player.room.description);

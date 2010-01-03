@@ -16,6 +16,7 @@ ROOM_TYPES = (
     ('water', 'Water'),
     ('city', 'City'),
     ('shop', 'Shop'),
+    ('hidden', 'Hidden'),
 )
 
 WEAPON_CLASSES = (

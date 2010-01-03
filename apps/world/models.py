@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 
 from django.contrib.contenttypes.models import ContentType
@@ -7,6 +8,12 @@ from django.db import models
 from stark.apps.anima.constants import WEAPON_SLOTS, ARMOR_SLOTS
 from stark.apps.world.constants import CONNECTOR_TYPES, DIRECTIONS, ROOM_TYPES, WEAPON_CLASSES
 
+class Zone(models.Model):
+    name = models.CharField(max_length=40)
+    
+    def __unicode__(self):
+        return "%s" % (self.name,)
+
 class RoomConnector(models.Model):
     from_room = models.ForeignKey('Room', related_name='from_room')
     to_room = models.ForeignKey('Room', related_name='to_room')
@@ -14,9 +21,9 @@ class RoomConnector(models.Model):
     direction = models.CharField(max_length=40, choices=DIRECTIONS)
 
 class Room(models.Model):
+    zone = models.ForeignKey(Zone, related_name='rooms')
     xpos = models.IntegerField(blank=False)
     ypos = models.IntegerField(blank=False)
-    #title = models.CharField(max_length=80, blank=False)
     name = models.CharField(max_length=80, blank=False)
     description = models.TextField()
     type = models.CharField(max_length=20, choices=ROOM_TYPES)
@@ -37,6 +44,23 @@ class Room(models.Model):
     def __unicode__(self):
         return u"%s, %s: %s" % (self.xpos, self.ypos, self.name )
 
+"""
+class RoomTracker(models.Model):
+    room = ForeignKey(Room, related_name='tracker')
+    
+    content_type = models.ForeignKey(ContentType)
+    content_id = models.PositiveIntegerField()
+    content = generic.GenericForeignKey('content_type', 'content_id')
+    
+    created = models.DateTimeField(editable=False)
+    #modified = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created = datetime.datetime.now()
+        #self.modified = datetime.datetime.now()
+        superRoom(Tracker, self).save(*args, **kwargs)
+"""
 
 class BaseItem(models.Model):
     # 
@@ -63,6 +87,31 @@ class Weapon(BaseItem):
     weapon_class = models.CharField(max_length=20, choices=WEAPON_CLASSES)
     two_handed = models.BooleanField(default=False)
     slot = models.CharField(max_length=40, choices=_WEAPON_SLOTS, blank=False)
+    hit_first = models.CharField(max_length=20, blank=True)
+    hit_third = models.CharField(max_length=20, blank=True)
+    
+    def hit_messages(self):
+        if self.hit_first:
+            if self.hit_third:
+                return [self.hit_first, self.hit_third]
+            else:
+                return [self.hit_first, "%ss" % self.hit_first]
+                
+        # try the weapon defaults
+        if self.weapon_class == 'short_blade':
+            return ['stab', 'stabs']
+        if self.weapon_class in ('medium_blade', 'long_blade'):
+            return ['slash', 'slashes']
+        elif self.weapon_class == 'spear':
+            return ['strike', 'strikes']
+        elif self.weapon_class == 'chain':
+            return ['whip', 'whips']
+        elif self.weapon_class == 'projectile':
+            return ['throw', 'throws']
+        elif self.weapon_class == 'axe':
+            return ['hack', 'hacks']
+
+        return ['hit', 'hits']
 
 class Equipment(BaseItem):
     """This class is deperacted, 'Equipment' is now Armor + Weapons"""
@@ -88,6 +137,8 @@ class ItemInstance(models.Model):
     # inventory, equip, eat, etc. Each instance is of an item of the four basic
     # types
     
+    name = models.CharField(max_length=40, blank=True)
+    
     # the player, mob or room currently holding the item
     owner_type = models.ForeignKey(ContentType, related_name='owner')
     owner_id = models.PositiveIntegerField()
@@ -103,17 +154,27 @@ class ItemInstance(models.Model):
     
     objects = ItemManager()
     
+    modified = models.DateTimeField(blank=True)
+    
+    def save(self, *args, **kwargs):
+        self.modified = datetime.datetime.now()
+        super(ItemInstance, self).save(*args, **kwargs)
+    
     def __unicode__(self):
+        name = self.name
+        if not name:
+            name = self.base.name
+        
         # items carried by players / mobs
         if self.owner_type.name in ('player', 'mob'):
-            return u"%s, carried by %s" % (self.base.name, self.owner.name)
+            return u"%s, carried by %s" % (name, self.owner.name)
 
         # item lying in room
         elif self.owner_type.name == 'room':
-            return u"%s, on the ground in %s" % (self.base.name, self.owner.name)
+            return u"%s, on the ground in %s" % (name, self.owner.name)
 
         # items in containers
         elif self.owner_type.name == 'item instance':
-            return u"%s, contained by %s #%s" % (self.base.name, self.owner_type.name, self.owner.id)
+            return u"%s, contained by %s #%s" % (name, self.owner_type.name, self.owner.id)
 
-        return u"%s" % (self.base.name)
+        return u"%s" % (name)

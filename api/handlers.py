@@ -35,7 +35,11 @@ class ItemHandler(BaseHandler):
     )
 
     @classmethod
-    def name(self, item): return item.base.name
+    def name(self, item):
+        if item.name:
+            return item.name
+        else:
+            return item.base.name
     @classmethod
     def type(self, item): return item.base_type.name
     @classmethod
@@ -122,7 +126,7 @@ class RoomHandler(BaseHandler):
         if Room.objects.filter(xpos=request.POST['xpos'], ypos=request.POST['ypos']):
             return rc.BAD_REQUEST
 
-        room = Room.objects.create(xpos=request.POST['xpos'], ypos=request.POST['ypos'], title='Untitled Room', type='field')
+        room = Room.objects.create(xpos=request.POST['xpos'], ypos=request.POST['ypos'], name='Untitled Room', type='field')
         
         return room
     
@@ -292,6 +296,7 @@ class MeHandler(BaseHandler):
         result['inventory'] = player.inventory()
         result['equipment'] = PlayerHandler.equipment(player)
         
+        result['next_level'] = player.next_level
 
         # if 'map' is in any of the requests, give the map
         if getattr(request, request.method).get('map', None):
@@ -311,6 +316,13 @@ class MeHandler(BaseHandler):
 
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
             try:
+                # builder mode - by pass everything
+                if player.builder_mode:
+                    to_room = Room.objects.get(xpos=request.PUT['xpos'],
+                                               ypos=request.PUT['ypos'])
+                    player.room = to_room
+                    player.save()
+                    return self.read(request)
                 player.move(xpos=request.PUT['xpos'],
                             ypos=request.PUT['ypos'])
             except Exception, e:
