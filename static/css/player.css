@@ -1,0 +1,53 @@
+#profile_box {
+    border: 1px solid #000000;
+    margin-bottom: 10px;
+}
+
+#level_box {
+    border-bottom: 1px solid #000000;    
+    border-right: 1px solid #000000;
+    float: left;
+    margin-bottom: 5px;
+}
+    #level_digit {
+        background: #eeeeff;
+        border-bottom: 1px solid #000000;
+        font-size: 200%;
+        text-align: center;
+    }
+    #level_progress {
+        background: #eeffee;
+        font-size: 80%;
+        text-align: center;
+        padding: 2px;
+    }
+
+#name_box {
+    padding: 5px;
+    float: left;
+}
+.point_box {
+    border-left: 1px solid #000000;
+    float: right;
+}
+    .point_digit {
+        /*border-bottom: 1px solid #000000;*/
+        font-size: 200%;
+        text-align: center;
+    }
+    .point_perc {
+        border-bottom: 1px solid #000000;
+        font-size: 80%;
+        text-align: center;
+        padding: 2px;
+    }
+#player_details_button {
+   border-top: 1px solid #000000;
+   text-align: center;
+   padding: 0px;   
+}
+
+#player_details {
+    border-top: 1px solid #000000;
+    padding: 3px;
+}

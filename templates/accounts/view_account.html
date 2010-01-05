@@ -1,0 +1,32 @@
+{% extends "accounts/base.html" %}
+
+{% block contents %}
+
+<p class='spaced'>
+    logged in as <strong>{{ user.username }}</strong> |
+    <a href="">change username</a> |
+    <a href="">change password</a>
+</p>
+
+<table id='character_table'>
+    <tr>
+        <th>Character</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+{% for player in players %}
+    <tr>
+        <td>{{ player.name }}</td>
+        <td>{{ player.status }}</td>
+        <td>
+            {% ifequal player.status 'logged_in' %}
+                exit realm
+            {% else %}
+                enter realm as {{ player.name }}
+            {% endifequal %}
+        </td>
+    </tr>
+{% endfor %}
+</table>
+
+{% endblock %}

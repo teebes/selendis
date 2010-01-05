@@ -33,8 +33,8 @@ class Anima(models.Model):
     
     hp = models.IntegerField(default=10)
     max_hp = models.IntegerField(default=10)
-    mp = models.IntegerField(default=10)
-    max_mp = models.IntegerField(default=10)
+    mp = models.IntegerField(default=30)
+    max_mp = models.IntegerField(default=30)
     sp = models.IntegerField(default=10)
     max_sp = models.IntegerField(default=10)
     
@@ -259,7 +259,7 @@ class Anima(models.Model):
     
             # kill the target if applicable
             if target.hp <= 0:
-                target.die()
+                target.die(killer=self)
                 self.target = None
                 self.save()
                 self.update()
@@ -405,6 +405,7 @@ class Anima(models.Model):
                 wear_verb = 'wield'
         
         if getattr(self, item.base.slot):
+            print "#%s#" % getattr(self, item.base.slot)
             self.notify("You're already wearing something on this slot.")
             raise Exception("Slot occupied")
         

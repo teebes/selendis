@@ -18,12 +18,30 @@ modify_player = function(data) {
     });
 }
 
+setup_player = function() {
+    var button = $("#player_details_button");
+    button.click(function() {
+        $("#player_details").toggle('fast');
+        if (button.html() == 'v') {
+            button.html('^');
+        } else {
+            button.html ('v');
+        }
+    });
+}
+
+
 render_profile = function() {
     $("#player_name").html(document.player.name);
     $("#player_level").html(document.player.level);
-    $("#player_experience").html(document.player.experience);
-    $("#hp").html(document.player.hp + ' / ' + document.player.max_hp);    
-    $("#mp").html(document.player.mp + ' / ' + document.player.max_mp);
+    $("#player_experience").html(str_format("{0} / {1}",
+                                 document.player.experience,
+                                 document.player.next_level));
+
+    $("#current_hp").html(document.player.hp);
+    $("#perc_hp").html(Math.round(document.player.hp / document.player.max_hp * 100));
+    $("#current_mp").html(document.player.mp);
+    $("#perc_mp").html(Math.round(document.player.mp / document.player.max_mp * 100));
 
     // equipment
     $.each(document.player.equipment, function(key, value) {

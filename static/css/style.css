@@ -8,6 +8,8 @@ html {
 
 body { padding-top: 5px; }
 
+p.spaced { margin-bottom: 10px; }
+
 .link {
     color: blue;
     cursor: pointer;
@@ -50,7 +52,7 @@ body { padding-top: 5px; }
 #left_pane {
     float: left;
     margin-left: 10px;
-    width: 310px;
+    width: 390px;
 }
 
     #map {
@@ -73,8 +75,8 @@ body { padding-top: 5px; }
 #right_pane {
     float: left;
     height: 500px;    
-    margin-left: 20px;
-    width: 500px;    
+    margin-left: 10px;
+    width: 302px;    
 }
 
     .page {

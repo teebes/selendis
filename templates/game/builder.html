@@ -1,0 +1,37 @@
+    <div id="builder_box" class='page' style='display: none;'>
+        <p>coords <span id="builder_x"></span>, <span id="builder_y"></span></p>
+        
+        <p>name: <input type='text' id="builder_room_name" /></p>
+        <p>description:</p>
+        
+        <textarea id="builder_room_description"></textarea>
+        
+        <p>Connectors:</p>
+        
+        <p><input type='checkbox' id="builder_north" /> north</p>
+        <p><input type='checkbox' id="builder_east" /> east</p>
+        <p><input type='checkbox' id="builder_south" /> south</p>
+        <p><input type='checkbox' id="builder_west" /> west</p>
+        
+        <p>type:
+            <select name='room_type' id="builder_room_type">
+                <option value=''></option>
+                <option value='road'>Road</option>
+                <option value='water'>Water</option>
+                <option value='field'>Field</option>
+                <option value='city'>City</option>
+                <option value='shop'>Shop</option>
+                <option value='hidden'>Hidden</option>
+            </select>
+        </p>
+        
+        <p>
+            x: <input type='text' id="jump_x" style='width: 30px;' />
+            y: <input type='text' id="jump_y" style='width: 30px;' />
+            <input type='submit' id='jump_to' value='Jump To' />
+            <input type='submit' id='create_room' value='Create Room' />
+        </p>
+        
+        <p><input type='submit' id='delete_room' value='Delete Room'/></p>
+        
+    </div>

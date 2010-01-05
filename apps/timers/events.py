@@ -91,18 +91,18 @@ class CleanUp(PeriodicEvent):
             
         self.log('deleted %s messages' % count)
 
-    """    
     def cleanup_corpses(self):
-        print 'cleaning up corpses'            
-        for corpse in Misc.objects.filter(name__startswith='the corpse of'):
-            corpse_type = ContentType.objects.get_for_model(corpse)
-            corpse_instance = ItemInstance.objects.filter(base_type__pk=corpse_type.id, base_id=corpse.id).delete()
-            corpse.delete()
-        """
+        five_min_ago = datetime.datetime.now() - datetime.timedelta(seconds=60 * 5)
+        for item in ItemInstance.objects\
+                        .filter(name__startswith='the corpse of')\
+                        .filter(modified__lt=five_min_ago):
+            if item.owner.__class__ == Room:
+                item.owner.notify('%s decays into a pile of dust.' % item.name)
+                item.delete()
     
     def execute(self):
         super(CleanUp, self).execute()
         
         self.cleanup_messages()
-        #self.cleanup_corpses()
+        self.cleanup_corpses()
         return

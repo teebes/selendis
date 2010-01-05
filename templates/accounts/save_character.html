@@ -1,0 +1,61 @@
+{% extends "accounts/base.html" %}
+
+{% block contents %}
+    <p>To save this character, create an account and rename your character:</p>
+    
+    <form action="" method="post" class='account_form'>
+
+        <div class='form_field'>
+            <label for="id_account_name">Account name:</label><br />
+            {{ form.account_name.errors }}
+            {{ form.account_name }}<br />
+            <div class="field_explanation">
+                Pick an account name. You can have multiple characters per
+                account.
+            </div>
+        </div>
+
+        <div class='form_field'>
+            <label for="id_character_name">
+                Character name:
+            </label><br />
+            {{ form.character_name.errors }}
+            {{ form.character_name }}<br />
+            <div class='field_explanation'>
+                Pick a new name for character '{{ player.name }}', unless you
+                really really want to keep it...
+            </div>
+        </div>
+        
+        <div class='form_field'>
+            <label for="id_password">Password</label><br />
+            {{ form.password.errors }}
+            {{ form.password }}<br />
+            <div class='field_explanation'>
+                Pick a password at least 6 characters long. You're encouraged
+                to use a combination of mix-cased letters, numbers and special
+                characters.
+            </div>
+        </div>
+        
+        <div class='form_field'>
+            <label for="id_confirm">Confirm password</label><br />
+            {{ form.confirm.errors }}
+            {{ form.confirm }}<br />
+        </div>
+        
+        <div class='form_field'>
+            <label for="id_email">Email (optional)</label><br />
+            {{ form.email.errors }}
+            {{ form.email }}<br />
+            <div class='field_explanation'>
+                If you want to be able to recover your password or log in as
+                your e-mail address, enter it here or later in your profile.
+            </div>
+        </div>
+
+        <input type='submit' value='Save' name='save' class='form_button'/>
+
+    </form>
+
+{% endblock %}
