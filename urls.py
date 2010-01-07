@@ -17,11 +17,13 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     (r'^api/', include('stark.api.urls')),
 
+    url(r'^accounts/', include('stark.apps.accounts.urls')),
+
     url(r'^$', 'stark.views.index', name='index'),
     
     url(r'^login/$', 'stark.views.login', name='login'),
     url(r'^save/$', 'stark.views.save_character', name='save_character'),
-    url(r'^profile/$', 'stark.views.view_account', name='view_account'),
+
     url(r'^logout/$', 'stark.views.logout', name='logout'),
     url(r'^logout-login/$', 'stark.views.logout', {'login': True}, name='logout-login'),
     

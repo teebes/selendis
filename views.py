@@ -99,7 +99,6 @@ def save_character(request):
         confirm = forms.CharField(
                             required=True,
                             widget=forms.PasswordInput(render_value=False))
-
         
         def clean_account_name(self):
             name = self.cleaned_data['account_name']
@@ -141,11 +140,6 @@ def save_character(request):
         'player': player,
     }, context_instance=RequestContext(request))
 
-@login_required
-def view_account(request):
-    return render_to_response("accounts/view_account.html", {
-        'players': Player.objects.filter(user=request.user),
-    }, context_instance=RequestContext(request))
 
 def logout(request, login=None):
     contrib_logout(request)
