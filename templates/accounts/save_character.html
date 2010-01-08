@@ -3,7 +3,11 @@
 {% block contents %}
     <p>To save this character, create an account and rename your character:</p>
     
-    <form action="" method="post" class='account_form'>
+    <form action="" method="post" class='uniForm'>
+        {% load uni_form_tags %}
+        {{ form|as_uni_form }}
+
+        {% comment %}
 
         <div class='form_field'>
             <label for="id_account_name">Account name:</label><br />
@@ -53,8 +57,9 @@
                 your e-mail address, enter it here or later in your profile.
             </div>
         </div>
+        {% endcomment %}
 
-        <input type='submit' value='Save' name='save' class='form_button'/>
+        <input type='submit' value='Save' name='save' class='submit_button'/>
 
     </form>
 

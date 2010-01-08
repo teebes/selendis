@@ -2,16 +2,11 @@
 
 {% block contents %}
 
-    <form action="" method="post" class="account_form">
-        <div class='form_field'>
-            <label for="id_username">Account name:</label><br />
-            <input type='text' name='username' id='id_username' />
-        </div>
-        <div class='form_field'>
-            <label for="id_password">Password:</label><br />
-            <input type='password' name='password' id='id_password' />
-        </div>
-        <input type='submit' class='form_button' value='Login' />
-    </form>
+{% load uni_form_tags %}
+
+<form action="" method="post" class="uniForm">
+    {{ form|as_uni_form }}
+    <input type='submit' value='Login' class='submit_button'/>
+</form>
 
 {% endblock %}

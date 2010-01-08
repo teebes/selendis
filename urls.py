@@ -21,12 +21,6 @@ urlpatterns = patterns('',
 
     url(r'^$', 'stark.views.index', name='index'),
     
-    url(r'^login/$', 'stark.views.login', name='login'),
-    url(r'^save/$', 'stark.views.save_character', name='save_character'),
-
-    url(r'^logout/$', 'stark.views.logout', name='logout'),
-    url(r'^logout-login/$', 'stark.views.logout', {'login': True}, name='logout-login'),
-    
     (r'^quick/$', 'stark.views.quick'),
     (r'^disrupt/$', 'django.views.generic.simple.direct_to_template', {'template': 'disrupt.html'}),
 )

@@ -4,6 +4,7 @@
     {{ field }}
 {% else %}
     <div id="div_{{ field.auto_id }}" class="ctrlHolder{% if field.errors %} error{% endif %}{% if field|is_checkbox %} checkbox{% endif %} {% if field.field.widget.attrs.class %} {{ field.field.widget.attrs.class }}{% endif %}">
+        <div style='margin-left: 50px;'>
         {% for error in field.errors %}
             <p id="error_{{ forloop.counter }}_{{ field.auto_id }}" class="errorField">
                 {{ error }}
@@ -15,8 +16,8 @@
         {% endif %}
 
         {% if field.label %}
-            <label for="{{ field.auto_id }}">
-                {{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}
+            <label for="{{ field.auto_id }}" {% if field.field.required %}style='font-weight: bold'{% endif %}>
+                {{ field.label }}
             </label>
         {% endif %}
 
@@ -27,5 +28,6 @@
         {% if field.help_text %}
             <p id="hint_{{ field.auto_id }}" class="formHint">{{ field.help_text|safe }}</p>
         {% endif %}
+        </div>
     </div>
 {% endif %}
