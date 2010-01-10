@@ -1,19 +1,24 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Stark - accounts</title>
-        <link type="text/css" href="/static/css/style.css" rel="stylesheet"/>
-        <link type="text/css" href="/static/css/accounts.css" rel="stylesheet"/>
-        <script type="text/javascript" src="/static/js/jquery/jquery-1.3.2.min.js"></script>
-        {% include "uni_form/includes.html" %}
-    </head>
-    <body>
+{% extends "base.html" %}
+
+{% block head %}
+    <link type="text/css" href="/static/css/style.css" rel="stylesheet"/>
+    <link type="text/css" href="/static/css/accounts.css" rel="stylesheet"/>
+    {% include "uni_form/includes.html" %}
+{% endblock %}
+
+{% block content %}
+
+    {% if messages %}
+    <ul id="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}        
     
-    <div id="outline">
-        <p class='spaced'><a href="{% url index %}">Back to the game</a></p>
-        {% block contents %}
+    <div id="account_outline">
+        {% block account_content %}
         {% endblock %}
     </div>
 
-    </body>
-</html>
+{% endblock %}

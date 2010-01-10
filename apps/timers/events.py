@@ -16,7 +16,8 @@ class PeriodicEvent(object):
         self.last_executed = None
     
     def should_execute(self):
-        if not self.last_executed or datetime.timedelta(seconds=self.interval) < datetime.datetime.now() - self.last_executed:
+        if not self.last_executed or \
+           datetime.timedelta(seconds=self.interval) < datetime.datetime.now() - self.last_executed:
             return True
         return False
 
@@ -69,7 +70,8 @@ class Combat(PeriodicEvent):
     
     @transaction.commit_on_success
     def combat_round(self):
-        for player in Player.objects.filter(status='logged_in', target_type__isnull=False):
+        for player in Player.objects.filter(status='logged_in',
+                                            target_type__isnull=False):
             player.combat_round()
 
         for mob in Mob.objects.filter(target_type__isnull=False):
@@ -84,25 +86,47 @@ class CleanUp(PeriodicEvent):
     
     @transaction.commit_on_success
     def cleanup_messages(self):
-        count = 0
-        for message in Message.objects.filter(type='notification', created__lte=(datetime.datetime.now() - datetime.timedelta(minutes=10))):
+        msg_life = getattr(config, 'MESSAGE_LIFESPAN', 10)
+        now = datetime.datetime.now()
+        threshold = now - datetime.timedelta(minutes=msg_life)
+        for message in Message.objects.filter(
+            type='notification',
+            created__lte=(datetime.datetime.now() - datetime.timedelta(minutes=10))):
             message.delete()
-            count += 1
-            
-        self.log('deleted %s messages' % count)
 
     def cleanup_corpses(self):
-        five_min_ago = datetime.datetime.now() - datetime.timedelta(seconds=60 * 5)
+        decay = getattr(config, 'CORPSE_DECAY_LENGTH', 5)
+        now = datetime.datetime.now()
+        threshold = now - datetime.timedelta(seconds=60 * decay)
         for item in ItemInstance.objects\
                         .filter(name__startswith='the corpse of')\
-                        .filter(modified__lt=five_min_ago):
+                        .filter(modified__lt=threshold):
             if item.owner.__class__ == Room:
                 item.owner.notify('%s decays into a pile of dust.' % item.name)
                 item.delete()
+    
+    def cleanup_temporary_players(self):
+        temp_life = getattr(config, 'TEMPORARY_PLAYER_LIFESPAN', 1)
+        now = datetime.datetime.now()
+        threshold = now - datetime.timedelta(days=temp_life)
+        temp_players = Player.objects.filter(temporary=True,
+                                             last_activity__gt=threshold)
+        temp_users = map(lambda x: x.user, temp_players)
+
+        for player in temp_players.all():
+            player.room.notify('%s fades from existence.' % player.name)
+
+        # delete the characters
+        temp_players.delete()
+
+        # delete the temporary users
+        for user in temp_users:
+            user.delete()
     
     def execute(self):
         super(CleanUp, self).execute()
         
         self.cleanup_messages()
         self.cleanup_corpses()
+        self.cleanup_temporary_players()
         return

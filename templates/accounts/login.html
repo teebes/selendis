@@ -1,12 +1,12 @@
 {% extends "accounts/base.html" %}
 
-{% block contents %}
-
 {% load uni_form_tags %}
+
+{% block account_content %}
 
 <form action="" method="post" class="uniForm">
     {{ form|as_uni_form }}
-    <input type='submit' value='Login' class='submit_button'/>
+    <input type='submit' value='Login' class='submitButton'/>
 </form>
 
 {% endblock %}

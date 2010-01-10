@@ -23,7 +23,7 @@ void draw()
 
     var size = 22;
     var margin = 10;
-    background(240);
+    background(#EEEEEE);
 
     if (document.map && document.player) {
         map = document.map;

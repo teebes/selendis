@@ -2,15 +2,14 @@
 
 {% load uni_form_tags %}
 
-{% block contents %}
-<p class='spaced'><a href="{% url accounts_index %}">Back to my account</a></p>
+{% block account_content %}
 
 <form action="" method="post" class="uniForm">
 
-Change password:
+Change email:
 
 {{ form|as_uni_form }}
-<input type='submit' value='Change E-Mail' />
+<input type='submit' value='Change E-Mail' class='submitButton' />
 
 </form>
 

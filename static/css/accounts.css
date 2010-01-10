@@ -1,50 +1,22 @@
-#outline {
-    padding: 5px;
-    width: 800px;
-}
-
-.account_form { margin: 10px 0 0 20px; }
-
-.form_button {
-    display: block;
-    margin: 10px;
-}
-
-.form_field {
-    border-bottom: 1px solid #cccccc;
+#account_outline {
+    background: 1px #fafaff;
+    border: 1px solid #555;
+    margin: 20px 0 0 150px;
     padding: 10px;
-    width: 300px;
-}
-.form_field label { font-weight: bold; }
-.field_explanation {
-    color: #666666;
-    font-style: italic;
-    font-size: 90%;
-}
-
-.errorlist {
-    list-style: none;
-    color: red;
-    margin-left: 10px;
+    width: 400px;
 }
 
 #character_table {
     border-collapse: collapse;
-    border: 1px solid #ccc;
+    border: 1px solid #888;
 }
 #character_table td, th {
+    border: 1px solid #ccc;
     padding: 5px;
 }
 
-/*.uniForm {
-    width: 300px;
+#messages {
+    display: block;
+    list-style: none;
+    margin: 20px 0 0 150px;
 }
-
-.stark_form_field {
-    margin-left: 20px;
-}
-
-.submit_button {
-    margin: 10px 0 0 50px;
-}
-*/

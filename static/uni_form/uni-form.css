@@ -116,3 +116,39 @@ YOU CAN VERY EASILY REVERT TO A GENERIC STYLE OF UNI-FORM. BEST OF LUCK...
 
 /* ------------------------------------------------------------------------------ */
 
+.uniForm .textInput,
+.uniForm .blockLabels .textInput,
+.uniForm .blockLabels .fileUpload,
+.uniForm .selectInput,
+.uniForm .blockLabels .selectInput,
+.uniForm .blockLabels select,
+.uniForm textarea,
+.uniForm .blockLabels textarea {
+    float: none;
+}
+
+.uniForm .formHint,
+.uniForm .blockLabels .formHint {
+    width: 100%; /* <- Required property */
+    font-size: .9em;
+    color: #777;
+    position: relative;
+    top: 0em;
+    float: none;
+}
+
+.uniForm .ctrlHolder{
+    padding: 7px 7px 7px 50px;
+    border-bottom: 1px solid #dfdfdf;
+}
+
+.uniForm .submitButton {
+    margin: 10px 0 0 50px;
+}
+
+.uniForm{
+    margin: 0;
+    padding: 0;
+    position: relative;
+    width: 300px;
+    z-index: 1; } /* reset stuff */

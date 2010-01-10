@@ -13,7 +13,7 @@ from piston.utils import rc
 from stark import config
 from stark.apps.anima.models import Anima, Player, Mob, Message
 from stark.apps.timers import check_pulse
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor
+from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor, Zone
 
 ROOM_RANGE = 10
 MEMORY = getattr(config, 'MESSAGES_RETENTION_TIME', 60 * 5)
@@ -120,15 +120,22 @@ class RoomHandler(BaseHandler):
         return room.items.all()
 
     def create(self, request, *args, **kwargs):
-        if not Player.objects.get(user=request.user, status='logged_in').builder_mode:
-            return rc.FORBIDDEN
-        
-        if Room.objects.filter(xpos=request.POST['xpos'], ypos=request.POST['ypos']):
-            return rc.BAD_REQUEST
-
-        room = Room.objects.create(xpos=request.POST['xpos'], ypos=request.POST['ypos'], name='Untitled Room', type='field')
-        
-        return room
+        try:
+            if not Player.objects.get(user=request.user, status='logged_in').builder_mode:
+                return rc.FORBIDDEN
+            
+            if Room.objects.filter(xpos=request.POST['xpos'], ypos=request.POST['ypos']):
+                return rc.BAD_REQUEST
+    
+            room = Room.objects.create(xpos=request.POST['xpos'],
+                                       ypos=request.POST['ypos'],
+                                       name='Untitled Room',
+                                       type='field',
+                                       zone=Zone.objects.get(pk=1))
+            
+            return room
+        except Exception, e:
+            print "error: %s" % e
     
     def update(self, request, *args, **kwargs):
         try:

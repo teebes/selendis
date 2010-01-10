@@ -43,23 +43,36 @@ def index(request):
                                        room=initial_room)
         player.update()
         
-    else:
-        # if the user is already authenticated, get or create their player
-        player, created = Player.objects.get_or_create(
-                                user=request.user,
-                                status='logged_in',
-                                name=request.user.username,
-                                defaults={'room': initial_room})
-        
-        if created:
-            # if new user, give them builder mode if they're staff
+    else: # returning user
+        characters = Player.objects.filter(user=request.user)
+        if characters.count() == 0: # no characters, create one
+            # new player
+            
+            # if the user is staff, give the character builder mode
             if request.user.is_staff:
-                player.builder_mode = True
-                player.save()
-            player.update()
+                builder_mode = True
+            else:
+                builder_mode = False
+                
+            # if the user's name is already a character name, give a temp name
+            character_name = request.user.username
+            if characters.filter(name=character_name):
+                name = "user_%s" % request.user.id
+                
+            player = Player.objects.create(user=request.user,
+                                           name=character_name,
+                                           status='logged_in',
+                                           builder_mode=builder_mode,
+                                           room=initial_room)
+        elif characters.filter(status='logged_in').count() == 1:
+            player = characters.get(status='logged_in')
+        else:
+            characters.update(status='logged_out')
+            return HttpResponseRedirect(reverse('accounts_index'))
 
-    temporary_user = len(request.user.username) >= 5 and \
-                     request.user.username[0:5] == 'user_'
+    temporary_user = player.temporary
+    #temporary_user = len(request.user.username) >= 5 and \
+    #                 request.user.username[0:5] == 'user_'
 
     return render_to_response("game/index.html", {
         'player': player,

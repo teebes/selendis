@@ -20,6 +20,11 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('stark.apps.accounts.urls')),
 
     url(r'^$', 'stark.views.index', name='index'),
+
+    url(r'^help/$', 'django.views.generic.simple.direct_to_template', {
+        'template': 'game/help.html'
+        }, name='help'),
+
     
     (r'^quick/$', 'stark.views.quick'),
     (r'^disrupt/$', 'django.views.generic.simple.direct_to_template', {'template': 'disrupt.html'}),

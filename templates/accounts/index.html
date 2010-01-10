@@ -1,18 +1,33 @@
 {% extends "accounts/base.html" %}
 
-{% block contents %}
+{% block account_content %}
 
-<p class='spaced'>
-    logged in as <strong>{{ user.username }}</strong> |
-    <a href="{% url accounts_change_email %}">change email</a> |
-    <a href="{% url accounts_change_password %}">change password</a>
+
+<p>
+    logged in as <strong>{{ user.username }}</strong>
+    - <a href="{% url accounts_change_password %}">change password</a>
 </p>
+
+{% if user.email %}
+    <p>
+        email: {{ user.email }}
+        {% if user.email != 'pending confirmation' %}
+        - <a href="{% url accounts_change_email %}">change</a>
+        {% endif %}
+    </p>
+{% else %}
+    <p>
+        <a href="{% url accounts_change_email %}">set your e-mail</a>
+    </p>
+{% endif %}
+
+<p class='spaced'><a href="">create new character</a></p>
 
 <table id='character_table'>
     <tr>
         <th>Character</th>
         <th>Status</th>
-        <th>Actions</th>
+        <th>Action</th>
     </tr>
 {% for player in players %}
     <tr>
@@ -20,9 +35,9 @@
         <td>{{ player.status }}</td>
         <td>
             {% ifequal player.status 'logged_in' %}
-                exit realm
+                <a href="{% url exit_realm %}">exit realm</a>
             {% else %}
-                enter realm as {{ player.name }}
+                <a href="{% url enter_realm player.name %}">enter realm</a>
             {% endifequal %}
         </td>
     </tr>

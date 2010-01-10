@@ -8,5 +8,18 @@ DEATH_ROOM_ID = 2
 # how far back to display messages
 # MESSAGES_RETENTION_TIME = 5
 
-# the room new players start in
-INITIAL_ROOM = 2
+# the room ID that new players start in
+# INITIAL_ROOM = 2
+
+"""
+Cleanup constants
+"""
+
+# corpse decay, in minutes
+# CORPSE_DECAY_LENGTH = 5
+
+# life span of a temporary user, in days
+# TEMPORARY_PLAYER_LIFESPAN = 1
+
+# life span of a message, in mintues
+# MESSAGE_LIFESPAN = 10

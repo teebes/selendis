@@ -156,14 +156,24 @@ class ItemInstance(models.Model):
     
     modified = models.DateTimeField(blank=True)
     
+    def get_name(self):
+        name = self.name
+        if not name:
+            return self.base.name
+    
+    def total_weight(self, weight=0):
+        weight += self.base.weight
+        if self.base.capacity > 0:
+            for contained_item in ItemInstance.objects.owned_by(self):
+                weight += contained_item.total_weight()
+        return weight    
+    
     def save(self, *args, **kwargs):
         self.modified = datetime.datetime.now()
         super(ItemInstance, self).save(*args, **kwargs)
     
     def __unicode__(self):
-        name = self.name
-        if not name:
-            name = self.base.name
+        name = self.get_name()
         
         # items carried by players / mobs
         if self.owner_type.name in ('player', 'mob'):
