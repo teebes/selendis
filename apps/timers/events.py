@@ -110,7 +110,7 @@ class CleanUp(PeriodicEvent):
         now = datetime.datetime.now()
         threshold = now - datetime.timedelta(days=temp_life)
         temp_players = Player.objects.filter(temporary=True,
-                                             last_activity__gt=threshold)
+                                             last_activity__lt=threshold)
         temp_users = map(lambda x: x.user, temp_players)
 
         for player in temp_players.all():

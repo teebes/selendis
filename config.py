@@ -9,7 +9,7 @@ DEATH_ROOM_ID = 2
 # MESSAGES_RETENTION_TIME = 5
 
 # the room ID that new players start in
-# INITIAL_ROOM = 2
+INITIAL_ROOM = 2
 
 """
 Cleanup constants

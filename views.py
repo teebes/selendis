@@ -24,6 +24,7 @@ def index(request):
         they can change the name and set the password to make it a
         permanent user
         """
+
         user = User()
         user.save()
         user.username = u"user_%s" % user.id
@@ -35,7 +36,7 @@ def index(request):
         authenticated_user = authenticate(username=user.username,
                                           password=password)
         contrib_login(request, authenticated_user)
-        print initial_room
+
         player = Player.objects.create(user=user,
                                        name=user.username,
                                        temporary=True,
@@ -70,16 +71,10 @@ def index(request):
             characters.update(status='logged_out')
             return HttpResponseRedirect(reverse('accounts_index'))
 
-    temporary_user = player.temporary
-    #temporary_user = len(request.user.username) >= 5 and \
-    #                 request.user.username[0:5] == 'user_'
-
     return render_to_response("game/index.html", {
         'player': player,
-        'temporary_user': temporary_user,
+        'temporary_user': player.temporary,
         }, context_instance=RequestContext(request))
 
 def quick(request):
-    return HttpResponse(request.user.username)
-
-    
+    return HttpResponse(request.user)
