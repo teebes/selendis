@@ -83,7 +83,7 @@ $(document).ready(function(){
     setup_builder();
     setup_player();
 
-    get_map();
+    // get_map();
 
     var initial = true;
 
@@ -96,24 +96,37 @@ $(document).ready(function(){
             data: { map: true },
             dataType: "json",
             success: function(player) {
-                document.player = player;
+                // load builder on initial load
+                if (initial) {
+                    document.player_map_xpos = player.room.xpos;
+                    document.player_map_ypos = player.room.ypos;
+                }
+                
+                /* If a player has initiated a move, a returning pulse
+                shouldn't overwrite what their new position will be. Therefore,
+                if within 2 seconds of a move, don't pulse. */
+                var now = new Date().getTime();
+                if (!document.last_move || now - document.last_move < 2000) {
+                
+                document.player = player
                 document.map = player.map;
                 
                 // render the pages
                 render_room();
                 render_profile();
-                
-                // functions to only execute once on initial load
-                if (initial) {
-                    if (document.player.builder_mode) {
-                        render_builder(); }
-                    initial = false;
                 }
+                
+                // load builder on initial load
+                if (initial & player.builder_mode) { render_builder(); }
+                
+                // only execute initial once
+                if (initial) { initial = false; }
+                
             }
         });           
     }
     pulse();
-    setInterval("pulse();", 2000);
+    //setInterval("pulse();", 2000);
 
     // processing
     

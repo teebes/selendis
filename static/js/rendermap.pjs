@@ -36,8 +36,8 @@ void draw()
             
             // -- draw the room --
             stroke(0);
-            if (document.player.room.xpos == this.xpos &&
-                document.player.room.ypos == this.ypos) {
+            if (document.player_map_xpos == this.xpos &&
+                document.player_map_ypos == this.ypos) {
                 // player's room
                 stroke(#0000ff);
                 strokeWeight(2);

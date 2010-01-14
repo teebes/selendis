@@ -39,6 +39,7 @@ var match_command = function(user_input) {
 }
 
 var send_command = function(command) {
+    // processes all commands except for directional ones
     $.ajax({
         type: "PUT",
         url: "/api/me.json",
@@ -52,10 +53,16 @@ var send_command = function(command) {
 
 var move_to = function(x, y) {
     // if the player has enough moves,
-    // assume the move went through so that directions can be spammed
-    if (document.player.mp > 2) {   
-        document.player.room.xpos = x;
-        document.player.room.ypos = y;
+    // this is so that directions can be spammed and movement appears fluid
+    if (document.player.mp > 2) {
+        // store a cached version of the player's new position
+        document.player_map_xpos = x;
+        document.player_map_ypos = y;
+        
+        // store the last time that the player moved so that if a pulse
+        // comes back right after a player has moved, it doesn't change their
+        // position
+        document.last_move = new Date().getTime();
     }
     
     $.ajax({
@@ -101,16 +108,16 @@ var process_command = function(command){
 
     // directions
     if (first == 'north') {
-        move_to(document.player.room.xpos, document.player.room.ypos - 1);
+        move_to(document.player_map_xpos, document.player_map_ypos - 1);
         return
     } else if (first == 'east') {
-        move_to(document.player.room.xpos + 1, document.player.room.ypos);
+        move_to(document.player_map_xpos + 1, document.player_map_ypos);
         return
     } else if (first == 'south') {
-        move_to(document.player.room.xpos, document.player.room.ypos + 1);
+        move_to(document.player_map_xpos, document.player_map_ypos + 1);
         return
     } else if (first == 'west') {
-        move_to(document.player.room.xpos - 1, document.player.room.ypos);
+        move_to(document.player_map_xpos - 1, document.player_map_ypos);
         return
     }
     
