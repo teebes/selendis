@@ -231,6 +231,17 @@ class Anima(models.Model):
         self.attack(self.target)
     
     def attack(self, target):
+        
+        # protect template mobs (I've had some bad experiences... this is
+        # necessary)
+        if getattr(target, 'template', False):
+            self.notify("You can't harm template mobs.")
+            self.target.target = None
+            self.target.save()
+            self.target = None
+            self.save()
+            return
+        
         # pluggable function to determine the outcome of a round
         (hit, damage) = determine_attack_outcome(self, target)
         
@@ -277,6 +288,7 @@ class Anima(models.Model):
                 self.update()
 
     def die(self):
+        # Anima and Mob each call this as supers of the overwritten method
         for room_player in self.room.player_related.all():
             if room_player != self:
                 room_player.notify("%s is dead!" % self.name)
@@ -698,6 +710,9 @@ class Mob(Anima):
     def notify(self): pass
 
     def die(self, killer=None):
+        
+        if self.template:
+            raise Exception("You can't kill template mobs!")
         
         if killer:
             killer.experience += self.experience
