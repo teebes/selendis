@@ -11,6 +11,7 @@ from django.contrib.contenttypes import generic
 from django.db import models, transaction
 
 from stark import config
+from stark.apps.anima import constants as anima_constants
 from stark.apps.anima.combat import determine_attack_outcome
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES, ARMOR_SLOTS, WEAPON_SLOTS
 from stark.apps.anima.levels import get_level_for_exp
@@ -197,6 +198,10 @@ class Anima(models.Model):
         for item in ItemInstance.objects.owned_by(self):
             weight += item.total_weight()
         return weight
+
+    def get_name(self):
+        # method to match ItemInstance's
+        return self.name
 
     ##########
     # Combat #
@@ -407,6 +412,8 @@ class Anima(models.Model):
                 self.notify("%s is too heavy for you to pick up."
                             % item.get_name())
                 return
+            
+            old_owner = item.owner
 
             item.owner = self
             item.save()
@@ -414,14 +421,14 @@ class Anima(models.Model):
             for player in self.room.player_related.all():
                 if player == self:
                     self.notify("You get %s from %s." % (
-                        item.base.name,
-                        item.owner.base.name
+                        item.get_name(),
+                        old_owner.get_name()
                     ))
                 else:
                     player.notify("%s gets %s from %s." % (
                         self.name,
-                        item.base.name,
-                        item.owner.base.name
+                        item.get_name(),
+                        old_owner.get_name()
                     ))
 
         else:
@@ -429,8 +436,8 @@ class Anima(models.Model):
             message = ("%s can't get item %s from container %s because "
                        "they're in different rooms" % (
                             self.name,
-                            item.name,
-                            item.owner.name
+                            item.get_name(),
+                            item.owner.get_name()
                        ))
             stark_log.debug(message)
             raise Exception(message)
@@ -465,9 +472,8 @@ class Anima(models.Model):
                 wear_verb = 'wield'
         
         if getattr(self, item.base.slot):
-            print "#%s#" % getattr(self, item.base.slot)
             self.notify("You're already wearing something on this slot.")
-            raise Exception("Slot occupied")
+            return
         
         setattr(self, item.base.slot, item)
         self.save()
@@ -500,6 +506,10 @@ class Anima(models.Model):
     class Meta:
         abstract = True
 
+    def delete(self, *args, **kwargs):
+        ItemInstance.objects.owned_by(self).delete()
+        super(Anima, self).delete(*args, **kwargs)
+
     def __unicode__(self):
         return u"%s" % self.name
 
@@ -516,48 +526,46 @@ class Anima(models.Model):
             self.notify('- north east south west kill')
             self.notify('- get drop put wear wield remove')
             self.notify('- chat help')
-        
+
         # - wear / wield -
         if tokens[0] in ('wear', 'wield'):
             if len(tokens) < 2:
                 self.notify('Usage: wear item')
-                raise Exception('Not enough tokens for wear command')
-                # TODO: handle better multiple items being returned?
+                return
             items = find_items_in_container(tokens[1], self.inventory())
             for item in items:
                 self.wear(item)
             if not items:
                 self.notify('You have no %s to wear.' % tokens[1])
-                raise Exception('User does not have designated item to wear')
-            
+                return
+
         # - remove -
         if tokens[0] == 'remove':
             if len(tokens) < 2:
                 self.notify('Usage: remove item')
-                raise Exception('Not enough tokens for remove command')
+                return
             eq = filter(lambda x: x, self.equipment().values())
             items = find_items_in_container(tokens[1], eq)
             if items:
                 self.remove(items[0])
             else:
                 self.notify('You are not wearing a %s.' % tokens[1])
-                raise Exception('User is not wearing designated item to '
-                                'remove')
+                return
+
         # - get -
         if tokens[0] == 'get':
             # simple get from room
             if len(tokens) == 0:
                 self.notify('Usage: get item [container]')
-                raise Exception('Not enough tokens for get command.')                
+                return
             elif len(tokens) == 2:
                 items = find_items_in_container(tokens[1],
                                                 self.room.items.all())
                 for item in items:
                     self.get_item(item)
                 if not items:
-                    error = 'There is no %s in this room.' % tokens[1]
-                    self.notify(error)
-                    raise Exception(error)
+                    self.notify('There is no %s in this room.' % tokens[1])
+                    return
             
             # get from container
             elif len(tokens) >= 3:
@@ -577,21 +585,22 @@ class Anima(models.Model):
                 
                 # if no suitable container has been found, raise eror
                 if not container:
-                    error = 'No such container: %s' % tokens[2]
-                    self.notify(error)
-                    raise Exception(error)
+                    self.notify(error = 'No such container: %s' % tokens[2])
+                    return
                 
                 # get the item from the found container
                 # TODO: should this support getting stuff from
                 # multiple container?
                 items = find_items_in_container(tokens[1],
                                                 container[0].owns.all())
+
                 for item in items:
                     self.get_item_from_container(item)
+
                 if not items:
-                    error = 'There is no %s in %s' % (tokens[1], tokens[2])
-                    self.notify(error)
-                    raise Exception(error)
+                    self.notify('There is no %s in %s' %
+                                    (tokens[1], tokens[2]))
+                    return
 
         # - put -
         if tokens[0] == 'put':
@@ -602,9 +611,8 @@ class Anima(models.Model):
                 # get the items that the user wants to put somewhere
                 items = find_items_in_container(tokens[1], self.inventory())
                 if not items:
-                    error = 'There is no %s in your inventory' % tokens[1]
-                    self.notify(error)
-                    raise Exception(error)
+                    self.notify('There is no %s in your inventory' % tokens[1])
+                    return
                 
                 # get the best match from eq, inv and room
                 eq = filter(lambda x: x, self.equipment().values())
@@ -619,9 +627,8 @@ class Anima(models.Model):
                                                          self.room.items.all(),
                                                          find_container=True)
                 if not containers:
-                    error = 'There is no %s in your inventory' % tokens[2]
-                    self.notify(error)
-                    raise Exception(error)
+                    self.notify('There is no %s in your inventory' % tokens[2])
+                    return
                 
                 for item in items:
                     self.put_item_in_container(item, containers[0])
@@ -630,31 +637,31 @@ class Anima(models.Model):
         if tokens[0] == 'drop':
             if len(tokens) < 2:
                 self.notify('Usage: drop item')
-                raise Exception('Not enough tokens for drop command')
+                return
             items = find_items_in_container(tokens[1], self.inventory())
             for item in items:
                 self.drop_item(item)
             if not items:
                 self.notify('You are not carrying a %s.' % tokens[1])
-                raise Exception('User is not holding designated item to drop')
+                return
 
         # - give -
         if tokens[0] == 'give':
             if len(tokens) < 3:
                 self.notify('Usage: give item target')
+                return
             items = find_items_in_container(tokens[1], self.inventory())
             if not items:
                 self.notify("You are not carrying a %s" % tokens[1])
-                raise Exception('Uer is not holding designated item to drop')
+                return
             target = None
             for player in self.room.player_related.all():
                 if tokens[2] in (player.id, player.name):
                     target = player
                     break
             if not target:
-                msg = "No-one by the name %s here." % tokens[2]
-                self.notify(msg)
-                raise exception(msg)
+                self.notify("No-one by the name %s here." % tokens[2])
+                return
             for item in items:
                 self.give_item(item, target)
 
@@ -662,7 +669,7 @@ class Anima(models.Model):
         if tokens[0] == 'kill':
             if len(tokens) < 2:
                 self.notify('Usage: kill target')
-                raise Exception('Not enough tokens for kill command')
+                return
             target = None
             for player in self.room.player_related.all():
                 if tokens[1] in (player.id, player.name):
@@ -754,17 +761,27 @@ class MobLoader(models.Model):
             if not roll_percent(self.spawn_chance):
                 break
             for room in self.spawn_in.all():
+                # There are two saves here because the mob first loads in the
+                # void and then is moved to the correct room so that players
+                # do not see the wear messages
                 mob = self.template_mob
                 mob.id = None
-                mob.room = room
+                mob.room = Room.objects.get(pk=1)
                 mob.template = False
                 mob.save()
+
+                self.spawned_mobs.add(mob)
 
                 for attribute in ['armor', 'weapon', 'misc', 'sustenance']:
                     for base in getattr(self, attribute).all():
                         item = ItemInstance.objects.create(owner = mob,
                                                            base = base)
-                        self.spawned_mobs.add(mob)
+
+                mob.command('wear all')
+    
+                mob.room = room
+                mob.save()
+                    
     
 class Message(models.Model):
     created = models.DateTimeField(default=datetime.datetime.now(),

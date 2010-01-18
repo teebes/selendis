@@ -41,6 +41,9 @@ class Room(models.Model):
         for player in self.player_related.all():
             player.notify(msg)
 
+    def get_name(self):
+        return u"%s" % self.name
+
     def __unicode__(self):
         return u"%s, %s: %s" % (self.xpos, self.ypos, self.name )
 
@@ -156,10 +159,17 @@ class ItemInstance(models.Model):
     
     modified = models.DateTimeField(blank=True)
     
+    def delete(self, *args, **kwargs):
+        # if deleted, recursively delete all contained items
+        if self.base.capacity > 0:
+            ItemInstance.objects.owned_by(self).delete()
+        super(ItemInstance, self).delete(*args, **kwargs)
+    
     def get_name(self):
         name = self.name
         if not name:
-            return self.base.name
+            name = self.base.name
+        return name
     
     def total_weight(self, weight=0):
         weight += self.base.weight
@@ -177,14 +187,14 @@ class ItemInstance(models.Model):
         
         # items carried by players / mobs
         if self.owner_type.name in ('player', 'mob'):
-            return u"%s, carried by %s" % (name, self.owner.name)
+            return u"%s, carried by %s" % (name, self.owner.get_name())
 
         # item lying in room
         elif self.owner_type.name == 'room':
-            return u"%s, on the ground in %s" % (name, self.owner.name)
+            return u"%s, on the ground in %s" % (name, self.owner.get_name())
 
         # items in containers
         elif self.owner_type.name == 'item instance':
-            return u"%s, contained by %s #%s" % (name, self.owner_type.name, self.owner.id)
+            return u"%s, contained by %s" % (name, self.owner.get_name())
 
         return u"%s" % (name)

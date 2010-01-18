@@ -106,7 +106,7 @@ $(document).ready(function(){
                 shouldn't overwrite what their new position will be. Therefore,
                 if within 2 seconds of a move, don't pulse. */
                 var now = new Date().getTime();
-                if (!document.last_move || now - document.last_move < 2000) {
+                if (!document.last_move || now - document.last_move > 2000) {
                 document.player = player
                 document.map = player.map;
                 
