@@ -35,8 +35,8 @@ class Tick(PeriodicEvent):
     @transaction.commit_on_success
     def move_mobs(self):
         # move mobs
-        for mob in Mob.objects.filter(static=False):
-            if random.randint(0, 5) == 0:
+        for mob in Mob.objects.exclude(static=True).exclude(template=True):
+            if random.randint(0, 10) == 0:
                 mob.move(random=True)
             
     @transaction.commit_on_success

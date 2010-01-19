@@ -128,9 +128,16 @@ class Anima(models.Model):
                 raise Exception("No connector exists to provided to_room")
         elif random:
             try:
-                connector = RoomConnector.objects\
-                            .filter(from_room=self.room)\
-                            .order_by('?')[0]
+                if self.__class__.__name__ == "Mob":
+                    # by default keep mobs within zones
+                    connector = RoomConnector.objects\
+                                .filter(to_room__zone__id=self.room.zone.id,
+                                        from_room=self.room)\
+                                .order_by('?')[0]
+                else:
+                    connector = RoomConnector.objects\
+                                .filter(from_room=self.room)\
+                                .order_by('?')[0]
             except (RoomConnector.DoesNotExist, IndexError):
                 # no exits, don't move at all
                 return
@@ -714,7 +721,7 @@ class Mob(Anima):
     # these are template mobs from which other mobs get created
     template = models.BooleanField(default=False)
     
-    def notify(self): pass
+    def notify(self, *args, **kwargs): pass
 
     def die(self, killer=None):
         

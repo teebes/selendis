@@ -25,7 +25,7 @@ class Room(models.Model):
     xpos = models.IntegerField(blank=False)
     ypos = models.IntegerField(blank=False)
     name = models.CharField(max_length=80, blank=False)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     type = models.CharField(max_length=20, choices=ROOM_TYPES)
     
     connected_rooms = models.ManyToManyField(
