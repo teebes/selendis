@@ -12,6 +12,9 @@ class RoomAdmin(admin.ModelAdmin):
         'ypos',
         'name',
     )
+    list_filter = (
+        'zone',
+    )
 
 #class EquipmentAdmin(admin.ModelAdmin): pass
 

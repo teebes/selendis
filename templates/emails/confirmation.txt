@@ -1,6 +1,6 @@
 Please the confirm the e-mail address you entered on your Stark profile, {{ email }}, is correct by clicking on this link:
 
-{{ link }}
+http://{{ link }}
 
 Thanks,
 
