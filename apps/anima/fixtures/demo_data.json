@@ -8,7 +8,7 @@
             "arms": null, 
             "chest": null, 
             "template": true, 
-            "max_hp": 10, 
+            "hp_base": 10, 
             "legs": null, 
             "main_hand": null, 
             "head": null, 
@@ -18,13 +18,14 @@
             "hands": null, 
             "name": "a tired guard", 
             "room": 1, 
-            "max_sp": 10, 
+            "sp_base": 10, 
             "level": 1, 
-            "sp": 10, 
+            "sp_base": 10, 
             "target_type": null, 
-            "experience": 10, 
+            "experience": 10,
+            "mp": 10,
             "mp": 10, 
-            "max_mp": 10
+            "mp_base": 10
         }
     }
 ]

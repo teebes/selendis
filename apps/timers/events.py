@@ -45,11 +45,12 @@ class Tick(PeriodicEvent):
         TICK_MP_REGEN_RATE = getattr(config, 'TICK_MP_REGEN_RATE', 20)
         
         # players regen moves
-        for player in Player.objects.filter(status='logged_in').extra(where=['mp < max_mp']):
+        for player in Player.objects.filter(status='logged_in').extra(where=['mp < mp_base']):
             player.regen('mp', TICK_MP_REGEN_RATE)
             
         # players regen health
-        for player in Player.objects.filter(status='logged_in').extra(where=['hp < max_hp']):
+        # TODO: make this query not hard code the max hp while not taking too great a performance hit
+        for player in Player.objects.filter(status='logged_in').extra(where=['hp < hp_base + constitution * 10 + level * 2']):
             player.regen('hp', TICK_HP_REGEN_RATE)
 
     def execute(self):

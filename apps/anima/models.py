@@ -31,15 +31,24 @@ class Anima(models.Model):
     next_level = models.IntegerField(default=1)
     
     description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     
     messages =  generic.GenericRelation('Message')
     
-    hp = models.IntegerField(default=10)
-    max_hp = models.IntegerField(default=10)
-    mp = models.IntegerField(default=30)
-    max_mp = models.IntegerField(default=30)
-    sp = models.IntegerField(default=10)
-    max_sp = models.IntegerField(default=10)
+    hp = models.IntegerField(default=1)
+    hp_base = models.IntegerField(default=1)
+    mp = models.IntegerField(default=40)
+    mp_base = models.IntegerField(default=40)
+    sp = models.IntegerField(default=1)
+    sp_base = models.IntegerField(default=1)
+    
+    @property
+    def max_hp(self):
+        return self.hp_base + self.constitution * 10 + self.level * 2
+    
+    @property
+    def max_mp(self):
+        return self.mp_base
     
     strength = models.IntegerField(default=10)
     agility = models.IntegerField(default=10)
@@ -96,7 +105,6 @@ class Anima(models.Model):
             self.level = new_level
             self.next_level = next_level
         
-        self.max_hp = self.constitution * 10 + self.level * 2
         self.save()
 
     def notify(self, msg):

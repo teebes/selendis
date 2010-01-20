@@ -26,6 +26,7 @@ class Room(models.Model):
     ypos = models.IntegerField(blank=False)
     name = models.CharField(max_length=80, blank=False)
     description = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     type = models.CharField(max_length=20, choices=ROOM_TYPES)
     
     connected_rooms = models.ManyToManyField(
@@ -76,6 +77,8 @@ class BaseItem(models.Model):
     capacity = models.IntegerField(default=0)
     name = models.CharField(max_length=40, blank=False)
     weight = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("0.01"))
+    modifiers = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     
     def __unicode__(self):
         return "%s" % (self.name)
@@ -123,6 +126,7 @@ class Equipment(BaseItem):
 _ARMOR_SLOTS = map(lambda x: (x, x), ARMOR_SLOTS)
 class Armor(BaseItem):    
     slot = models.CharField(max_length=40, choices=_ARMOR_SLOTS, blank=False)
+    absorption = models.IntegerField(default=0)
 
 class Sustenance(BaseItem): pass
 

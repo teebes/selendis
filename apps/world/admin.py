@@ -15,6 +15,7 @@ class RoomAdmin(admin.ModelAdmin):
     list_filter = (
         'zone',
     )
+    search_fields = ('name',)
 
 #class EquipmentAdmin(admin.ModelAdmin): pass
 

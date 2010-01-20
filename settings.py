@@ -34,7 +34,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-#""" add/remove hash mark to toggle DBs
+""" add/remove hash mark to toggle DBs
 DATABASE_ENGINE = 'mysql'
 DATABASE_NAME = 'stark'
 DATABASE_USER = 'root'
