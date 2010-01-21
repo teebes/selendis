@@ -42,7 +42,8 @@ def index(request):
                                        temporary=True,
                                        status='logged_in',
                                        room=initial_room)
-        player.update()
+        player.hp = player.max_hp
+        player.save()
         
     else: # returning user
         characters = Player.objects.filter(user=request.user)
