@@ -1,21 +1,45 @@
 import random
 
-from django.contrib.contenttypes.models import ContentType
-
-from stark.apps.world.models import Room, RoomConnector, ItemInstance, Misc
-
 def roll_percent(threshold):
     if threshold >= random.randint(1, 100):
         return True
     else:
         return False
 
-def cleanup_corpses():
-    count = 0
-    for corpse in Misc.objects.filter(name__startswith='The corpse of'):
-        corpse_type = ContentType.objects.get_for_model(corpse)
-        corpse_instance = ItemInstance.objects.filter(base_type__pk=corpse_type.id, base_id=corpse.id).delete()
-        corpse.delete()
-        count += 1
+# http://stackoverflow.com/questions/431628/how-to-combine-2-or-more-querysets-in-a-django-view
+from itertools import islice, chain
 
-    print 'deleted %s corpses' % count
+class QuerySetChain(object):
+    """
+    Chains multiple subquerysets (possibly of different models) and behaves as
+    one queryset.  Supports minimal methods needed for use with
+    django.core.paginator.
+    """
+
+    def __init__(self, *subquerysets):
+        self.querysets = subquerysets
+
+    def count(self):
+        """
+        Performs a .count() for all subquerysets and returns the number of
+        records as an integer.
+        """
+        return sum(qs.count() for qs in self.querysets)
+
+    def _clone(self):
+        "Returns a clone of this queryset chain"
+        return self.__class__(*self.querysets)
+
+    def _all(self):
+        "Iterates records in all subquerysets"
+        return chain(*self.querysets)
+
+    def __getitem__(self, ndx):
+        """
+        Retrieves an item or slice from the chained set of results from all
+        subquerysets.
+        """
+        if type(ndx) is slice:
+            return list(islice(self._all(), ndx.start, ndx.stop, ndx.step or 1))
+        else:
+            return islice(self._all(), ndx, ndx+1).next()

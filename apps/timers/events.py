@@ -6,7 +6,8 @@ import random
 from django.db import transaction
 
 from stark import config
-from stark.apps.anima.models import Mob, MobLoader, Player, Message
+from stark.apps.anima.models import Mob, MobLoader, Player, Message, Anima
+from stark.apps.anima.utils import tick_regen
 from stark.apps.world.models import RoomConnector, Room, ItemInstance
 
 # base event class
@@ -31,7 +32,7 @@ class PeriodicEvent(object):
 
 # the longer ticks which handle regen & repops
 class Tick(PeriodicEvent):
-    
+
     @transaction.commit_on_success
     def move_mobs(self):
         # move mobs
@@ -41,19 +42,10 @@ class Tick(PeriodicEvent):
             
     @transaction.commit_on_success
     def regen(self):
-        TICK_HP_REGEN_RATE = getattr(config, 'TICK_HP_REGEN_RATE', 4)
-        TICK_MP_REGEN_RATE = getattr(config, 'TICK_MP_REGEN_RATE', 20)
-        
-        # players regen moves
-        for player in Player.objects.filter(status='logged_in').extra(where=['mp < mp_base']):
-            player.regen('mp', TICK_MP_REGEN_RATE)
-            
-        # players regen health
-        # TODO: make this query not hard code the max hp while not taking too great a performance hit
-        for player in Player.objects.filter(status='logged_in').extra(where=['hp < hp_base + constitution * 10 + level * 2']):
-            player.regen('hp', TICK_HP_REGEN_RATE)
+        tick_regen()
 
     def execute(self):
+        print 'tic'        
         super(Tick, self).execute()
         
         # mob loaders

@@ -42,20 +42,9 @@ class Anima(models.Model):
     sp = models.IntegerField(default=1)
     sp_base = models.IntegerField(default=1)
     
-    @property
-    def max_hp(self):
-        return self.hp_base + self.constitution * 10 + self.level * 2
-    
-    @property
-    def max_mp(self):
-        return self.mp_base
-    
     strength = models.IntegerField(default=10)
     agility = models.IntegerField(default=10)
     constitution = models.IntegerField(default=10)
-    
-    @property
-    def capacity(self): return 10 * self.strength
     
     # equipment (weapons + armor)
     main_hand = models.ForeignKey(ItemInstance,
@@ -89,6 +78,17 @@ class Anima(models.Model):
     target_type = models.ForeignKey(ContentType, blank=True, null=True)
     target_id = models.PositiveIntegerField(blank=True, null=True)
     target = generic.GenericForeignKey('target_type', 'target_id')
+
+    @property
+    def max_hp(self):
+        return self.hp_base + self.constitution * 10 + self.level * 2
+    
+    @property
+    def max_mp(self):
+        return self.mp_base
+    
+    @property
+    def capacity(self): return 10 * self.strength
 
     #############
     # Utilities #
@@ -764,6 +764,8 @@ class MobLoader(models.Model):
     misc = models.ManyToManyField(Misc, blank=True)
     sustenance = models.ManyToManyField(Sustenance, blank=True)
     
+    notes = models.TextField(blank=True)
+    
     # rooms
     spawn_in = models.ManyToManyField(Room)
     
@@ -793,6 +795,8 @@ class MobLoader(models.Model):
                                                            base = base)
 
                 mob.command('wear all')
+
+                mob.hp = mob.max_hp
     
                 mob.room = room
                 mob.save()
