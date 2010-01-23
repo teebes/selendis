@@ -1,5 +1,5 @@
 from django.contrib import admin
-from stark.apps.anima.models import Player, Mob, MobLoader
+from stark.apps.anima.models import Player, Mob, MobLoader, Level
 
 class PlayerAdmin(admin.ModelAdmin): pass
 class MobAdmin(admin.ModelAdmin):
@@ -15,8 +15,13 @@ class MobLoaderAdmin(admin.ModelAdmin):
             kwargs["queryset"] = Mob.objects.filter(template=True)
             return db_field.formfield(**kwargs)
         return super(MobLoaderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-    
-    
+
+class LevelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'requirement')
+    list_editable = ('requirement',)
+    readonly_fields = ('id',)
+
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Mob, MobAdmin)
 admin.site.register(MobLoader, MobLoaderAdmin)
+admin.site.register(Level, LevelAdmin)

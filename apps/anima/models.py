@@ -14,7 +14,6 @@ from stark import config
 from stark.apps.anima import constants as anima_constants
 from stark.apps.anima.combat import determine_attack_outcome
 from stark.apps.anima.constants import PLAYER_STATUSES, MESSAGE_TYPES, MOB_TYPES, ARMOR_SLOTS, WEAPON_SLOTS
-from stark.apps.anima.levels import get_level_for_exp
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor, Misc, Sustenance
 from stark.apps.world.utils import find_items_in_container
 from stark.utils import roll_percent
@@ -93,20 +92,6 @@ class Anima(models.Model):
     #############
     # Utilities #
     #############
-    def update(self):
-        """
-        Function that checks certain base data about the anima like level &
-        max_hp
-        """
-        # check the level
-        (new_level, next_level) = get_level_for_exp(self.experience)
-        if new_level > self.level:
-            self.notify('You gain a level!')
-            self.level = new_level
-            self.next_level = next_level
-        
-        self.save()
-
     def notify(self, msg):
         Message.objects.create(type='notification',
                                destination=self.name,
@@ -218,6 +203,26 @@ class Anima(models.Model):
         # method to match ItemInstance's
         return self.name
 
+    def update_level(self):
+        levels = Level.objects.all()
+        
+        # update level if necessary
+        level = levels.filter(requirement__lt=self.experience)\
+                      .order_by('-id')[0]
+        print "%s#%s" % (level, self.level)
+        if level.id > self.level:
+            self.notify('You gain a level!')
+            self.level = level.id
+            
+        next_levels = levels.filter(requirement__gt=self.experience)\
+                            .order_by('id')
+        if len(next_levels) == 0: # last level, set 0 tnl
+            self.next_level = self.experience
+        else: # get tnl from the next level
+            self.next_level = next_levels[0].requirement
+
+        self.save()
+
     ##########
     # Combat #
     ##########
@@ -305,7 +310,7 @@ class Anima(models.Model):
                 target.die(killer=self)
                 self.target = None
                 self.save()
-                self.update()
+                self.update_level()
 
     def die(self):
         # Anima and Mob each call this as supers of the overwritten method
@@ -819,3 +824,25 @@ class Message(models.Model):
     
     def __unicode__(self):
         return u"%s: %s" % (self.author, self.content)
+
+class Level(models.Model):
+    requirement = models.IntegerField()
+    """
+    def get_level_for_exp(experience):
+        # returns a tuple (level, next exp requirement)
+    
+        for level in sorted(LEVELS, reverse=True):
+            (number, requirement) = level
+            if experience > requirement:
+                if level == LEVELS[-1]: # last level, return 0 tnl
+                    return (number, requirement)
+                else:
+                    return (number, LEVELS[LEVELS.index(level) + 2][1])
+        
+        # if a user didn't get a level for any exp, then the levels are
+        # misconfigured
+        raise Exception('Levels are misconfigured')    
+    """
+    def __unicode__(self):
+        return u"level %s, %s exp" % (self.id, self.requirement)
+        
