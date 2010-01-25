@@ -66,6 +66,8 @@ def index(request):
                                            status='logged_in',
                                            builder_mode=builder_mode,
                                            room=initial_room)
+            player.hp = player.max_hp
+            player.save()
         elif characters.filter(status='logged_in').count() == 1:
             player = characters.get(status='logged_in')
         else:

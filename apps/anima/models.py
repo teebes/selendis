@@ -80,7 +80,9 @@ class Anima(models.Model):
 
     @property
     def max_hp(self):
-        return self.hp_base + self.constitution * 10 + self.level * 2
+        # remember when changing this formula to also change it
+        # in anima.utils.tick_regen()
+        return self.hp_base + self.constitution * 5 + (self.level - 1) * 10
     
     @property
     def max_mp(self):
