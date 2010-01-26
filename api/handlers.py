@@ -322,20 +322,8 @@ class MeHandler(BaseHandler):
                 print e
 
         if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
-            try:
-                # builder mode - by pass everything
-                if player.builder_mode:
-                    to_room = Room.objects.get(xpos=request.PUT['xpos'],
-                                               ypos=request.PUT['ypos'])
-                    player.room = to_room
-                    player.save()
-                    return self.read(request)
-                player.move(xpos=request.PUT['xpos'],
-                            ypos=request.PUT['ypos'])
-            except Exception, e:
-                response = rc.BAD_REQUEST
-                response.write(": %s" % e)
-                return response
+            player.move(xpos=request.PUT['xpos'],
+                        ypos=request.PUT['ypos'])
 
         if request.PUT.has_key('target_type') and request.PUT.has_key('target_id'):
             try:

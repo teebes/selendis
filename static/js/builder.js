@@ -1,5 +1,9 @@
 // -- Rooms --
 
+// Imports:
+
+
+
 create_room = function(x, y) {
     $.ajax({
         type: "POST",
@@ -91,7 +95,20 @@ setup_builder = function () {
     });
     
     $("#jump_to").click(function() {
-        move_to($("#jump_x").val(), $("#jump_y").val());
+        $.ajax({
+            type: "PUT",
+            url: "/api/me.json",
+            // data: { xpos: $("#jump_x").val(), ypos: $("#jump_y").val() },
+            data: { command: str_format("jump {0} {1}", $("#jump_x").val(), $("#jump_y").val()) },
+            dataType: "json",
+            success: function(player) {
+                document.player = player;
+                render_room();
+                render_builder();
+                document.player_map_xpos = player.room.xpos;
+                document.player_map_ypos = player.room.ypos;
+            }
+        });
     });
  
     $("#create_room").click(function() {

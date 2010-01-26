@@ -28,6 +28,11 @@ void draw()
     if (document.map && document.player) {
         map = document.map;
         $.each(map.rooms, function() {
+            // don't render hidden rooms
+            if (this.type == 'hidden') {
+                return true;
+            }
+            
             // determine x & y coords
             var x =  0 + (size * (this.xpos - map.starting_point.xpos));
             var y = 0 + (size * (this.ypos - map.starting_point.ypos));

@@ -69,7 +69,7 @@ var move = function(direction) {
         y = document.player_map_ypos;
 
     }
-    
+
     // check the map to see if this is a direction that is available
     if ($(document.player.room).attr(direction) == 'Normal') {
         

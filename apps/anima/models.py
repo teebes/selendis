@@ -701,6 +701,26 @@ class Anima(models.Model):
                 if tokens[1] in [mob.id] + mob.name.split(' '):
                     self.engage('mob', mob.id)
                     return
+                
+        # - jump -
+        if tokens[0] == 'jump':
+            if not self.builder_mode:
+                return
+            if len(tokens) < 2:
+                self.notify('Usage: jump [id (x y)]')
+            elif len(tokens) == 2: # id passed
+                try:
+                    room = Room.objects.get(pk=tokens[1])
+                    self.room = room
+                    self.save()
+                except Room.DoesNotExist: return
+            elif len(tokens) >= 3: # x + y passed
+                try:
+                    room = Room.objects.get(xpos=tokens[1], ypos=tokens[2])
+                    self.room = room
+                    self.save()
+                except Room.DoesNotExist: return
+            self.room.notify('%s disappears in a cloud of white smoke.' % self.get_name())
 
 class Player(Anima):
     user = models.ForeignKey(User, related_name='players')
