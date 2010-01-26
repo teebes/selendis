@@ -45,7 +45,6 @@ class Tick(PeriodicEvent):
         tick_regen()
 
     def execute(self):
-        print 'tic'        
         super(Tick, self).execute()
         
         # mob loaders

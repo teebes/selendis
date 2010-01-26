@@ -96,8 +96,8 @@ $(document).ready(function(){
             data: { map: true },
             dataType: "json",
             success: function(player) {
-                // load builder on initial load
                 if (initial) {
+                    // part of the positioning madness
                     document.player_map_xpos = player.room.xpos;
                     document.player_map_ypos = player.room.ypos;
                 }

@@ -51,18 +51,41 @@ var send_command = function(command) {
     });
 }
 
-var move_to = function(x, y) {
-    // if the player has enough moves,
-    // this is so that directions can be spammed and movement appears fluid
-    if (document.player.mp > 2) {
-        // store a cached version of the player's new position
-        document.player_map_xpos = x;
-        document.player_map_ypos = y;
+var move = function(direction) {
+
+    var x;
+    var y;
+    if (direction == 'north') {
+        x = document.player_map_xpos;
+        y = document.player_map_ypos - 1;
+    } else if (direction == 'east') {
+        x = document.player_map_xpos + 1;
+        y = document.player_map_ypos;
+    } else if (direction == 'south') {
+        x = document.player_map_xpos;
+        y = document.player_map_ypos + 1;
+    } else if (direction == 'west') {
+        x = document.player_map_xpos - 1;
+        y = document.player_map_ypos;
+
+    }
+    
+    // check the map to see if this is a direction that is available
+    if ($(document.player.room).attr(direction) == 'Normal') {
         
-        // store the last time that the player moved so that if a pulse
-        // comes back right after a player has moved, it doesn't change their
-        // position
-        document.last_move = new Date().getTime();
+        // if the player has enough moves,
+        // this is so that directions can be spammed and movement appears fluid
+        if (document.player.mp > 2) {
+            // store a cached version of the player's new position
+            document.player_map_xpos = x;
+            document.player_map_ypos = y;
+            
+            // store the last time that the player moved so that if a pulse
+            // comes back right after a player has moved, it doesn't change their
+            // position
+            document.last_move = new Date().getTime();
+        }
+        
     }
     
     $.ajax({
@@ -80,6 +103,15 @@ var move_to = function(x, y) {
             render_profile();
         }
     });
+}
+
+var move_to_2 = function(direction) {
+    
+    // check the map to see if this is a direction that is available
+    if ($(document.player.room).attr(direction) == 'Normal') {
+        return 
+    }
+    
 }
 
 /* bindings & command execution */
@@ -106,20 +138,10 @@ var process_command = function(command){
 
     first = match_command(tokens[0]);
 
-    // directions
-    if (first == 'north') {
-        move_to(document.player_map_xpos, document.player_map_ypos - 1);
-        return
-    } else if (first == 'east') {
-        move_to(document.player_map_xpos + 1, document.player_map_ypos);
-        return
-    } else if (first == 'south') {
-        move_to(document.player_map_xpos, document.player_map_ypos + 1);
-        return
-    } else if (first == 'west') {
-        move_to(document.player_map_xpos - 1, document.player_map_ypos);
-        return
+    if (first == 'north' || first == 'east' || first == 'west' || first == 'south') {
+        move(first);
     }
+
     
     send_command(command);
     return    
