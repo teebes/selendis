@@ -80,4 +80,6 @@ def index(request):
         }, context_instance=RequestContext(request))
 
 def quick(request):
-    return HttpResponse(request.user)
+    print 'here'
+    print request.raw_post_data
+    return HttpResponse("raw is: %s" % request.raw_post_data)

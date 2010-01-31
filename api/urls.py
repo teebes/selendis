@@ -1,9 +1,11 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
-from stark.api.handlers import ItemHandler, MapHandler, MeHandler, MessageHandler, PingHandler, PlayerHandler, RoomHandler
+from stark.api.handlers import CommandHandler, ItemHandler, MapHandler, MeHandler, MessageHandler, PingHandler, PlayerHandler, RoomHandler
+
 
 urlpatterns = patterns('',
     # world APIs
+
     
     # deprecated (removing the 'world' of the URL over time)
     url(r'^world/items/((?P<id>[^/]+)\.(?P<emitter_format>.+))?$', Resource(ItemHandler)),
@@ -24,7 +26,13 @@ urlpatterns = patterns('',
 
     url(r'^messages\.(?P<emitter_format>.+)', Resource(MessageHandler)),
     
-    url(r'^ping.(?P<emitter_format>.+)$', Resource(PingHandler)),
+    url(r'^ping/$', Resource(PingHandler)),
 
+    # UI APIs
+    # - pulse
+    # - command
+    # - load
+    
+    url(r'^command/$', Resource(CommandHandler)),#, { 'emitter_format': 'json' }),
     
 )

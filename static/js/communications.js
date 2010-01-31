@@ -3,8 +3,6 @@ get_communications = function() {
 }
 
 render_communications = function() {
-
-    $.getJSON("/api/messages.json", function(communications) {
         
         var previous_html = $("#communications").html();
         
@@ -16,7 +14,7 @@ render_communications = function() {
         }
         
         var html = '';
-        $.each(communications, function() {
+        $.each(document.player.messages, function() {
             html += '<div class="comm_' + this.type + '">';
             if (this.type == 'chat') {
                 html += '<strong>' + this.source + '</strong>: ';
@@ -31,7 +29,7 @@ render_communications = function() {
         
         if (scroll_down) {  comm_div.scrollTop = comm_div.scrollHeight; }
 
-    });
+
 }
 
 send_communication = function(type, content) {

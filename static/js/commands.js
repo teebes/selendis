@@ -1,55 +1,4 @@
-/* Imports:
-  from DOM: document.player
-  from room.js: render_room
-  from data.js: get_map
-  from builder.js: render_builder
-  from player.js: render_profile
-  from builder.js: modify_room
-  from item.js: modify_item
-  from communications.js: send_communications
-*/
-
-var commands = {
-    north: 0,
-    east: 0,
-    south: 0,
-    west: 0,
-}
-var match_command = function(user_input) {
-    /*
-     Takes in a command and matches it against the list of possible commands,
-     returning the canonical command name for further processing.
-     Starts with each command, and takes one letter off the right until
-     there is a match or no more letters.
-     
-     For example, the candidates for "north" are:
-     'north', 'nort', 'nor', 'no', and 'n'
-    */
-
-    for (command in commands) {
-        var cmd_tokens = command.split('');
-        for (var i = 0 ; i < cmd_tokens.length ; i++) {
-            var candidate = cmd_tokens.slice(0, cmd_tokens.length - i).join('');
-            if (user_input.toLowerCase() == candidate) {
-                return command;
-            }
-        }
-    }
-    return false;
-}
-
-var send_command = function(command) {
-    // processes all commands except for directional ones
-    $.ajax({
-        type: "PUT",
-        url: "/api/me.json",
-        data: { command: command },
-        dataType: "json",
-        success: function(player) {
-            document.player = player;
-        }
-    });
-}
+var queue = new Array();
 
 var move = function(direction) {
 
@@ -105,15 +54,6 @@ var move = function(direction) {
     });
 }
 
-var move_to_2 = function(direction) {
-    
-    // check the map to see if this is a direction that is available
-    if ($(document.player.room).attr(direction) == 'Normal') {
-        return 
-    }
-    
-}
-
 /* bindings & command execution */
 
 var setup_commands = function() {
@@ -128,6 +68,20 @@ var setup_commands = function() {
     
 }
 
+var command_loop = function() {
+    if (queue.length == 0) { return; }
+    
+    cmd = queue.shift();
+    
+    $.ajax({
+        type: "POST",
+        url: "/api/command/",
+        data: { command: cmd },
+        dataType: "json",  
+        success: function() { }
+    });
+}
+
 var process_command = function(command){
     var t = tokens = command.split(' '); // t for tokens
     
@@ -135,6 +89,9 @@ var process_command = function(command){
     $("#input_feedback").hide();
 
     $("#command_text").val('');   
+
+    queue.push(command);
+    return;
 
     first = match_command(tokens[0]);
 

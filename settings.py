@@ -125,4 +125,5 @@ INSTALLED_APPS = (
     'stark.apps.anima',
     'stark.apps.world',
     'stark.lib.uni_form',
+    'piston',
 )

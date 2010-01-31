@@ -100,13 +100,13 @@ class Anima(models.Model):
                                content=msg)
     
     def move(self, xpos=None, ypos=None, to_room=None, random=False):
-        
+
         if self.target:
             self.notify('You cannot move while in combat.')
             return
         
         # get the connector based on the input provided
-        if xpos and ypos:
+        if xpos is not None and ypos is not None:
             try:
                 connector = RoomConnector.objects.get(from_room=self.room,
                                                       to_room__xpos=xpos,
@@ -552,6 +552,20 @@ class Anima(models.Model):
             self.notify('- north east south west kill')
             self.notify('- get drop put wear wield remove')
             self.notify('- chat help')
+
+        # - directions -
+        if tokens[0] in ('north', 'n'):
+            self.move(xpos=self.room.xpos, ypos=self.room.ypos - 1)
+            return
+        elif tokens[0] in ('east', 'e'):
+            self.move(xpos=self.room.xpos + 1, ypos=self.room.ypos)
+            return
+        elif tokens[0] in ('south', 's'):
+            self.move(xpos=self.room.xpos, ypos=self.room.ypos + 1)
+            return
+        elif tokens[0] in ('west', 'w'):
+            self.move(xpos=self.room.xpos - 1, ypos=self.room.ypos)
+            return
 
         # - wear / wield -
         if tokens[0] in ('wear', 'wield'):

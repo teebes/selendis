@@ -292,8 +292,8 @@ class MeHandler(BaseHandler):
 
     def read(self, request):
         check_pulse()
-        
-        player = Player.objects.get(user=request.user, status='logged_in')        
+
+        player = Player.objects.get(user=request.user, status='logged_in')
         result = {}
 
         for field in PlayerHandler.fields + self.fields:
@@ -302,7 +302,7 @@ class MeHandler(BaseHandler):
 
         result['inventory'] = player.inventory()
         result['equipment'] = PlayerHandler.equipment(player)
-        
+        result['messages'] = MessageHandler().read(request)
         result['next_level'] = player.next_level
 
         # if 'map' is in any of the requests, give the map
@@ -426,7 +426,14 @@ class PingHandler(BaseHandler):
     allowed_methods = ('GET',)
     
     def read(self, request):
-        response = rc.BAD_REQUEST
-        response.write("some error")
-        return response
-        return {'status': 'OK'}
+        try:
+            return {'response': 'pong'}
+        except Exception,e: print e
+        
+class CommandHandler(BaseHandler):
+    allowed_methods = ('POST',)
+    
+    def create(self, request):
+        player = Player.objects.get(user=request.user, status='logged_in')
+        player.command(request.POST.get('command'))
+        return 'ok'

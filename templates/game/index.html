@@ -3,13 +3,15 @@
 {% block head %}
 <link type="text/css" href="/static/css/player.css" rel="stylesheet"/>
 <link type="text/css" href="/static/css/room.css" rel="stylesheet"/>
-<link type="text/css" href="/static/css/jquery//ui.all.css" rel="stylesheet" />
+<link type="text/css" href="/static/css/jquery/ui.all.css" rel="stylesheet" />
 
 <!-- jquery libs -->
 <script type="text/javascript" src="/static/js/jquery/ui.core.js"></script>
 <script type="text/javascript" src="/static/js/jquery/ui.draggable.js"></script>
 <script type="text/javascript" src="/static/js/jquery/ui.resizable.js"></script>
 <script type="text/javascript" src="/static/js/jquery/ui.dialog.js"></script>
+
+<script type="text/javascript" src="/static/js/lib/json2.js"></script>
 
 <!-- processing.js -->
 <script language="javascript" src="/static/js/lib/processing.js"></script>
@@ -88,44 +90,34 @@ $(document).ready(function(){
     var initial = true;
 
     pulse = function() {
-        render_communications();
-        
         $.ajax({
             type: "GET",
             url: "/api/me.json",
             data: { map: true },
             dataType: "json",
             success: function(player) {
-                if (initial) {
-                    // part of the positioning madness
-                    document.player_map_xpos = player.room.xpos;
-                    document.player_map_ypos = player.room.ypos;
-                }
-                
-                /* If a player has initiated a move, a returning pulse
-                shouldn't overwrite what their new position will be. Therefore,
-                if within 2 seconds of a move, don't pulse. */
-                var now = new Date().getTime();
-                if (!document.last_move || now - document.last_move > 2000) {
-                document.player = player
-                document.map = player.map;
-                
-                // render the pages
-                render_room();
-                render_profile();
-                }
-                
-                // load builder on initial load
-                if (initial & player.builder_mode) { render_builder(); }
-                
-                // only execute initial once
-                if (initial) { initial = false; }
-                
+                    document.player = player;
+                    if (document.player) {
+                        document.map = player.map;
+                    }
+
+                    // render the pages
+                    render_room();
+                    render_profile();
+                    render_communications();
+
+                    // load builder on initial load
+                    if (initial & player.builder_mode) { render_builder(); }
+
+                    // only execute initial once
+                    if (initial) { initial = false; }
             }
-        });           
+        });
     }
     pulse();
     setInterval("pulse();", 2000);
+
+    setInterval("command_loop();", 250)
 
     // processing
     
