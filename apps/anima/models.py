@@ -185,8 +185,12 @@ class Anima(models.Model):
     
     def regen(self, attribute, points):
         """
-        Regen player attribtue (hp, mp or sp) by x points
+        Regen player attribtue (hp, mp or sp) by x point.
         """
+        # no regen while in combat
+        if self.target:
+          return
+
         max = getattr(self, 'max_' + attribute)
         new = getattr(self, attribute) + points
         if new > max:
@@ -867,4 +871,5 @@ class Level(models.Model):
     """
     def __unicode__(self):
         return u"level %s, %s exp" % (self.id, self.requirement)
-        
+       
+ 
