@@ -25,7 +25,7 @@ urlpatterns = patterns('',
         'template': 'game/help.html'
         }, name='help'),
 
-    
+    (r'^adx/(?P<input>.*)/$', 'stark.views.adx'),
     (r'^quick/$', 'stark.views.quick'),
     (r'^disrupt/$', 'django.views.generic.simple.direct_to_template', {'template': 'disrupt.html'}),
 )

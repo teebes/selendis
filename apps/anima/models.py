@@ -549,9 +549,33 @@ class Anima(models.Model):
         # - help
         if tokens[0] == 'help':
             self.notify('Commands:')
-            self.notify('- north east south west kill')
-            self.notify('- get drop put wear wield remove')
-            self.notify('- chat help')
+            self.notify('- north, east, south, west, kill')
+            self.notify('- get, drop, put, wear, wield, remove')
+            self.notify('- chat, say, help')
+            if self.builder_mode:
+                self.notify('Admin Commands:')
+                self.notify('- list, load')
+
+        # - chat -
+        if tokens[0] == 'chat':
+            if len(tokens) < 2:
+                self.notify('Usage: chat message')
+                return
+            message = Message.objects.create(
+                created=datetime.datetime.now(),
+                type='chat',
+                content=cmd[5:],
+                author=self,
+            )
+            return
+
+        # - say -
+        if tokens[0] == 'say':
+            if len(tokens) < 2:
+                self.notify('Usage: say message')
+                return
+            self.room.notify("%s says '%s'" % (self.get_name(), cmd[4:]))
+            return
 
         # - directions -
         if tokens[0] in ('north', 'n'):
@@ -719,13 +743,63 @@ class Anima(models.Model):
                 if tokens[1] in [mob.id] + mob.name.split(' '):
                     self.engage('mob', mob.id)
                     return
-                
+
+        # - builder only commands -
+        
+        # list
+        if tokens[0] == 'list':
+            if not self.builder_mode:
+                return
+            if len(tokens) < 2:
+                self.notify('Usage: list type')
+                return
+            # get the type
+            from stark.apps.world import models as world_models
+            type = tokens[1][0].upper() + tokens[1][1:].lower()
+            try:
+                o = getattr(world_models, type)
+            except AttributeError:
+                self.notify("No such type '%s'" % tokens[1])
+                return
+            self.notify("%s:" % type)
+            # get all items of that type
+            for item in o.objects.all():
+                self.notify("- %s [%s]" % (item.name, item.id))
+            return
+        
+        # load
+        if tokens[0] == 'load': # load type id
+            if not self.builder_mode:
+                return
+            elif len(tokens) < 3:
+                self.notify('Usage: load type id')
+                return
+            # get the type
+            from stark.apps.world import models as world_models
+            type = tokens[1][0].upper() + tokens[1][1:].lower()
+            try:
+                o = getattr(world_models, type)
+            except AttributeError:
+                self.notify("No such type '%s'" % tokens[1])
+                return
+            # get the base off the type and id
+            try:
+                base = o.objects.get(pk=tokens[2])
+            except o.DoesNotExist:
+                self.notify("No such %s ID: %s" % (type, tokens[2]))
+                return
+            ItemInstance.objects.create(base=base, owner=self)
+            self.room.notify("%s makes a %s out of thin air." %
+                             (self.get_name(), base.name))
+            return
+        
         # - jump -
         if tokens[0] == 'jump':
             if not self.builder_mode:
                 return
             if len(tokens) < 2:
                 self.notify('Usage: jump [id (x y)]')
+                return
             elif len(tokens) == 2: # id passed
                 try:
                     room = Room.objects.get(pk=tokens[1])

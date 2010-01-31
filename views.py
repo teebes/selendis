@@ -11,9 +11,10 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
+from stark import config
 from stark.apps.world.models import Room
 from stark.apps.anima.models import Player, MobLoader
-from stark import config
+from stark.utils.adx import analyze
 
 def index(request):
     initial_room = Room.objects.get(pk=getattr(config, 'INITIAL_ROOM', 1))
@@ -78,6 +79,14 @@ def index(request):
         'player': player,
         'temporary_user': player.temporary,
         }, context_instance=RequestContext(request))
+
+def adx(request, input):
+    try:
+        a, x = input.split('d')
+        result = analyze(a, x)
+        return HttpResponse(result)
+    except Exception:
+        return HttpResponse("error")
 
 def quick(request):
     print 'here'
