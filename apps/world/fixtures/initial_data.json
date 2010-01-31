@@ -23,11 +23,11 @@
         "model": "world.room", 
         "fields": {
             "xpos": 0, 
-            "description": "The center of the world.", 
+            "description": "The main city square is paved with well-worn cobblestones.", 
             "zone": 1, 
             "ypos": -1, 
             "type": "city", 
-            "name": "Center of the World"
+            "name": "The Main City Square"
         }
     },
     {
