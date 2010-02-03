@@ -183,6 +183,8 @@ class Anima(models.Model):
                 player.notify("%s has arrived from the %s." %
                                 (self.name, rev_direction))                
     
+        return ['room']
+    
     def regen(self, attribute, points):
         """
         Regen player attribtue (hp, mp or sp) by x point.
@@ -579,17 +581,13 @@ class Anima(models.Model):
 
         # - directions -
         if tokens[0] in ('north', 'n'):
-            self.move(xpos=self.room.xpos, ypos=self.room.ypos - 1)
-            return
+            return self.move(xpos=self.room.xpos, ypos=self.room.ypos - 1)
         elif tokens[0] in ('east', 'e'):
-            self.move(xpos=self.room.xpos + 1, ypos=self.room.ypos)
-            return
+            return self.move(xpos=self.room.xpos + 1, ypos=self.room.ypos)
         elif tokens[0] in ('south', 's'):
-            self.move(xpos=self.room.xpos, ypos=self.room.ypos + 1)
-            return
+            return self.move(xpos=self.room.xpos, ypos=self.room.ypos + 1)
         elif tokens[0] in ('west', 'w'):
-            self.move(xpos=self.room.xpos - 1, ypos=self.room.ypos)
-            return
+            return self.move(xpos=self.room.xpos - 1, ypos=self.room.ypos)
 
         # - wear / wield -
         if tokens[0] in ('wear', 'wield'):

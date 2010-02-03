@@ -1,14 +1,17 @@
-var base_x = 100;
-var base_y = 100;
+var default_settings = function() {
+    stroke(0);
+    strokeWeight(1);
+}
 
 void setup() 
 {
-    stroke(0);
+    default_settings();
     frameRate(5);
 }
 
+
 void keyPressed() {
-    if (!document.player.builder_mode) {
+    if (typeof(stark) != 'undefined' && !stark.player.builder_mode) {
         if (key == CODED) {
             if (keyCode == UP) { process_command('north'); }
             else if (keyCode == RIGHT) { process_command('east'); }
@@ -18,96 +21,80 @@ void keyPressed() {
     }
 }
 
+
+
+var size = 12;
+var margin = 10;
+
+var draw_room = function(room, is_player_room) {
+    // determine the true x starting position of the room int he canvas
+    true_x = (room.xpos + Math.round(stark.map.width / 2) - stark.map.x) * (size + margin);
+    true_y = (room.ypos + Math.round(stark.map.height / 2) - stark.map.y) * (size + margin);
+
+    // connectors
+    if (room.north == 'Normal') {
+        line(true_x + Math.round(size / 2), true_y,
+             true_x + Math.round(size / 2), true_y - Math.round(margin / 2));
+    }
+    if (room.east == 'Normal') {
+        line(true_x + size, true_y + Math.round(size / 2),
+             true_x + size + Math.round(margin / 2), true_y + Math.round(size / 2));
+    }
+    if (room.south == 'Normal') {
+        line(true_x + Math.round(size / 2), true_y + size,
+             true_x + Math.round(size / 2), true_y + size + Math.round(margin / 2));
+    }
+    if (room.west == 'Normal') {
+        line(true_x - Math.round(margin / 2), true_y + Math.round(size / 2),
+             true_x, true_y + Math.round(size / 2));
+    }
+    
+    // room background color according to type
+    if (room.type == 'road') {
+        fill(#aa6e27);
+    } else if (room.type == 'water') {
+        fill(#3292dc);
+    } else if (room.type == 'field') {
+        fill(#27aa42);
+    } else if (room.type == 'city') {
+        fill(#D7CBB9);
+    } else if (room.type == 'shop') {
+        fill(#f5d494);
+    }
+    
+    // highlight player room if applicable
+    if (is_player_room) {
+        stroke(#0000ff);
+        strokeWeight(2);
+    }
+    
+    rect(true_x, true_y, size, size);
+
+    // reset to defaults before leaving
+    default_settings();
+
+}
+
 void draw() 
 {
 
-    var size = 22;
-    var margin = 10;
     background(#EEEEEE);
+    if (typeof(stark) != 'undefined') {
+        var is_player_room;
+        $.each(stark.map, function(key, object) {
+            // don't render hidden rooms or anything that's not a room
+            // (which for now means doesn't have a type)
+            if (!object.type || object.type == 'hidden') { return true; }
 
-    if (document.map && document.player) {
-        map = document.map;
-        $.each(map.rooms, function() {
-            // don't render hidden rooms
-            if (this.type == 'hidden') {
-                return true;
+            is_player_room = false;
+            if (stark.room &&
+                stark.room.xpos == object.xpos &&
+                stark.room.ypos == object.ypos) {
+                
+                is_player_room = true;
             }
             
-            // determine x & y coords
-            var x =  0 + (size * (this.xpos - map.starting_point.xpos));
-            var y = 0 + (size * (this.ypos - map.starting_point.ypos));
-            
-            var width = size - margin;
-            
-            // -- draw the room --
-            stroke(0);
-            if (document.player.room.xpos == this.xpos &&
-                document.player.room.ypos == this.ypos) {
-                // player's room
-                stroke(#0000ff);
-                strokeWeight(2);
-            }
-            
-            if (this.type == 'road') {
-                fill(#aa6e27);
-            } else if (this.type == 'water') {
-                fill(#3292dc);
-            } else if (this.type == 'field') {
-                fill(#27aa42);
-            } else if (this.type == 'city') {
-                fill(#D7CBB9);
-            } else if (this.type == 'shop') {
-                fill(#f5d494);
-            }
-            
-            rect(x, y, width, width);
-            
-
-            // player dot
-            /*
-            if (map.player_position.xpos == this.xpos && map.player_position.ypos == this.ypos) {
-                smooth();
-                stroke(#666666);
-                fill(#000000);
-                ellipse(x + width / 2, y + width / 2, 8, 8);
-            }
-            */
-            
-            fill(255);
-            strokeWeight(1);
-            
-            // the room xy point
-            /*
-            stroke(255, 0, 0);
-            fill(255, 0, 0);
-            fill(255);
-            stroke(0);
-            rect(x-1, y-1, 3, 3);
-            */
-            
-            // -- draw the connectors --
-            //stroke(100);
-            // vertical up
-            if (this.north == 'Normal') {
-                line(x + (width / 2), y, x + (width / 2), y - (width / 2));
-            }
-            
-            // horizontal right
-            if (this.east == 'Normal') {
-                line(x + width, y + (width / 2), x + (width / 2) + margin, y + (width / 2 ));
-            }
-            
-            // vertical down
-            if (this.south == 'Normal') {
-                line(x + (width / 2), y + width, x + (width / 2), y + width + (width / 4))
-            }
-            
-            // horizontal left
-            if (this.west == 'Normal') {
-                line(x, y + (width / 2), x - margin / 2, y + (width / 2));
-            }
-            stroke(0);
-
+            draw_room(object, is_player_room);
 
         });
     }

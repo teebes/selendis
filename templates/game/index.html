@@ -17,6 +17,10 @@
 <script language="javascript" src="/static/js/lib/processing.js"></script>
 
 <!-- stark libs -->
+<script type="text/javascript" src="/static/js/stark/core.js"></script>
+<script type="text/javascript" src="/static/js/stark/bindings.js"></script>
+<script type="text/javascript" src="/static/js/stark/renderers.js"></script>
+
 <script type="text/javascript" src="/static/js/builder.js"></script>
 <script type="text/javascript" src="/static/js/commands.js"></script>
 <script type="text/javascript" src="/static/js/communications.js"></script>
@@ -73,51 +77,18 @@
 
 
 <script type='text/javascript'>
+
+var stark;
+
 $(document).ready(function(){
 
     $("#dialog").dialog({ autoOpen: false });
-    
-    // initial data
-    document.map = [];
-    document.player = null;
     
     setup_commands();
     setup_builder();
     setup_player();
 
-    // get_map();
-
-    var initial = true;
-
-    pulse = function() {
-        $.ajax({
-            type: "GET",
-            url: "/api/me.json",
-            data: { map: true },
-            dataType: "json",
-            success: function(player) {
-                    document.player = player;
-                    if (document.player) {
-                        document.map = player.map;
-                    }
-
-                    // render the pages
-                    render_room();
-                    render_profile();
-                    render_communications();
-
-                    // load builder on initial load
-                    if (initial & player.builder_mode) { render_builder(); }
-
-                    // only execute initial once
-                    if (initial) { initial = false; }
-            }
-        });
-    }
-    pulse();
-    setInterval("pulse();", 2000);
-
-    setInterval("command_loop();", 250)
+    setInterval("beat();", 250)
 
     // processing
     

@@ -14,6 +14,7 @@ from stark import config
 from stark.apps.anima.models import Anima, Player, Mob, Message
 from stark.apps.timers import check_pulse
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor, Zone
+from stark.apps.world.utils import draw_map
 
 ROOM_RANGE = 10
 MEMORY = getattr(config, 'MESSAGES_RETENTION_TIME', 60 * 5)
@@ -309,6 +310,13 @@ class MeHandler(BaseHandler):
         if getattr(request, request.method).get('map', None):
             map = MapHandler()
             result['map'] = map.read(request)
+            
+        # stark
+        #   map
+        #   player
+        #       room
+        #       inventory
+        #       
 
         return result
         
@@ -426,14 +434,6 @@ class PingHandler(BaseHandler):
     allowed_methods = ('GET',)
     
     def read(self, request):
-        try:
-            return {'response': 'pong'}
-        except Exception,e: print e
-        
-class CommandHandler(BaseHandler):
-    allowed_methods = ('POST',)
-    
-    def create(self, request):
-        player = Player.objects.get(user=request.user, status='logged_in')
-        player.command(request.POST.get('command'))
         return 'ok'
+
+    

@@ -68,20 +68,6 @@ var setup_commands = function() {
     
 }
 
-var command_loop = function() {
-    if (queue.length == 0) { return; }
-    
-    cmd = queue.shift();
-    
-    $.ajax({
-        type: "POST",
-        url: "/api/command/",
-        data: { command: cmd },
-        dataType: "json",  
-        success: function() { }
-    });
-}
-
 var process_command = function(command){
     var t = tokens = command.split(' '); // t for tokens
     

@@ -62,8 +62,8 @@ function inspect_item(id) {
             if (item.owner_type == 'player') {
                 // drop button if item is in inventory
                 var on_inventory = false;
-                for (var i = 0 ; i < document.player.inventory.length ; i++) {
-                    if (item.name == document.player.inventory[i].name) {
+                for (var i = 0 ; i < stark.player.inventory.length ; i++) {
+                    if (item.name == stark.player.inventory[i].name) {
                         on_inventory = true;
                         break;
                     }
@@ -79,15 +79,15 @@ function inspect_item(id) {
                 }
                 // add the put in buttons for containers in
                 // player eq, inv or room
-                button_put_item_in(item, document.player.equipment);
-                button_put_item_in(item, document.player.inventory);
-                button_put_item_in(item, document.player.room.items);
+                button_put_item_in(item, stark.player.equipment);
+                button_put_item_in(item, stark.player.inventory);
+                button_put_item_in(item, stark.player.room.items);
                 // wear / remove
                 if (item.type == 'weapon' || item.type == 'armor') {
                     // check that the player is not already wearing something
                     // on that slot
                     var slot_occupied = false;
-                    $.each(document.player.equipment, function(k, v) {
+                    $.each(stark.player.equipment, function(k, v) {
                         if (k == item.slot && v) {
                             slot_occupied = true;
                             button_remove(this);

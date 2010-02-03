@@ -1,3 +1,5 @@
+from stark.apps.world.models import Room, RoomConnector
+
 def find_items_in_container(keyword, container, find_container=False):
     """
     Find one or more items from a container.
@@ -25,3 +27,33 @@ def find_items_in_container(keyword, container, find_container=False):
             return [item]
 
     return items
+
+def draw_map(x, y, width=5, height=0):
+    if not height:
+        height = width
+    
+    x_range = (x - int(round(width/2)),
+               x + int(round(width/2)))
+    y_range = (y - int(round(height/2)),
+               y + int(round(height/2)))
+    
+    map = {}
+    
+    for room in Room.objects.filter(xpos__range=x_range,
+                                    ypos__range=y_range):
+        room_dict = {
+            'xpos': room.xpos,
+            'ypos': room.ypos,
+            'type': room.type,
+        }
+        for connection in room.from_room.all():
+            room_dict[connection.direction] = connection.type
+
+        map[room.id] = room_dict
+    
+    map['x'] = x
+    map['y'] = y
+    map['width'] = width
+    map['height'] = height
+    
+    return map
