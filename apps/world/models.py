@@ -38,8 +38,21 @@ class Room(models.Model):
                                     object_id_field='owner_id',
                                     content_type_field='owner_type')
 
-    def notify(self, msg):
+    def notify(self, msg, source=None, target=None):
+        """
+        Notifies all player in the room, except for the source and/or
+        target, if specified.
+        If provided, source/target must be a dictionary of the format:
+            {
+                'anima': <anima that needs a special message>,
+                'message': <message to be displayed instead>,
+            }
+        """
         for player in self.player_related.all():
+            for arg in [source, target]:
+                if arg and player == arg['anima']:
+                    arg['anima'].notify(arg['message'])
+                    continue
             player.notify(msg)
 
     def get_name(self):

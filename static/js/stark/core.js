@@ -64,6 +64,7 @@ var send_command = function() {
 }
 // TODO: fix this function, the changes aren't taking
 var sync_stark = function(stark_delta) {
+    debugger;
     /* Overwrites the stark object's nodes with the provided nodes
        and calls the appropriate renderer(s) */
     var keys = new Array();

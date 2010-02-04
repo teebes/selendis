@@ -68,6 +68,10 @@ class UserInputHandler(BaseHandler):
     def create(self, request):
         player = Player.objects.get(user=request.user, status='logged_in')
         output = player.command(request.POST.get('command'))
+        if output is None:
+            # temporary stopgap for the commands that are not returning
+            # anything
+            output = ['log']
         return Fetcher(request, player).fetch(output)
     
 class LoadHandler(BaseHandler):
