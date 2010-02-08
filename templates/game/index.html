@@ -21,15 +21,10 @@
 <script type="text/javascript" src="/static/js/stark/bindings.js"></script>
 <script type="text/javascript" src="/static/js/stark/renderers.js"></script>
 
-<script type="text/javascript" src="/static/js/builder.js"></script>
 <script type="text/javascript" src="/static/js/commands.js"></script>
-<script type="text/javascript" src="/static/js/communications.js"></script>
-<script type="text/javascript" src="/static/js/data.js"></script>
 <script type="text/javascript" src="/static/js/inspect.js"></script>
-<script type="text/javascript" src="/static/js/items.js"></script>
-<script type="text/javascript" src="/static/js/player.js"></script>
-<script type="text/javascript" src="/static/js/room.js"></script>
 <script type="text/javascript" src="/static/js/utils.js"></script>
+
 {% endblock %}
 
 {% block content %}
@@ -64,11 +59,13 @@
 </div>
 
 <div id="right_pane">
+    
     <!-- room -->
-    {% include "game/room.html" %}    
+    {% include "game/room.html" %}
     
     <!-- map -->
     <canvas id="map" width="300px" height="300px"></canvas>    
+
 </div>
 
 <div class='clear'></div>

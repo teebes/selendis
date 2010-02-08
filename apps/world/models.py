@@ -38,7 +38,7 @@ class Room(models.Model):
                                     object_id_field='owner_id',
                                     content_type_field='owner_type')
 
-    def notify(self, msg, source=None, target=None):
+    def notify(self, msg, source=None, target=None, exclude=None):
         """
         Notifies all player in the room, except for the source and/or
         target, if specified.
@@ -47,13 +47,23 @@ class Room(models.Model):
                 'anima': <anima that needs a special message>,
                 'message': <message to be displayed instead>,
             }
+        If provided, exclude will skip the provided player or list of players
         """
+
+        # normalize exlcude input
+        if exclude and (type(exclude) not in (list, dict)):
+            exclude = [exclude]
+
         for player in self.player_related.all():
-            for arg in [source, target]:
-                if arg and player == arg['anima']:
-                    arg['anima'].notify(arg['message'])
-                    continue
-            player.notify(msg)
+            if exclude and player in exclude:
+                continue
+            
+            if source and player == source['anima']:
+                player.notify(source['message'])
+            elif target and player == target['anima']:
+                player.notify(target['message'])
+            else:
+                player.notify(msg)
 
     def get_name(self):
         return u"%s" % self.name
@@ -176,6 +186,10 @@ class ItemInstance(models.Model):
     
     modified = models.DateTimeField(blank=True)
     
+    @property
+    def capacity(self):
+        return self.base.capacity
+    
     def delete(self, *args, **kwargs):
         # if deleted, recursively delete all contained items
         if self.base.capacity > 0:
@@ -189,6 +203,7 @@ class ItemInstance(models.Model):
         return name
     
     def total_weight(self, weight=0):
+        # weight including contained items (recursive)
         weight += self.base.weight
         if self.base.capacity > 0:
             for contained_item in ItemInstance.objects.owned_by(self):

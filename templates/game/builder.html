@@ -1,8 +1,13 @@
     <div id="builder_box" class='page' style='display: none;'>
-        <p>coords <span id="builder_x"></span>, <span id="builder_y"></span></p>
+        <p>Game status: <span id="game_status"></span></p>
+        <p style='margin-bottom: 10px;'>Pulse ratio: <span id="pulse_ratio"></span></p>
         
-        <p>name: <input type='text' id="builder_room_name" /></p>
-        <p>description:</p>
+        <p><strong>Room info</strong></o>
+        <p>ID: <span id="builder_room_id"></span></p>
+        <p>Coordinates: (<span id="builder_x"></span>, <span id="builder_y"></span>)</p>
+        
+        <p>Name: <input type='text' id="builder_room_name" /></p>
+        <p>Description:</p>
         
         <textarea id="builder_room_description"></textarea>
         
@@ -13,7 +18,7 @@
         <p><input type='checkbox' id="builder_south" /> south</p>
         <p><input type='checkbox' id="builder_west" /> west</p>
         
-        <p>type:
+        <p>Type:
             <select name='room_type' id="builder_room_type">
                 <option value=''></option>
                 <option value='road'>Road</option>
@@ -26,8 +31,8 @@
         </p>
         
         <p>
-            x: <input type='text' id="jump_x" style='width: 30px;' />
-            y: <input type='text' id="jump_y" style='width: 30px;' />
+            X: <input type='text' id="jump_x" style='width: 30px;' />
+            Y: <input type='text' id="jump_y" style='width: 30px;' />
             <input type='submit' id='jump_to' value='Jump To' />
             <input type='submit' id='create_room' value='Create Room' />
         </p>

@@ -1,15 +1,11 @@
-var default_settings = function() {
-    stroke(0);
-    strokeWeight(1);
-}
-
 void setup() 
 {
-    default_settings();
+    stroke(0);
+    strokeWeight(1);
     frameRate(5);
 }
 
-
+/*
 void keyPressed() {
     if (typeof(stark) != 'undefined' && !stark.player.builder_mode) {
         if (key == CODED) {
@@ -20,8 +16,7 @@ void keyPressed() {
         }
     }
 }
-
-
+*/
 
 var size = 12;
 var margin = 10;
@@ -71,7 +66,8 @@ var draw_room = function(room, is_player_room) {
     rect(true_x, true_y, size, size);
 
     // reset to defaults before leaving
-    default_settings();
+    stroke(0);
+    strokeWeight(1);
 
 }
 
@@ -79,7 +75,7 @@ void draw()
 {
 
     background(#EEEEEE);
-    if (typeof(stark) != 'undefined') {
+    if (typeof(stark) != 'undefined' && typeof(stark.map) != 'undefined') {
         var is_player_room;
         $.each(stark.map, function(key, object) {
             // don't render hidden rooms or anything that's not a room
@@ -87,7 +83,7 @@ void draw()
             if (!object.type || object.type == 'hidden') { return true; }
 
             is_player_room = false;
-            if (stark.room &&
+            if (typeof(stark.room) != 'undefined' &&
                 stark.room.xpos == object.xpos &&
                 stark.room.ypos == object.ypos) {
                 

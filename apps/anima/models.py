@@ -91,6 +91,27 @@ class Anima(models.Model):
     @property
     def capacity(self): return 10 * self.strength
 
+    @property
+    def equipment(self):
+        eq = {}
+        for attr in ARMOR_SLOTS + WEAPON_SLOTS:
+            item = getattr(self, attr)
+            if item:
+                eq[attr] = item
+            else:
+                # ensures that the api calls don't return the string 'None'
+                eq[attr] = ''
+        return eq
+
+    @property
+    def inventory(self):
+        equipment = self.equipment
+        inv = []
+        for item in ItemInstance.objects.owned_by(self):
+            if item not in equipment.values():
+                inv.append(item)
+        return inv
+
     #############
     # Utilities #
     #############
@@ -98,93 +119,7 @@ class Anima(models.Model):
         Message.objects.create(type='notification',
                                destination=self.name,
                                content=msg)
-    
-    def move(self, xpos=None, ypos=None, to_room=None, random=False):
 
-        if self.target:
-            self.notify('You cannot move while in combat.')
-            return
-        
-        # get the connector based on the input provided
-        if xpos is not None and ypos is not None:
-            try:
-                connector = RoomConnector.objects.get(from_room=self.room,
-                                                      to_room__xpos=xpos,
-                                                      to_room__ypos=ypos)
-            except RoomConnector.DoesNotExist:
-                self.notify("You cannot go that way.")
-                raise Exception("No connector exists to provied x/y coords")
-        elif to_room:
-            try:
-                connector = RoomConnector.objects.get(from_room=self.room,
-                                                      to_room=to_room)
-            except RoomConnector.DoesNotExist:
-                self.notify("You cannot go that way.")
-                raise Exception("No connector exists to provided to_room")
-        elif random:
-            try:
-                if self.__class__.__name__ == "Mob":
-                    # by default keep mobs within zones
-                    connector = RoomConnector.objects\
-                                .filter(to_room__zone__id=self.room.zone.id,
-                                        from_room=self.room)\
-                                .order_by('?')[0]
-                else:
-                    connector = RoomConnector.objects\
-                                .filter(from_room=self.room)\
-                                .order_by('?')[0]
-            except (RoomConnector.DoesNotExist, IndexError):
-                # no exits, don't move at all
-                return
-                # raise Exception("No exit out of this room exists")
-        else:
-            raise Exception('provide either x/y coords or set random=True')
-
-        to_room = connector.to_room
-
-        # unless in builder mode, check for move points and deduct points
-        if not (self.__class__.__name__ == 'Mob' or hasattr(self, 'builder_mode') and self.builder_mode == True):
-            if self.mp < MOVE_COST:
-                msg = "Not enough movement points to move."
-                self.notify(msg)
-                raise Exception(msg)
-            else:
-                self.mp -= MOVE_COST
-
-        # store where the user was before the move
-        from_room = self.room
-        
-        # move the user
-        self.room = to_room
-
-        # save
-        self.save()
-        
-        # track this movement
-        # RoomTracker.objects.create(room=self.room, content=self)
-        
-        # tell every player in the room the anima was in that it's gone
-        for player in Player.objects.filter(room=from_room, status='logged_in'):
-            player.notify("%s leaves %s." % (self.name, connector.direction))
-        
-        rev_direction = None
-        if connector.direction == 'north': rev_direction = 'south'
-        elif connector.direction == 'east': rev_direction = 'west'
-        elif connector.direction == 'south': rev_direction = 'north'
-        elif connector.direction == 'west': rev_direction = 'east'
-            
-        # tell every player in the room the anima is moving to that it's
-        # arrived, or simply that it's moved if the observer is the one
-        # performing the action
-        for player in Player.objects.filter(room=to_room, status='logged_in'):
-            if player == self:
-                self.notify("You leave %s" % connector.direction)
-            else:
-                player.notify("%s has arrived from the %s." %
-                                (self.name, rev_direction))                
-    
-        return ['room']
-    
     def regen(self, attribute, points):
         """
         Regen player attribtue (hp, mp or sp) by x point.
@@ -201,11 +136,6 @@ class Anima(models.Model):
         self.save()
 
 
-    def get_carrying_weight(self):
-        weight = Decimal('0.00')
-        for item in ItemInstance.objects.owned_by(self):
-            weight += item.total_weight()
-        return weight
 
     def get_name(self):
         # method to match ItemInstance's
@@ -234,19 +164,6 @@ class Anima(models.Model):
     ##########
     # Combat #
     ##########
-    
-    def engage(self, target_type, target_id):
-        not_here = "No-one by that name."
-        try:
-            target_type = ContentType.objects.get(model=target_type)
-            target = target_type.model_class().objects.get(pk=target_id)
-            if self.room != target.room:
-                self.notify(not_here)
-
-            self.target = target
-            self.save()
-        except Exception:
-            self.notify(not_here)
     
     def combat_round(self):
         """Runs an actual combat round as called by the events app"""
@@ -337,196 +254,6 @@ class Anima(models.Model):
             item.owner = corpse
             item.save()
 
-    #####################
-    # Item Interactions #
-    #####################
-
-    def equipment(self):
-        # returns dict
-        eq = {}
-        for attr in ARMOR_SLOTS + WEAPON_SLOTS:
-            item = getattr(self, attr)
-            if item:
-                eq[attr] = item
-            else:
-                # ensures that the api calls don't return the string 'None'
-                eq[attr] = ''
-        return eq
-
-    def inventory(self):
-        # returns list
-        equipment = self.equipment()
-        inv = []
-        for item in ItemInstance.objects.owned_by(self):
-            if item not in equipment.values():
-                inv.append(item)
-        return inv
-
-    def give_item(self, item, give_to):
-        
-        if item.owner.room != give_to.room:
-            stark_log = logging.getLogger('StarkLogger')
-            message = ("%s can't give item %s to %s because they aren't"
-                       " in the same room" %
-                        (self.name, item.name, give_to.name))
-            stark_log.debug(message)
-            raise Exception(message)
-
-        print item.total_weight()
-        print give_to.capacity
-        # check that the user can carry the weight
-        free_room = give_to.capacity - give_to.get_carrying_weight()
-        if item.total_weight() > free_room:
-            self.notify("%s cannot carry that much weight." % give_to.name)
-            return
-
-        item.owner = give_to
-        item.save()
-
-        for player in self.room.player_related.all():
-            if player == self:
-                self.notify("You give %s to %s." %
-                            (item.base.name, give_to.name))
-            elif player == give_to:
-                give_to.notify("%s gives you %s." %
-                               (self.name, item.base.name))
-            else:
-                player.notify("%s gives %s to %s" %
-                              (self.name, item.base.name, give_to.name))
-
-    def drop_item(self, item):
-        item.owner = self.room
-        item.save()
-        for player in self.room.player_related.all():
-            if player == self:
-                self.notify("You drop %s." % item.base.name)
-            else:
-                player.notify("%s drops %s." % (self.name, item.base.name))
-
-    def get_item(self, item):
-        if item.owner != self.room:
-            stark_log = logging.getLogger('StarkLogger')
-            message = ("%s can't get item %s because they're in "
-                       "different rooms" % (self.name, item.get_name()))
-            stark_log.debug(message)
-            raise Exception(message)
-
-        # check that the user can carry the weight
-        free_room = self.capacity - self.get_carrying_weight()
-        if item.total_weight() > free_room:
-            self.notify("%s is too heavy for you to pick up."
-                        % item.get_name())
-            return
-
-        item.owner = self
-        item.save()
-        
-        for player in self.room.player_related.all():
-            if player == self:
-                self.notify("You get %s." % item.base.name)
-            else:
-                player.notify("%s gets %s." % (self.name, item.base.name))
-
-    def get_item_from_container(self, item):
-        # container is in player or in player's room
-        if (item.owner.owner.__class__ is Room and
-            item.owner.owner == self.room) or \
-           (item.owner.owner.__class__ is Player and
-            item.owner.owner == self):
-
-            # check that the user can carry the weight
-            free_room = self.capacity - self.get_carrying_weight()
-            if item.total_weight() > free_room:
-                self.notify("%s is too heavy for you to pick up."
-                            % item.get_name())
-                return
-            
-            old_owner = item.owner
-
-            item.owner = self
-            item.save()
-
-            for player in self.room.player_related.all():
-                if player == self:
-                    self.notify("You get %s from %s." % (
-                        item.get_name(),
-                        old_owner.get_name()
-                    ))
-                else:
-                    player.notify("%s gets %s from %s." % (
-                        self.name,
-                        item.get_name(),
-                        old_owner.get_name()
-                    ))
-
-        else:
-            stark_log = logging.getLogger('StarkLogger')
-            message = ("%s can't get item %s from container %s because "
-                       "they're in different rooms" % (
-                            self.name,
-                            item.get_name(),
-                            item.owner.get_name()
-                       ))
-            stark_log.debug(message)
-            raise Exception(message)
-
-    def put_item_in_container(self, item, container):
-        # container is in the room or a player
-        if (container.owner.__class__ is Room and container.owner == item.owner.room) or \
-           (container.owner.__class__ is Player and container.owner == item.owner):
-            
-                for player in self.room.player_related.all():
-                    if player == self:
-                        self.notify("You put %s in %s." % \
-                                    (item.base.name, container.base.name))
-                    else:
-                        player.notify("%s puts %s in %s." % \
-                            (self.name, item.base.name, container.base.name))
-            
-                item.owner = container
-                item.save()
-
-        else:
-            stark_log = logging.getLogger('StarkLogger')
-            message = ("Can't put %s in %s because you don't have access"
-                       "to it.") % (item.base.name, container.base.name)
-            stark_log.debug(message)
-            raise Exception(message)
-
-
-    def wear(self, item, wear_verb='wear'):
-        if item.base.__class__.__name__ == "Weapon":
-            if wear_verb == 'wear':
-                wear_verb = 'wield'
-        
-        if getattr(self, item.base.slot):
-            self.notify("You're already wearing something on this slot.")
-            return
-        
-        setattr(self, item.base.slot, item)
-        self.save()
-        
-        for player in self.room.player_related.all():
-            if player == self:
-                self.notify("You %s %s." % (wear_verb, item.base.name))
-            else:
-                player.notify("%s %ss %s." % (self.name, wear_verb,
-                                              item.base.name))
-
-    def remove(self, item):        
-        if not getattr(self, item.base.slot):
-            self.notify("This slot is empty.")
-            raise Exception("Slot empty")
-            
-        setattr(self, item.base.slot, None)
-        self.save()
-        
-        for player in self.room.player_related.all():
-            if player == self:
-                self.notify("You remove %s." % item.base.name)
-            else:
-                player.notify("%s removes %s." % (self.name, item.base.name))
-
     ################
     # Django stuff #
     ################
@@ -540,277 +267,6 @@ class Anima(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.name
-
-    ############
-    # Commands #
-    ############
-
-    def command(self, cmd):
-        tokens = map(lambda x: x.lower(), cmd.split(' '))
-
-        # - help
-        if tokens[0] == 'help':
-            self.notify('Commands:')
-            self.notify('- north, east, south, west, kill')
-            self.notify('- get, drop, put, wear, wield, remove')
-            self.notify('- chat, say, help')
-            if self.builder_mode:
-                self.notify('Admin Commands:')
-                self.notify('- list, load')
-
-        # - chat -
-        if tokens[0] == 'chat':
-            if len(tokens) < 2:
-                self.notify('Usage: chat message')
-                return
-            message = Message.objects.create(
-                created=datetime.datetime.now(),
-                type='chat',
-                content=cmd[5:],
-                author=self,
-            )
-            return
-
-        # - say -
-        if tokens[0] == 'say':
-            if len(tokens) < 2:
-                self.notify('Usage: say message')
-                return
-            self.room.notify("%s says '%s'" % (self.get_name(), cmd[4:]))
-            return
-
-        # - directions -
-        if tokens[0] in ('north', 'n'):
-            return self.move(xpos=self.room.xpos, ypos=self.room.ypos - 1)
-        elif tokens[0] in ('east', 'e'):
-            return self.move(xpos=self.room.xpos + 1, ypos=self.room.ypos)
-        elif tokens[0] in ('south', 's'):
-            return self.move(xpos=self.room.xpos, ypos=self.room.ypos + 1)
-        elif tokens[0] in ('west', 'w'):
-            return self.move(xpos=self.room.xpos - 1, ypos=self.room.ypos)
-
-        # - wear / wield -
-        if tokens[0] in ('wear', 'wield'):
-            if len(tokens) < 2:
-                self.notify('Usage: wear item')
-                return
-            items = find_items_in_container(tokens[1], self.inventory())
-            for item in items:
-                self.wear(item)
-            if not items:
-                self.notify('You have no %s to wear.' % tokens[1])
-                return
-
-        # - remove -
-        if tokens[0] == 'remove':
-            if len(tokens) < 2:
-                self.notify('Usage: remove item')
-                return
-            eq = filter(lambda x: x, self.equipment().values())
-            items = find_items_in_container(tokens[1], eq)
-            if items:
-                self.remove(items[0])
-            else:
-                self.notify('You are not wearing a %s.' % tokens[1])
-                return
-
-        # - get -
-        if tokens[0] == 'get':
-            # simple get from room
-            if len(tokens) == 0:
-                self.notify('Usage: get item [container]')
-                return
-            elif len(tokens) == 2:
-                items = find_items_in_container(tokens[1],
-                                                self.room.items.all())
-                for item in items:
-                    self.get_item(item)
-                if not items:
-                    self.notify('There is no %s in this room.' % tokens[1])
-                    return
-            
-            # get from container
-            elif len(tokens) >= 3:
-                # try to get the container from the player's equipment, inv
-                # or the room
-                eq = filter(lambda x: x, self.equipment().values())
-                container = find_items_in_container(tokens[2], eq,
-                                                    find_container=True)
-                if not container:
-                    container = find_items_in_container(tokens[2],
-                                                        self.inventory(),
-                                                        find_container=True)
-                if not container:
-                    container = find_items_in_container(tokens[2],
-                                                        self.room.items.all(),
-                                                        find_container=True)
-                
-                # if no suitable container has been found, raise eror
-                if not container:
-                    self.notify(error = 'No such container: %s' % tokens[2])
-                    return
-                
-                # get the item from the found container
-                # TODO: should this support getting stuff from
-                # multiple container?
-                items = find_items_in_container(tokens[1],
-                                                container[0].owns.all())
-
-                for item in items:
-                    self.get_item_from_container(item)
-
-                if not items:
-                    self.notify('There is no %s in %s' %
-                                    (tokens[1], tokens[2]))
-                    return
-
-        # - put -
-        if tokens[0] == 'put':
-            if len(tokens) < 3:
-                self.notify("Usage: put item container")
-                raise Exception('Not enough tokens for put command')
-            else:
-                # get the items that the user wants to put somewhere
-                items = find_items_in_container(tokens[1], self.inventory())
-                if not items:
-                    self.notify('There is no %s in your inventory' % tokens[1])
-                    return
-                
-                # get the best match from eq, inv and room
-                eq = filter(lambda x: x, self.equipment().values())
-                containers = find_items_in_container(tokens[2], eq,
-                                                     find_container=True)
-                if not containers:
-                    containers = find_items_in_container(tokens[2],
-                                                         self.inventory(),
-                                                         find_container=True)
-                if not containers:
-                    containers = find_items_in_container(tokens[2],
-                                                         self.room.items.all(),
-                                                         find_container=True)
-                if not containers:
-                    self.notify('There is no %s in your inventory' % tokens[2])
-                    return
-                
-                for item in items:
-                    self.put_item_in_container(item, containers[0])
-
-        # - drop -
-        if tokens[0] == 'drop':
-            if len(tokens) < 2:
-                self.notify('Usage: drop item')
-                return
-            items = find_items_in_container(tokens[1], self.inventory())
-            for item in items:
-                self.drop_item(item)
-            if not items:
-                self.notify('You are not carrying a %s.' % tokens[1])
-                return
-
-        # - give -
-        if tokens[0] == 'give':
-            if len(tokens) < 3:
-                self.notify('Usage: give item target')
-                return
-            items = find_items_in_container(tokens[1], self.inventory())
-            if not items:
-                self.notify("You are not carrying a %s" % tokens[1])
-                return
-            target = None
-            for player in self.room.player_related.all():
-                if tokens[2] in (player.id, player.name):
-                    target = player
-                    break
-            if not target:
-                self.notify("No-one by the name %s here." % tokens[2])
-                return
-            for item in items:
-                self.give_item(item, target)
-
-        # - kill -
-        if tokens[0] == 'kill':
-            if len(tokens) < 2:
-                self.notify('Usage: kill target')
-                return
-            target = None
-            for player in self.room.player_related.all():
-                if tokens[1] in (player.id, player.name):
-                    self.engage('player', player.id)
-                    return
-            for mob in self.room.mob_related.all():
-                if tokens[1] in [mob.id] + mob.name.split(' '):
-                    self.engage('mob', mob.id)
-                    return
-
-        # - builder only commands -
-        
-        # list
-        if tokens[0] == 'list':
-            if not self.builder_mode:
-                return
-            if len(tokens) < 2:
-                self.notify('Usage: list type')
-                return
-            # get the type
-            from stark.apps.world import models as world_models
-            type = tokens[1][0].upper() + tokens[1][1:].lower()
-            try:
-                o = getattr(world_models, type)
-            except AttributeError:
-                self.notify("No such type '%s'" % tokens[1])
-                return
-            self.notify("%s:" % type)
-            # get all items of that type
-            for item in o.objects.all():
-                self.notify("- %s [%s]" % (item.name, item.id))
-            return
-        
-        # load
-        if tokens[0] == 'load': # load type id
-            if not self.builder_mode:
-                return
-            elif len(tokens) < 3:
-                self.notify('Usage: load type id')
-                return
-            # get the type
-            from stark.apps.world import models as world_models
-            type = tokens[1][0].upper() + tokens[1][1:].lower()
-            try:
-                o = getattr(world_models, type)
-            except AttributeError:
-                self.notify("No such type '%s'" % tokens[1])
-                return
-            # get the base off the type and id
-            try:
-                base = o.objects.get(pk=tokens[2])
-            except o.DoesNotExist:
-                self.notify("No such %s ID: %s" % (type, tokens[2]))
-                return
-            ItemInstance.objects.create(base=base, owner=self)
-            self.room.notify("%s makes a %s out of thin air." %
-                             (self.get_name(), base.name))
-            return
-        
-        # - jump -
-        if tokens[0] == 'jump':
-            if not self.builder_mode:
-                return
-            if len(tokens) < 2:
-                self.notify('Usage: jump [id (x y)]')
-                return
-            elif len(tokens) == 2: # id passed
-                try:
-                    room = Room.objects.get(pk=tokens[1])
-                    self.room = room
-                    self.save()
-                except Room.DoesNotExist: return
-            elif len(tokens) >= 3: # x + y passed
-                try:
-                    room = Room.objects.get(xpos=tokens[1], ypos=tokens[2])
-                    self.room = room
-                    self.save()
-                except Room.DoesNotExist: return
-            self.room.notify('%s disappears in a cloud of white smoke.' % self.get_name())
 
 class Player(Anima):
     user = models.ForeignKey(User, related_name='players')
@@ -920,7 +376,7 @@ class MobLoader(models.Model):
                     
     
 class Message(models.Model):
-    created = models.DateTimeField(default=datetime.datetime.now(),
+    created = models.DateTimeField(default=datetime.datetime.now,
                                    blank=False)
     type = models.CharField(max_length=20, choices=MESSAGE_TYPES, blank=False)
     content = models.TextField(blank=False)
@@ -929,10 +385,6 @@ class Message(models.Model):
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     author = generic.GenericForeignKey('content_type', 'object_id')
-    
-    def __init__(self, *args, **kwargs):
-        super(Message, self).__init__(*args, **kwargs)
-        self.created = datetime.datetime.now()
     
     def __unicode__(self):
         return u"%s: %s" % (self.author, self.content)

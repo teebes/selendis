@@ -23,23 +23,22 @@ setup_builder = function () {
     $("#delete_room").click(function() {
     var confirmation = confirm("Press Ok to delete.");
     if (confirmation) {
-        delete_room(stark.player.room);
+        delete_room(stark.room);
     }
     });
     
     $("#jump_to").click(function() {
         $.ajax({
-            type: "PUT",
-            url: "/api/me.json",
-            // data: { xpos: $("#jump_x").val(), ypos: $("#jump_y").val() },
+            type: "POST",
+            url: "/api/command/",
             data: { command: str_format("jump {0} {1}", $("#jump_x").val(), $("#jump_y").val()) },
             dataType: "json",
             success: function(player) {
                 stark.player = player;
                 render_room();
                 render_builder();
-                stark.player_map_xpos = player.room.xpos;
-                stark.player_map_ypos = player.room.ypos;
+                stark.player_map_xpos = stark.room.xpos;
+                stark.player_map_ypos = stark.room.ypos;
             }
         });
     });
@@ -51,7 +50,7 @@ setup_builder = function () {
     $("#builder_room_type").change(function () {
         var data = {};
         data['type'] = $(this).val();
-        data['id'] = stark.player.room.id;
+        data['id'] = stark.room.id;
         modify_room(data);
     });
 }

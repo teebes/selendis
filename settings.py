@@ -15,6 +15,7 @@ if not hasattr(logging, 'setup_done'): # because django imports settings multipl
     stark_logger = logging.getLogger('StarkLogger')
     stark_logger.setLevel(logging.DEBUG)
     handler = logging.handlers.RotatingFileHandler(LOGS_DIR + "/stark.log", maxBytes=1 * 1028 * 1028, backupCount=5)
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
     stark_logger.addHandler(handler)
 
     # logger specifically for the timing functions

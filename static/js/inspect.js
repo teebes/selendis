@@ -81,7 +81,7 @@ function inspect_item(id) {
                 // player eq, inv or room
                 button_put_item_in(item, stark.player.equipment);
                 button_put_item_in(item, stark.player.inventory);
-                button_put_item_in(item, stark.player.room.items);
+                button_put_item_in(item, stark.room.items);
                 // wear / remove
                 if (item.type == 'weapon' || item.type == 'armor') {
                     // check that the player is not already wearing something

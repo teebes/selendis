@@ -100,6 +100,10 @@ p.spaced { margin-bottom: 10px; }
     color: #666666;
 }
 
+.log_msg {
+    padding-bottom: 5px;
+}
+
 #map {
     /*border: 1px solid #000000;*/
 }

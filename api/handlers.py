@@ -1,10 +1,12 @@
 import datetime
+import time
 import logging
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import Q
+from django.utils.html import escape
 
 from piston.handler import BaseHandler
 from piston.authentication import HttpBasicAuthentication
@@ -12,7 +14,6 @@ from piston.utils import rc
 
 from stark import config
 from stark.apps.anima.models import Anima, Player, Mob, Message
-from stark.apps.timers import check_pulse
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor, Zone
 from stark.apps.world.utils import draw_map
 
@@ -280,123 +281,46 @@ class MapHandler(BaseHandler):
         }
     
 
-class MeHandler(BaseHandler):
-    allowed_methods = ('GET', 'PUT')
-
-    fields = (
-        'builder_mode',
-        'items',
-        'mp',
-        'max_mp',
-        'experience',
-    )
-
-    def read(self, request):
-        check_pulse()
-
-        player = Player.objects.get(user=request.user, status='logged_in')
-        result = {}
-
-        for field in PlayerHandler.fields + self.fields:
-            if hasattr(player, field):
-                result[field] = getattr(player, field)
-
-        result['inventory'] = player.inventory()
-        result['equipment'] = PlayerHandler.equipment(player)
-        result['messages'] = MessageHandler().read(request)
-        result['next_level'] = player.next_level
-
-        # if 'map' is in any of the requests, give the map
-        if getattr(request, request.method).get('map', None):
-            map = MapHandler()
-            result['map'] = map.read(request)
-            
-        # stark
-        #   map
-        #   player
-        #       room
-        #       inventory
-        #       
-
-        return result
-        
-    def update(self, request):
-        player = Player.objects.get(user=request.user, status='logged_in')
-
-        if request.PUT.has_key('command'):
-            try:
-                player.command(request.PUT['command'])
-            except Exception, e:
-                print e
-
-        if request.PUT.has_key('xpos') and request.PUT.has_key('ypos'):
-            player.move(xpos=request.PUT['xpos'],
-                        ypos=request.PUT['ypos'])
-
-        if request.PUT.has_key('target_type') and request.PUT.has_key('target_id'):
-            try:
-                player.engage(request.PUT['target_type'], request.PUT['target_id'])
-            except Exception, e:
-                print e
-                response = rc.BAD_REQUEST
-                response.write(": %s" % e)
-                return response
-
-        if request.PUT.get('wear', None):
-            try:
-                item = ItemInstance.objects.get(pk=request.PUT['wear'])
-            except ItemInstance.DoesNotExist:
-                response = rc.BAD_REQUEST
-                response.write("Item ID %s does not exist" % request.PUT['wear'])
-                return response
-
-            player.wear(item)
-            
-        if request.PUT.get('remove', None):
-            try:
-                item = ItemInstance.objects.get(pk=request.PUT['remove'])
-            except ItemInstance.DoesNotExist:
-                response = rc.BAD_REQUEST
-                response.write("Item ID %s does not exist" % request.PUT['remove'])
-                return response
-            
-            player.remove(item)
-        
-        return self.read(request)
-
 
 class PlayerHandler(BaseHandler):
-    allowed_methods = ('GET', 'PUT')
+    allowed_methods = ('GET',)
     model = Player
-    fields = (
+    fields = [
         'id',
         'name',
         'level',
-        'room',
         'hp',
         'max_hp',
-        #'main_hand',
-        'equipment',
-    )
+    ]
 
-    
-    @classmethod
-    def equipment(self, player):
-        return player.equipment()
+    def read(self, request, id):
+        player = Player.objects.get(pk=id)
 
-    @classmethod
-    def main_hand(self, player):
-        return player.main_hand
+        if player.user == request.user:
+            self.fields += [
+                'builder_mode',
+                'items',
+                'mp',
+                'max_mp',
+                'experience',
+                'next_level',
+                'equipment',
+                'inventory',
+            ]
 
-    #def read(self, request, id=None):
+        return player    
 
 class MessageHandler(BaseHandler):
     allowed_methods = ('GET', 'POST')
     model = Message
-    fields = ('content', 'type', 'created', 'source')
-    
-    def read(self, request, *args, **kwargs):
-        
+    fields = ('id', 'content', 'type', 'created', 'source', 'js_created')
+
+    @classmethod
+    def js_created(self, message):
+        # convert to javascript POSIX timestamp
+        return time.mktime(message.created.timetuple()) * 1000
+
+    def read(self, request):
         player = Player.objects.get(user=request.user, status='logged_in')
         
         mem_time = datetime.datetime.now() - datetime.timedelta(seconds=MEMORY)
@@ -405,6 +329,8 @@ class MessageHandler(BaseHandler):
                                                destination=player.name)
         messages = chats | notifications
         messages = messages.filter(created__gt=mem_time).order_by('created')
+        
+        messages = messages
 
         return messages
     

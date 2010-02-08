@@ -1,4 +1,28 @@
-from stark.apps.world.models import Room, RoomConnector
+from decimal import Decimal
+
+from stark.apps.world.models import Room, RoomConnector, ItemInstance
+
+def rev_direction(direction):
+    if direction == 'north':
+        return 'south'
+    elif direction == 'east':
+        return 'west'
+    elif direction == 'south':
+        return 'north'
+    elif direction == 'west':
+        return 'east'
+    else:
+        raise Exception('Invalid direction: %s' % direction)
+
+def get_container_weight(container):
+    weight = Decimal('0.00')
+    for item in ItemInstance.objects.owned_by(container):
+        weight += item.total_weight()
+    return weight
+
+def can_hold_item(carrier, item):
+    free_room = carrier.capacity - get_container_weight(carrier)
+    return free_room > item.total_weight()
 
 def find_items_in_container(keyword, container, find_container=False):
     """
@@ -6,7 +30,8 @@ def find_items_in_container(keyword, container, find_container=False):
     If find_container is passed as True, only the first found container will
     be returned in the list.
     """
-    
+
+    # make sure the items are containers, i.e. with a non-null capacity
     if find_container == True:
         container = filter(lambda x: x.base.capacity > 0, container)
         # TODO: since when getting a container we only want one container,

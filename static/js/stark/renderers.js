@@ -1,29 +1,39 @@
-render_log = function() {
-        
-        var previous_html = $("#communications").html();
-        
-        // see if this user is scrolling or if he's at the bottom
-        var scroll_down = false;
-        var comm_div = document.getElementById("communications");
-        if (comm_div.scrollTop - (comm_div.scrollHeight - comm_div.offsetHeight) > 0) {
-            scroll_down = true;
-        }
-        
-        var html = '';
-        $.each(stark.log, function() {
-            html += '<div class="comm_' + this.type + '">';
-            if (this.type == 'chat') {
-                html += '<strong>' + this.source + '</strong>: ';
-            }
-            html += this.content;
-            html += '</div>\n';
-        });
+html_format = function(html) {
+    // utility function to escape html and convert newlines
+    // http://stackoverflow.com/questions/24816/escaping-strings-with-jquery
+    html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    html = html.replace(/\n/g, "<br />");
+    return html
+}
 
-        if (previous_html != html) {
-            $("#communications").html(html);
+render_log = function() {
+    
+    var previous_html = $("#communications").html();
+    
+    // see if this user is scrolling or if he's at the bottom
+    var scroll_down = false;
+    var comm_div = document.getElementById("communications");
+    if (comm_div.scrollTop - (comm_div.scrollHeight - comm_div.offsetHeight) > 0) {
+        scroll_down = true;
+    }
+    
+    var html = '';
+    $.each(stark.log, function() {
+        html += '<div class="log_msg comm_' + this.type + '"> * &gt; ';
+        /*
+        if (this.type == 'chat') {
+            html += '<strong>' + this.source + '</strong>: ';
         }
-        
-        if (scroll_down) {  comm_div.scrollTop = comm_div.scrollHeight; }
+        */
+        html += html_format(this.content);
+        html += '</div>\n';
+    });
+    
+    if (previous_html != html) {
+        $("#communications").html(html);
+    }
+    
+    if (scroll_down) {  comm_div.scrollTop = comm_div.scrollHeight; }
 
 
 }
@@ -59,10 +69,6 @@ render_room = function() {
         mobs += this.name + " is here<br />";
     });
     $("#room_mobs").html(mobs);
-    
-    if (stark.player && stark.player.builder_mode) {
-        render_builder();
-    }
     
 }
 
@@ -106,27 +112,28 @@ render_player = function() {
 
 render_builder = function() {
     $("#builder_box").show();
+
+    $("#builder_room_id").html(stark.room.id);
+    $("#builder_x").html(stark.room.xpos);
+    $("#builder_y").html(stark.room.ypos);
     
-    $("#builder_x").html(stark.player.room.xpos);
-    $("#builder_y").html(stark.player.room.ypos);
-    
-    $("#builder_room_name").val(stark.player.room.name);
+    $("#builder_room_name").val(stark.room.name);
     $("#builder_room_name").unbind();
     $("#builder_room_name").blur(function() {
-        modify_room({name: $(this).val(), id: stark.player.room.id});
+        modify_room({name: $(this).val(), id: stark.room.id});
     });
     
-    $("#builder_room_description").val(stark.player.room.description);
+    $("#builder_room_description").val(stark.room.description);
     $("#builder_room_description").unbind();
     $("#builder_room_description").blur(function() {
-        modify_room({description: $(this).val(), id: stark.player.room.id});
+        modify_room({description: $(this).val(), id: stark.room.id});
     });
     
     // connectors
     var dirs = ['north', 'east', 'south', 'west'];
     $.each(dirs, function() {
         var dir = this;
-        if (stark.player.room[dir] == 'Normal') {
+        if (stark.room[dir] == 'Normal') {
             $("#builder_"+dir).attr('checked', true);
         } else {
             $("#builder_"+dir).attr('checked', false);
@@ -136,7 +143,7 @@ render_builder = function() {
         $("#builder_"+dir).click(function() {
             var data = {};
             data[dir] = 'toggle';
-            data['id'] = stark.player.room.id;
+            data['id'] = stark.room.id;
             //alert(dir);
             modify_room(data);
         });
@@ -144,12 +151,12 @@ render_builder = function() {
     
     // room types
     $.each($("#builder_room_type").children(), function() {
-        if ($(this).attr('value') == stark.player.room.type) {
+        if ($(this).attr('value') == stark.room.type) {
             $(this).attr('selected', true);
         }
     });
     
     // jump to
-    $("#jump_x").val(stark.player.room.xpos);
-    $("#jump_y").val(stark.player.room.ypos);
+    $("#jump_x").val(stark.room.xpos);
+    $("#jump_y").val(stark.room.ypos);
 }
