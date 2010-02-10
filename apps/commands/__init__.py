@@ -354,9 +354,6 @@ class Help(Command):
         return "Usage: %s\n%s" % (cls.template, cls.__doc__)
 
     def _execute(self):
-        from stark.apps.commands import builders
-        self.builders = builders
-        
         if len(self.tokens) == 0:
             return self.general_help()
         else:

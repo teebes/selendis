@@ -34,8 +34,8 @@ def tick_regen():
 
     # Health
     for player in players.extra(where=["hp < hp_base +"
-                                       "constitution * 10 + (level - 1) * 2"]):
+                                       "constitution * 5 + (level - 1) * 10"]):
         player.regen('hp', TICK_HP_REGEN_RATE)
     for mob in mobs.extra(where=["hp < hp_base +"
-                                      "constitution * 10 + (level - 1) * 2"]):
+                                      "constitution * 5 + (level - 1) * 10"]):
         mob.regen('hp', TICK_HP_REGEN_RATE)
