@@ -100,12 +100,15 @@ render_player = function() {
 
     //inventory
     $("#player_inventory").empty();
-    $.each(stark.player.inventory, function() {
-        var line = $("<div></div>");
-        line.append(item_link(this));
+    if (typeof(stark.player.inventory) != "undefined") {
+        $.each(stark.player.inventory, function() {
+            var line = $("<div></div>");
+            //line.append(item_link(this));
+    
+            //line.appendTo("#player_inventory");
+        });
+    }
 
-        line.appendTo("#player_inventory");
-    });
 }
 
 // -- Rooms --

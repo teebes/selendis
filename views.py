@@ -45,6 +45,7 @@ def index(request):
                                        room=initial_room)
         player.hp = player.max_hp
         player.save()
+        player.update_level()
         
     else: # returning user
         characters = Player.objects.filter(user=request.user)
@@ -69,6 +70,7 @@ def index(request):
                                            room=initial_room)
             player.hp = player.max_hp
             player.save()
+            player.update_level()
         elif characters.filter(status='logged_in').count() == 1:
             player = characters.get(status='logged_in')
         else:
@@ -89,6 +91,7 @@ def adx(request, input):
         return HttpResponse("error")
 
 def quick(request):
-    print 'here'
-    print request.raw_post_data
-    return HttpResponse("raw is: %s" % request.raw_post_data)
+    from stark.apps.commands import execute_command
+    player = Player.objects.get(status='logged_in', user=request.user)
+    output = execute_command(player, 'help', remote=True)
+    return HttpResponse(output)

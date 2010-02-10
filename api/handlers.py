@@ -306,6 +306,7 @@ class PlayerHandler(BaseHandler):
                 'next_level',
                 'equipment',
                 'inventory',
+                'target',
             ]
 
         return player    

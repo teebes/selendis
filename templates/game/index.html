@@ -85,14 +85,17 @@ $(document).ready(function(){
     setup_builder();
     setup_player();
 
-    setInterval("beat();", 250)
+    //setInterval(beat, 250)
+    setTimeout(function(){
+        beat();
+        setTimeout(arguments.callee, 250);
+    }, 250);
 
     // processing
     
     var script = $.ajax({url: "/static/js/rendermap.pjs", async: false}).responseText;
     var canvas = $('canvas#map').get(0);
     Processing(canvas, script);
-    
 });
 
 </script>

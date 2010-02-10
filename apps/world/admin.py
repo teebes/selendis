@@ -11,6 +11,7 @@ class RoomAdmin(admin.ModelAdmin):
         'xpos',
         'ypos',
         'name',
+        'zone',
     )
     list_filter = (
         'zone',

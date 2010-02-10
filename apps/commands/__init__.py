@@ -1,7 +1,15 @@
 from stark.apps.anima.models import Player, Mob
-from stark.apps.commands.decorators import validate
 from stark.apps.world.models import Room, RoomConnector
+from stark.apps.world import models as world_models
 from stark.apps.world.utils import find_items_in_container, can_hold_item, rev_direction
+
+def execute_command(anima, raw_cmd, remote=False):
+    tokens = filter(None, raw_cmd.split(' '))
+    cmd = tokens.pop(0)
+    cmd_class = globals()[cmd[0].upper() + cmd[1:].lower()]
+    cmd_object = cmd_class(anima, raw_cmd, tokens=tokens, remote=True)
+    return cmd_object.execute()
+
 
 # commands register (TODO: figure out an autoregister)
 register = [
@@ -55,17 +63,50 @@ class Command(object):
     # Abstract class, not meant to actually as anything other than a
     # base class
     
-    def __init__(self, anima, raw_cmd, tokens=None):
+    def __init__(self, anima, raw_cmd, tokens=None, remote=False):
+        """
+        Calling a command remotely (by setting remote=True)
+        bypasses validation and returns only
+        the output. This is useful when using bots
+        """
         self.anima = anima
         self.raw_cmd = raw_cmd
-        if tokens:
+        self.remote = remote
+        if tokens is not None:
             self.tokens = tokens
         else:
-            self.tokens = filter(None, raw_cmd.split(' '))[1:]
+            tokens = filter(None, raw_cmd.split(' '))
+            if len(tokens) == 1: # singleton commands like 'help', 'east'
+                self.tokens = []
+            else:
+                self.tokens = tokens[1:]
 
-    @validate
+    def validate_input(self):
+        template_tokens = self.template.split(' ')[1:]
+        # exclude optional arguments
+        required_tokens = filter(
+            lambda x: x and not (x[0] == '[' and x[-1] == ']'),
+            template_tokens
+        )
+        if len(self.tokens) < len(required_tokens):
+            return "%s\nUsage: %s" % (self.raw_cmd, self.template)
+
+        return True
+
     def execute(self):
+        validation = self.validate_input()
+        
+        if validation != True:
+            # validation failed if the function returned anything
+            # other than True
+            if self.remote:
+                return validation
+            else:
+                self.anima.notify(validation)
+                return ['log']
+        
         result = self._execute()
+        
         if result is None:
             # silent command
             return []
@@ -76,7 +117,10 @@ class Command(object):
                 deltas.append('log')
         else:
             output, deltas = result, ['log']
-            
+
+        if self.remote:
+            return output
+        
         self.anima.notify("%s\n%s" % (self.raw_cmd, output))
         
         return deltas
@@ -292,16 +336,16 @@ class Help(Command):
         # builder help
         if self.anima.builder_mode:
             commands += "\nBuilder commands:\n%s" \
-                         % ''.join([" %s\n" % i for i in builders.register])
+                         % ''.join([" %s\n" % i for i in builder_register])
 
         return commands
     
     def topic_help(self):
         topic = self.tokens[0].lower()
         cls_name = topic[0].upper() + topic[1:].lower()
-        if self.anima.builder_mode and topic in builders.register:
-            cls = getattr(builders, cls_name)
-        elif topic in register:
+        if (self.anima.builder_mode and topic in builder_register) or \
+           topic in register:
+        
             cls = globals()[cls_name]
         else:
             return ("Can't get help topic because command doesn't exist: "
@@ -310,6 +354,9 @@ class Help(Command):
         return "Usage: %s\n%s" % (cls.template, cls.__doc__)
 
     def _execute(self):
+        from stark.apps.commands import builders
+        self.builders = builders
+        
         if len(self.tokens) == 0:
             return self.general_help()
         else:
@@ -473,3 +520,85 @@ class Wield(Wear):
     
     template = "wield <weapon>"
 
+
+# ------ BUILDERS ONLY ----
+
+builder_register = [
+    'list',
+    'load',
+    'jump',
+]
+
+def _get_world_model_for_type(type):
+    # DRY
+    # convert the type to the corresponding world model
+    type = type[0].upper() + type[1:].lower()
+    try:
+        model = getattr(world_models, type)
+        return model
+    except AttributeError:
+        return None
+
+class List(Command):
+    """List all item bases of a given type"""    
+    template = "list <type>"
+    
+    def _execute(self):
+        model = _get_world_model_for_type(self.tokens[0])
+        if not model:
+            return "No such type '%s'" % self.tokens[0]
+
+        output = []
+        for item in model.objects.all():
+            output.append("- %s [%s]" % (item.name, item.id))
+        return '\n'.join(output)
+
+class Load(Command):
+    """Load an instance of a given base"""
+    template = "load <type> <id>"
+
+    def _execute(self):
+            model = _get_world_model_for_type(self.tokens[0])
+            if not model:
+                return "No such type '%s'" % self.tokens[0]
+
+            # get the base
+            try:
+                base = model.objects.get(pk=self.tokens[1])
+            except o.DoesNotExist:
+                return "No such %s ID: %s" % (self.tokens[0], self.tokens[1])
+
+            # all is well, load the item
+            ItemInstance.objects.create(base=base, owner=self.anima)
+            self.anima.room.notify("%s makes a %s out of thin air." %
+                                    (self.anima.get_name(), base.name))
+            return "You make a %s out of thin air " % base.name, ['player']
+
+class Jump(Command):
+    """Jump to the given room ID or x/y coordinates. If passing x/y, usage is: jump <x> <y>"""
+    template = "jump <room_id>"
+
+    def _execute(self):
+        # get the room to jump to based on input
+        if len(self.tokens) == 1: # room_id
+            try:
+                room = Room.objects.get(pk=self.tokens[0])
+            except Room.DoesNotExist:
+                return "No such room ID: %s" % self.tokens[0]
+        else: # x y coords
+            try:
+                room = Room.objects.get(xpos=self.tokens[0],
+                                        ypos=self.tokens[1])
+            except Room.DoesNotExist:
+                return "No room exists at coordiates (%s, %s)" % (
+                                            self.tokens[0], self.tokens[1])
+        
+        # jump to the room
+        self.anima.room = room
+        self.anima.save()
+        room.notify(
+            '%s disappears in a cloud of white smoke.' % self.anima.get_name(),
+            exclude=[self.anima]
+        )
+
+        return "You jump to %s" % room.get_name(), ['room']

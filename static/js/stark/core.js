@@ -1,4 +1,5 @@
 var last_pulse = false;
+
 var beat = function() {
     /*
       Central dispatching function for the client side. Runs every
@@ -20,18 +21,21 @@ var beat = function() {
     // pulse every 2 seconds
     var now = new Date();
     now = Number(now.getTime());
-    if (typeof(stark) != 'undefined' && (!last_pulse || now - last_pulse > 2000)) {
+    if (!last_pulse || now - last_pulse > 2000) {
         send_pulse();
         last_pulse = now;
         return
     } else {
         // not a pulse, process a command if there is need
-        if (queue.length == 0) { return; }
-        send_command();
+        if (queue.length > 0) {
+            send_command();
+            return
+        }
     }
 }
 
 var send_load = function() {
+    //$(stark).attr('status', 'loading');
     if (typeof(stark) == 'undefined') {
         stark = { status: 'loading' }
     } else {
@@ -46,59 +50,61 @@ var send_load = function() {
             
             // because of a current piston shortcoming
             var _temp = stark.room.room;
-            var _signature = stark.room.signature;
+            var _signature = $(stark.room).attr('signature');
             stark.room = _temp;
             stark.room.signature = _signature;
             _temp = stark.player.player;
-            _signature = stark.player.signature;
+            _signature = $(stark.player).attr('signature');
             stark.player = _temp;
             stark.player.signature = _signature;
-            
             stark.pulses_sent = 0;
             stark.pulses_received = 0;
+            pulse_tracker = [];
             render_room();
             render_player();
             render_log();
             stark.status = 'loaded';
-            alert('ok');
-            render_builder();
-            alert('ok2');
+            if ($(stark.player).attr('builder_mode')) {
+                render_builder();
+            }
         }
     });
 }
 
+var pulse_id = 0;
+var pulse_queue = [];
 var send_pulse = function() {
-    if (typeof(stark.status) != 'undefined') {
-        $("#game_status").html(stark.status);
-    }
+    $("#game_status").html($(stark).attr('status'));
     
     var data = {};
     // caching
-    if (stark.log.length) {
+    try {
         data['last_log'] = stark.log[stark.log.length - 1].id;
+    } catch(e) {
+        data['last_log'] = 0;
     }
     data['room_sig'] = stark.room.signature;
     data['player_sig'] = stark.player.signature;
     
-    // stark.pulses_sent += 1;
+    pulse_queue.push(pulse_id++);
     $.get("/api/pulse/", data, function(stark_delta) {
-
         // pulse is a syncing call
         sync_stark.call(this, stark_delta);
-
-        // reporting
-        /* disabled for now because I don't quite have a grip on the ramifications of doing this
-        stark.pulses_received += 1;
-        var pulse_ratio = 0;
-        if (stark.pulses_sent) {
-            var sent = stark.pulses_sent;
-            var received = stark.pulses_received;
-            pulse_ratio = 1 - (sent - received) / sent;
-        }
-        $("#pulse_ratio").html(pulse_ratio);
-        */ 
-        
+        pulse_queue.pop(0);
     }, dataType="json");
+    
+    if (pulse_id) {
+        if (pulse_queue.length < 2) {
+            $("#game_status").html('connected');
+        } else {
+            $("#game_status").html('disconnected');
+        }
+        if (pulse_id == 5) {
+            pulse_id = 1;
+            pulse_queue = [1];
+        }
+    }
+
 }
 
 var send_command = function() {
@@ -111,7 +117,9 @@ var send_command = function() {
         dataType: "json",  
         success: function(stark_delta) {
             sync_stark.call(this, stark_delta);
-            render_builder();
+            if ($(stark.player).attr('builder_mode')) {
+                render_builder();
+            }
         }
     });    
 }

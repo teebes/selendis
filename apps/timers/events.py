@@ -8,6 +8,7 @@ from django.db import transaction
 from stark import config
 from stark.apps.anima.models import Mob, MobLoader, Player, Message, Anima
 from stark.apps.anima.utils import tick_regen
+from stark.apps.commands import execute_command
 from stark.apps.world.models import RoomConnector, Room, ItemInstance
 
 # base event class
@@ -38,7 +39,9 @@ class Tick(PeriodicEvent):
         # move mobs
         for mob in Mob.objects.exclude(static=True).exclude(template=True):
             if random.randint(0, 10) == 0:
-                mob.move(random=True)
+                # get a random available direction
+                direction = mob.room.from_room.all().order_by('?')[0].direction
+                execute_command(mob, direction)
             
     @transaction.commit_on_success
     def regen(self):

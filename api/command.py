@@ -5,9 +5,8 @@ from piston.handler import BaseHandler
 from piston.utils import rc
 
 from stark.api import handlers as rest_api
-from stark.apps import commands as player_commands
+from stark.apps import commands
 from stark.apps.anima.models import Player, Message
-from stark.apps.commands import builders as builder_commands
 from stark.apps.world.utils import draw_map
 from stark.apps.timers import check_pulse
 
@@ -193,10 +192,9 @@ class UserInputHandler(BaseHandler):
             class_name = sub[0].upper() + sub[1:].lower()
     
             # get the command object
-            if sub in player_commands.register:
-                cmd_class = getattr(player_commands, class_name)
-            elif player.builder_mode and sub in builder_commands.register:
-                cmd_class = getattr(builder_commands, class_name)
+            if sub in commands.register or \
+               (player.builder_mode and sub in commands.builder_register):
+                cmd_class = getattr(commands, class_name)
             else:
                 return "%s\nInvalid command: '%s'" % (raw_cmd, sub)
         

@@ -351,29 +351,28 @@ class MobLoader(models.Model):
             if not roll_percent(self.spawn_chance):
                 break
             for room in self.spawn_in.all():
-                # There are two saves here because the mob first loads in the
-                # void and then is moved to the correct room so that players
-                # do not see the wear messages
+
                 mob = self.template_mob
                 mob.id = None
-                mob.room = Room.objects.get(pk=1)
                 mob.template = False
+                mob.room = Room.objects.get(pk=1)
                 mob.save()
-
-                self.spawned_mobs.add(mob)
 
                 for attribute in ['armor', 'weapon', 'misc', 'sustenance']:
                     for base in getattr(self, attribute).all():
                         item = ItemInstance.objects.create(owner = mob,
                                                            base = base)
-
-                mob.command('wear all')
+                        # if there is a free space in a slot, wear the item
+                        if not getattr(mob, item.base.slot):
+                            setattr(mob, item.base.slot, item)
 
                 mob.hp = mob.max_hp
     
                 mob.room = room
                 mob.save()
-                    
+
+                self.spawned_mobs.add(mob)
+
     
 class Message(models.Model):
     created = models.DateTimeField(default=datetime.datetime.now,

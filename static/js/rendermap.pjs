@@ -5,9 +5,8 @@ void setup()
     frameRate(5);
 }
 
-/*
 void keyPressed() {
-    if (typeof(stark) != 'undefined' && !stark.player.builder_mode) {
+    if (!$(stark.player).attr('builder_mode')) {
         if (key == CODED) {
             if (keyCode == UP) { process_command('north'); }
             else if (keyCode == RIGHT) { process_command('east'); }
@@ -16,7 +15,6 @@ void keyPressed() {
         }
     }
 }
-*/
 
 var size = 12;
 var margin = 10;
@@ -75,7 +73,7 @@ void draw()
 {
 
     background(#EEEEEE);
-    if (typeof(stark) != 'undefined' && typeof(stark.map) != 'undefined') {
+    if ($(stark).attr('map')) {
         var is_player_room;
         $.each(stark.map, function(key, object) {
             // don't render hidden rooms or anything that's not a room
@@ -83,9 +81,8 @@ void draw()
             if (!object.type || object.type == 'hidden') { return true; }
 
             is_player_room = false;
-            if (typeof(stark.room) != 'undefined' &&
-                stark.room.xpos == object.xpos &&
-                stark.room.ypos == object.ypos) {
+            if ($(stark.room).attr('xpos') == object.xpos &&
+                $(stark.room).attr('ypos') == object.ypos) {
                 
                 is_player_room = true;
             }
