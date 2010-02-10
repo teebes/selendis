@@ -90,6 +90,7 @@ var send_pulse = function() {
     $.get("/api/pulse/", data, function(stark_delta) {
         // pulse is a syncing call
         sync_stark.call(this, stark_delta);
+        //sync_stark(stark_delta);
         pulse_queue.pop(0);
     }, dataType="json");
     
@@ -125,17 +126,17 @@ var send_command = function() {
 }
 
 var sync_stark = function(stark_delta) {
-    if (stark_delta == 'OK') {
-        // nothing needs to sync, just return
-        return
-    }
+    // sanity check on input
+    if (stark_delta === null) { return; }
+    
+    // nothing needs to sync
+    if (stark_delta == 'OK') { return }
 
     /* Overwrites the stark object's nodes with the provided nodes
        and calls the appropriate renderer(s) */
 
-    render = new Array();
+    var render = [];
     $.each(stark_delta, function(key, value) {
-        
         // because of a current piston shortcoming
         if (key.toLowerCase() == 'room') {
             var _signature = value.signature;
@@ -156,11 +157,11 @@ var sync_stark = function(stark_delta) {
             render.push('log');
         }
     });
-    
-    $.each(render, function() {
-        if (this == 'room') { render_room(); }
-        if (this == 'log') { render_log(); }
-        if (this == 'player') { render_player(); }
+
+    $.each(render, function(index, value) {
+        if (value == 'room') { render_room(); }
+        if (value == 'log') { render_log(); }
+        if (value == 'player') { render_player(); }
     });
 }
 

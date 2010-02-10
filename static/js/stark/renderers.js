@@ -83,7 +83,7 @@ render_player = function() {
     $("#perc_hp").html(Math.round(stark.player.hp / stark.player.max_hp * 100));
     $("#current_mp").html(stark.player.mp);
     $("#perc_mp").html(Math.round(stark.player.mp / stark.player.max_mp * 100));
-
+    
     // equipment
     $.each(stark.player.equipment, function(key, value) {
         var span_id = "player_" + key;
@@ -100,14 +100,13 @@ render_player = function() {
 
     //inventory
     $("#player_inventory").empty();
-    if (typeof(stark.player.inventory) != "undefined") {
-        $.each(stark.player.inventory, function() {
-            var line = $("<div></div>");
-            //line.append(item_link(this));
-    
-            //line.appendTo("#player_inventory");
-        });
-    }
+    $.each(stark.player.inventory, function(index, value) {
+        var line = $("<div></div>");
+        line.append(item_link(value));
+
+        line.appendTo("#player_inventory");
+    });
+
 
 }
 

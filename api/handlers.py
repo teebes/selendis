@@ -285,31 +285,34 @@ class MapHandler(BaseHandler):
 class PlayerHandler(BaseHandler):
     allowed_methods = ('GET',)
     model = Player
-    fields = [
+    fields = (
         'id',
         'name',
         'level',
         'hp',
         'max_hp',
-    ]
+        # private fields
+        'builder_mode',
+        'items',
+        'mp',
+        'max_mp',
+        'experience',
+        'next_level',
+        'equipment',
+        'inventory',
+        'target',
+        'capacity'
+    )
 
     def read(self, request, id):
         player = Player.objects.get(pk=id)
-
-        if player.user == request.user:
-            self.fields += [
-                'builder_mode',
-                'items',
-                'mp',
-                'max_mp',
-                'experience',
-                'next_level',
-                'equipment',
-                'inventory',
-                'target',
-            ]
-
-        return player    
+        
+        # temporary, because for now I can't figure out how to seperate out
+        # the private fields
+        if player.user != request.user:
+            return rc.FORBIDDEN
+        
+        return player
 
 class MessageHandler(BaseHandler):
     allowed_methods = ('GET', 'POST')

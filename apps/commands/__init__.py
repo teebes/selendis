@@ -1,5 +1,7 @@
+from django.db import transaction
+
 from stark.apps.anima.models import Player, Mob
-from stark.apps.world.models import Room, RoomConnector
+from stark.apps.world.models import Room, RoomConnector, ItemInstance
 from stark.apps.world import models as world_models
 from stark.apps.world.utils import find_items_in_container, can_hold_item, rev_direction
 
@@ -25,6 +27,7 @@ register = [
     'remove',
     'say',
     'south',
+    'tell',
     'wear',
     'west',
     'wield',
@@ -93,6 +96,7 @@ class Command(object):
 
         return True
 
+    @transaction.commit_on_success
     def execute(self):
         validation = self.validate_input()
         
@@ -160,8 +164,7 @@ class Direction(Command):
         # unless a mob or a player in builder mode,
         # check for move points and deduct points
         if not (self.anima.__class__ == Mob or
-                hasattr(self.anima, 'builder_mode') and
-                self.anima.builder_mode == True):
+                getattr(self.anima, 'builder_mode', False)):
             if self.anima.mp < MOVE_COST:
                 return "Not enough movement points to move."
             else:
@@ -301,7 +304,7 @@ class Give(Command):
 
         # find the target in the room
         target = None
-        for player in self.room.player_related.all():
+        for player in self.anima.room.player_related.all():
             if self.tokens[1] in (player.id, player.name):
                 target = player
                 break
@@ -313,7 +316,7 @@ class Give(Command):
         room_msg = []
         for item in items:
             # weight check
-            if can_hold_item(item, target):
+            if can_hold_item(target, item):
                 output.append("You give %s to %s" % (item.get_name(),
                                                      target.get_name()))
                 item.owner = self.anima
@@ -334,7 +337,7 @@ class Help(Command):
                         % ''.join([" %s\n" % i for i in register])
 
         # builder help
-        if self.anima.builder_mode:
+        if getattr(self.anima, 'builder_mode', False):
             commands += "\nBuilder commands:\n%s" \
                          % ''.join([" %s\n" % i for i in builder_register])
 
@@ -343,7 +346,7 @@ class Help(Command):
     def topic_help(self):
         topic = self.tokens[0].lower()
         cls_name = topic[0].upper() + topic[1:].lower()
-        if (self.anima.builder_mode and topic in builder_register) or \
+        if (getattr(self.anima, 'builder_mode', False) and topic in builder_register) or \
            topic in register:
         
             cls = globals()[cls_name]
@@ -384,7 +387,7 @@ class Kill(Command):
 class North(Direction):
     """Moves the player one room to the north"""
     template = "north"
-    delta = (0, -1)
+    delta = (0, -1)    
 
 class Put(Command):
     """Put an item in a container such as a bag."""
@@ -467,6 +470,20 @@ class South(Direction):
     template = "south"
     delta = (0, 1)
 
+class Tell(Command):
+    """Send a direct message to a player"""
+    template = "tell <player> <msg>"
+    
+    def _execute(self):
+        try:
+            target = Player.objects.get(name=self.tokens[0],
+                                        status='logged_in')
+        except Player.DoesNotExist:
+            return "No-one by the name '%s' here." % self.token[0]
+        msg = ' '.join(self.tokens[1:])
+        target.notify("%s tells you '%s'" % (self.anima.get_name(), msg))
+        return "You tell %s '%s'" % (self.tokens[0], msg)
+
 class Wear(Command):
     """Wear a piece of equipment"""
     
@@ -524,52 +541,8 @@ builder_register = [
     'list',
     'load',
     'jump',
+    'order',
 ]
-
-def _get_world_model_for_type(type):
-    # DRY
-    # convert the type to the corresponding world model
-    type = type[0].upper() + type[1:].lower()
-    try:
-        model = getattr(world_models, type)
-        return model
-    except AttributeError:
-        return None
-
-class List(Command):
-    """List all item bases of a given type"""    
-    template = "list <type>"
-    
-    def _execute(self):
-        model = _get_world_model_for_type(self.tokens[0])
-        if not model:
-            return "No such type '%s'" % self.tokens[0]
-
-        output = []
-        for item in model.objects.all():
-            output.append("- %s [%s]" % (item.name, item.id))
-        return '\n'.join(output)
-
-class Load(Command):
-    """Load an instance of a given base"""
-    template = "load <type> <id>"
-
-    def _execute(self):
-            model = _get_world_model_for_type(self.tokens[0])
-            if not model:
-                return "No such type '%s'" % self.tokens[0]
-
-            # get the base
-            try:
-                base = model.objects.get(pk=self.tokens[1])
-            except o.DoesNotExist:
-                return "No such %s ID: %s" % (self.tokens[0], self.tokens[1])
-
-            # all is well, load the item
-            ItemInstance.objects.create(base=base, owner=self.anima)
-            self.anima.room.notify("%s makes a %s out of thin air." %
-                                    (self.anima.get_name(), base.name))
-            return "You make a %s out of thin air " % base.name, ['player']
 
 class Jump(Command):
     """Jump to the given room ID or x/y coordinates. If passing x/y, usage is: jump <x> <y>"""
@@ -599,3 +572,60 @@ class Jump(Command):
         )
 
         return "You jump to %s" % room.get_name(), ['room']
+
+def _get_world_model_for_type(type):
+    # DRY - used by both List and Load
+    # convert the type to the corresponding world model
+    type = type[0].upper() + type[1:].lower()
+    try:
+        model = getattr(world_models, type)
+        return model
+    except AttributeError:
+        return None
+
+class List(Command):
+    """List all item bases of a given type"""    
+    template = "list <type>"
+    
+    def _execute(self):
+        model = _get_world_model_for_type(self.tokens[0])
+        if not model:
+            return "No such type '%s'" % self.tokens[0]
+
+        output = []
+        for item in model.objects.all():
+            output.append("- %s [%s]" % (item.name, item.id))
+        return '\n'.join(output)
+
+class Load(Command):
+    """Load an instance of a given base"""
+    template = "load <type> <id>"
+
+    def _execute(self):
+        model = _get_world_model_for_type(self.tokens[0])
+        if not model:
+            return "No such type '%s'" % self.tokens[0]
+
+        # get the base
+        try:
+            base = model.objects.get(pk=self.tokens[1])
+        except o.DoesNotExist:
+            return "No such %s ID: %s" % (self.tokens[0], self.tokens[1])
+
+        # all is well, load the item
+        ItemInstance.objects.create(base=base, owner=self.anima)
+        self.anima.room.notify("%s makes a %s out of thin air." %
+                                (self.anima.get_name(), base.name))
+        return "You make a %s out of thin air " % base.name, ['player']
+
+class Order(Command):
+    """Make a mob execute the given command"""
+    template = "order <mob> <cmd>"
+    
+    def _execute(self):
+        for mob in self.anima.room.mob_related.all():
+            if self.tokens[0] in [mob.id] + mob.get_name().split(' '):
+                execute_command(mob, ' '.join(self.tokens[1:]), remote=True)
+                break
+
+        return None

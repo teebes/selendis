@@ -101,36 +101,21 @@ class Fetcher(object):
         
         if not self.cache:
             return output
-        try:
+
+        # player caching is based on level, hp, mp, inventory & equipment
+        current_sig = getattr(self.request, self.request.method).get('player_sig')
+        if current_sig:
+            new_sig = "%s-%s-%s-%s-%s" % (
+                player.level,
+                player.hp,
+                player.mp,
+                sum(map(lambda x: x.id, player.inventory)),
+                sum([i.id for i in player.equipment.values() if i]),
+            )
+            if current_sig == new_sig:
+                return None
             
-            # reduce function for queryset signatures
-            def reduce_ids(x, y):
-                # should work for both inventory and equipment
-                if not x: # for empty slots
-                    x = 0
-                if not y: # for empty slots
-                    y = 0
-                if type(x) != int:
-                    x = x.id
-                if type(y) != int:
-                    y = y.id
-                return x + y
-            # player caching is based on level, hp, mp, inventory & equipment
-            current_sig = getattr(self.request, self.request.method).get('player_sig')
-            if current_sig:
-                new_sig = "%s-%s-%s-%s-%s" % (
-                    player.level,
-                    player.hp,
-                    player.mp,
-                    reduce(reduce_ids, player.inventory or [0]),
-                    reduce(reduce_ids, player.equipment.values() or [0]),
-                )
-                if current_sig == new_sig:
-                    return None
-                
-                output['signature'] = new_sig
-        except Exception, e:
-            print e
+            output['signature'] = new_sig
         
         return output
         
@@ -140,28 +125,24 @@ class Fetcher(object):
         if not self.cache:
             return messages
 
-        try:
-            # weak caching scenarios
-            last_log = getattr(self.request, self.request.method).get('last_log')
-            if last_log:
-                try:
-                    message = messages.get(pk=last_log)
-                    timestamp = message.created
-                    new_messages = messages.filter(created__gt=timestamp)
-                    if not new_messages:
-                        return None
-                    else:
-                        return messages
-                        # return the messages that weren't yet included
-                        return new_messages
-                except Message.DoesNotExist:
-                    # that message ID doesn't even exist, refresh with what there is
+        # caching scenarios
+        last_log = getattr(self.request, self.request.method).get('last_log')
+        if last_log:
+            try:
+                message = messages.get(pk=last_log)
+                timestamp = message.created
+                new_messages = messages.filter(created__gt=timestamp)
+                if not new_messages:
+                    return None
+                else:
                     return messages
-            if not messages:
-                return None                    
-        except Exception, e:
-            print e
-            raise
+                    # return the messages that weren't yet included
+                    return new_messages
+            except Message.DoesNotExist:
+                # that message ID doesn't even exist, refresh with what there is
+                return messages
+        if not messages:
+            return None
 
         return messages
 
