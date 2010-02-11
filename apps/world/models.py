@@ -22,8 +22,8 @@ class RoomConnector(models.Model):
 
 class Room(models.Model):
     zone = models.ForeignKey(Zone, related_name='rooms')
-    xpos = models.IntegerField(blank=False)
-    ypos = models.IntegerField(blank=False)
+    xpos = models.IntegerField()
+    ypos = models.IntegerField()
     name = models.CharField(max_length=80, blank=False)
     description = models.TextField(blank=True)
     notes = models.TextField(blank=True)

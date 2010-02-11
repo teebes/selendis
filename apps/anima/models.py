@@ -275,6 +275,11 @@ class Player(Anima):
     status = models.CharField(max_length=20, choices=PLAYER_STATUSES)
     last_activity = models.DateTimeField(blank=True, null=True)
 
+    map_center_x = models.IntegerField(default=0)
+    map_center_y = models.IntegerField(default=0)
+    map_center_z = models.IntegerField(default=0)
+    map_width = models.IntegerField(default=10)
+
     def die(self, killer=None):
         self.target = None
         self.hp = 1

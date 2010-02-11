@@ -3,7 +3,7 @@ from django.db import transaction
 from stark.apps.anima.models import Player, Mob
 from stark.apps.world.models import Room, RoomConnector, ItemInstance
 from stark.apps.world import models as world_models
-from stark.apps.world.utils import find_items_in_container, can_hold_item, rev_direction
+from stark.apps.world.utils import find_items_in_container, can_hold_item, rev_direction, find_actionable_item
 
 def execute_command(anima, raw_cmd, remote=False):
     tokens = filter(None, raw_cmd.split(' '))
@@ -39,28 +39,6 @@ register = [
 # - look
 
 MOVE_COST = 2
-
-def find_container(anima, keyword):
-    """
-    Finds a container by searching through the eq, inv and the room
-    (in that order)
-    """
-    # get eq, filter out empty slots
-    eq = filter(None, anima.equipment.values())
-    container = find_items_in_container(keyword, eq,
-                                        find_container=True)
-    # - then the inv
-    if not container:
-        container = find_items_in_container(keyword,
-                                            anima.inventory,
-                                            find_container=True)
-    # - then the room
-    if not container:
-        container = find_items_in_container(keyword,
-                                            anima.room.items.all(),
-                                            find_container=True)        
-    
-    return container
 
 class Command(object):
     # Abstract class, not meant to actually as anything other than a
@@ -271,9 +249,12 @@ class Get(Command):
 
     def get_from_container(self):
         # get the container
-        containers = find_container(self.anima, self.tokens[1])
+        containers = find_actionable_item(self.anima, self.tokens[1])
+        
         if not containers:
-            return "No such container: %s" % self.tokens[1]
+            return "No such item: %s" % self.tokens[1]
+        elif not containers[0].base.capacity:
+            return "%s is not a container" % self.tokens[1]
         
         # get the item from the first found container
         # TODO: decide what to do about multiple containers here
@@ -402,9 +383,12 @@ class Put(Command):
             return ("You are not carrying a '%s'" % self.tokens[0])
         
         # find the container
-        containers = find_container(self.anima, self.tokens[1])
+        containers = find_actionable_item(self.anima, self.tokens[1])
+
         if not containers:
-            return "No such container: %s" % self.tokens[1]
+            return "No such item: %s" % self.tokens[1]
+        elif not containers[0].base.capacity:
+            return "%s is not a container" % self.tokens[1]
             
         room_msg = []
         source_msg = []
@@ -614,9 +598,10 @@ class Load(Command):
 
         # all is well, load the item
         ItemInstance.objects.create(base=base, owner=self.anima)
-        self.anima.room.notify("%s makes a %s out of thin air." %
-                                (self.anima.get_name(), base.name))
-        return "You make a %s out of thin air " % base.name, ['player']
+        self.anima.room.notify("%s makes %s out of thin air." %
+                                (self.anima.get_name(), base.name),
+                                exclude=[self.anima])
+        return "You make %s out of thin air " % base.name, ['player']
 
 class Order(Command):
     """Make a mob execute the given command"""

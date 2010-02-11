@@ -125,7 +125,7 @@ p.spaced { margin-bottom: 10px; }
     overflow: auto;
 }
     #room_box div {
-        margin-bottom: 5px;
+        margin-bottom: 0px;
     }
     
 #builder_box {

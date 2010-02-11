@@ -63,7 +63,17 @@ class Fetcher(object):
         return stark
 
     def get_map(self):
-        return draw_map(0, 0, 10)
+        width = 10
+        
+        # see if the map needs to be adjusted
+        if None: pass
+        
+        #if abs(self.player.room.xpos - self.player.map_center_x) >= 3:
+        #    pass
+        
+        return draw_map(self.player.map_center_x,
+                        self.player.map_center_y,
+                        self.player.map_width)
     
     def get_room(self):
         room = rest_api.RoomHandler().read(self.request,

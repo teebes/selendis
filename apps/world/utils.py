@@ -24,6 +24,28 @@ def can_hold_item(carrier, item):
     free_room = carrier.capacity - get_container_weight(carrier)
     return free_room > item.total_weight()
 
+def find_actionable_item(anima, keyword):
+    """
+    Finds an item that can be interacted with, withinin the anima's
+    environment.
+    Environment is eq, inv and room
+    """
+    
+    # get eq, filter out empty slots
+    eq = filter(None, anima.equipment.values())
+    container = find_items_in_container(keyword, eq)
+    
+    # - then the inv
+    if not container:
+        container = find_items_in_container(keyword,
+                                            anima.inventory)
+    # - then the room
+    if not container:
+        container = find_items_in_container(keyword,
+                                            anima.room.items.all())
+
+    return container
+
 def find_items_in_container(keyword, container, find_container=False):
     """
     Find one or more items from a container.
