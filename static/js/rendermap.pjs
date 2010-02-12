@@ -2,9 +2,9 @@ void setup()
 {
     stroke(0);
     strokeWeight(1);
-    frameRate(5);
+    frameRate(15);
 }
-
+/*
 void keyPressed() {
     if (!$(stark.player).attr('builder_mode')) {
         if (key == CODED) {
@@ -15,30 +15,36 @@ void keyPressed() {
         }
     }
 }
-
+*/
+/*
 var size = 12;
-var margin = 10;
+var spacing = 10;
+var margin = 5;
 
-var draw_room = function(room, is_player_room) {
-    // determine the true x starting position of the room int he canvas
-    true_x = (room.xpos + Math.round(stark.map.width / 2) - stark.map.x) * (size + margin);
-    true_y = (room.ypos + Math.round(stark.map.height / 2) - stark.map.y) * (size + margin);
+var draw_room = function(room, mapcenter, is_player_room) {
+    // determine the true x starting position of the room in the canvas
+    true_x = (room.xpos + Math.round(stark.map.width / 2) - stark.map.x) * (size + spacing);
+    true_y = (room.ypos + Math.round(stark.map.height / 2) - stark.map.y)) * (size + spacing);
+
+    // margin
+    true_x = true_x + margin;
+    true_y = true_y - margin;
 
     // connectors
     if (room.north == 'Normal') {
         line(true_x + Math.round(size / 2), true_y,
-             true_x + Math.round(size / 2), true_y - Math.round(margin / 2));
+             true_x + Math.round(size / 2), true_y - Math.round(spacing / 2));
     }
     if (room.east == 'Normal') {
         line(true_x + size, true_y + Math.round(size / 2),
-             true_x + size + Math.round(margin / 2), true_y + Math.round(size / 2));
+             true_x + size + Math.round(spacing / 2), true_y + Math.round(size / 2));
     }
     if (room.south == 'Normal') {
         line(true_x + Math.round(size / 2), true_y + size,
-             true_x + Math.round(size / 2), true_y + size + Math.round(margin / 2));
+             true_x + Math.round(size / 2), true_y + size + Math.round(spacing / 2));
     }
     if (room.west == 'Normal') {
-        line(true_x - Math.round(margin / 2), true_y + Math.round(size / 2),
+        line(true_x - Math.round(spacing / 2), true_y + Math.round(size / 2),
              true_x, true_y + Math.round(size / 2));
     }
     
@@ -68,12 +74,34 @@ var draw_room = function(room, is_player_room) {
     strokeWeight(1);
 
 }
+ */
+
+// the variable holding the stark x / y map center position that will
+// actually get displayed, which may vary from the stark.map values for
+// example in the case of a map shift where the animation needs to be smooth
+//var map_center;
 
 void draw() 
 {
-
+/*
     background(#EEEEEE);
     if ($(stark).attr('map')) {
+        
+        
+        // smooth motion animation
+        if (!map_center) { // initialization
+            map_center = {
+                x: stark.map.x,
+                y: stark.map.y
+            }
+        } else {
+            if (map_center.x > stark.map.x) { map_center.x--; }
+            if (map_center.x < stark.map.x) { map_center.x++; }
+            if (map_center.y > stark.map.y) { map_center.y--; }
+            if (map_center.y < stark.map.y) { map_center.y++; }
+        }
+        
+        
         var is_player_room;
         $.each(stark.map, function(key, object) {
             // don't render hidden rooms or anything that's not a room
@@ -87,8 +115,9 @@ void draw()
                 is_player_room = true;
             }
             
-            draw_room(object, is_player_room);
+            draw_room(object, {}, is_player_room);
 
         });
     }
+    */
 }

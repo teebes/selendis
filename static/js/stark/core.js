@@ -71,11 +71,7 @@ var send_load = function() {
     });
 }
 
-var pulse_id = 0;
-var pulse_queue = [];
-var send_pulse = function() {
-    $("#game_status").html($(stark).attr('status'));
-    
+var get_signatures = function() {
     var data = {};
     // caching
     try {
@@ -85,12 +81,22 @@ var send_pulse = function() {
     }
     data['room_sig'] = stark.room.signature;
     data['player_sig'] = stark.player.signature;
+    return data
+}
+
+var pulse_id = 0;
+var pulse_queue = [];
+var send_pulse = function() {
+    $("#game_status").html($(stark).attr('status'));
+    
+    // caching signatures
+    var data = get_signatures()
     
     pulse_queue.push(pulse_id++);
     $.get("/api/pulse/", data, function(stark_delta) {
         // pulse is a syncing call
         sync_stark.call(this, stark_delta);
-        //sync_stark(stark_delta);
+        // sync_stark(stark_delta);
         pulse_queue.pop(0);
     }, dataType="json");
     
@@ -111,10 +117,15 @@ var send_pulse = function() {
 var send_command = function() {
     var cmd = queue.shift();
 
+    // caching signatures
+    var data = get_signatures()
+    //var data = {}
+    data['command'] = cmd;
+
     $.ajax({
         type: "POST",
         url: "/api/command/",
-        data: { command: cmd },
+        data: data,
         dataType: "json",  
         success: function(stark_delta) {
             sync_stark.call(this, stark_delta);
@@ -147,7 +158,7 @@ var sync_stark = function(stark_delta) {
             value = value.player;
             value.signature = _signature;
         }
-        
+
         stark[key] = value;
         if (key.toLowerCase() == 'room') {
             render.push('room');

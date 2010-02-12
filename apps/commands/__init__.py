@@ -9,7 +9,7 @@ def execute_command(anima, raw_cmd, remote=False):
     tokens = filter(None, raw_cmd.split(' '))
     cmd = tokens.pop(0)
     cmd_class = globals()[cmd[0].upper() + cmd[1:].lower()]
-    cmd_object = cmd_class(anima, raw_cmd, tokens=tokens, remote=True)
+    cmd_object = cmd_class(anima, raw_cmd, tokens=tokens, remote=remote)
     return cmd_object.execute()
 
 

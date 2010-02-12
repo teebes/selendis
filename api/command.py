@@ -5,7 +5,7 @@ from piston.handler import BaseHandler
 from piston.utils import rc
 
 from stark.api import handlers as rest_api
-from stark.apps import commands
+from stark.apps.commands import execute_command
 from stark.apps.anima.models import Player, Message
 from stark.apps.world.utils import draw_map
 from stark.apps.timers import check_pulse
@@ -63,33 +63,47 @@ class Fetcher(object):
         return stark
 
     def get_map(self):
-        width = 10
+        """
+        This will return a map centered around the player either when
+        nothing is being cached (for example on initial load) or when
+        the player gets too far away from the center.
+        """
+        if not self.cache:
+            return draw_map(self.player.room.xpos,
+                            self.player.room.ypos,
+                            self.player.map_width)
         
-        # see if the map needs to be adjusted
-        if None: pass
-        
-        #if abs(self.player.room.xpos - self.player.map_center_x) >= 3:
-        #    pass
-        
-        return draw_map(self.player.map_center_x,
-                        self.player.map_center_y,
-                        self.player.map_width)
+        moved = False
+        if abs(self.player.room.xpos - self.player.map_center_x) >= 2:
+            self.player.map_center_x = self.player.room.xpos
+            moved = True
+        if abs(self.player.room.ypos - self.player.map_center_y) >= 2:
+            self.player.map_center_y = self.player.room.ypos
+            self.player.save()
+            moved = True
+        if moved:
+            return draw_map(self.player.room.xpos,
+                            self.player.room.ypos,
+                            self.player.map_width)
+        return None
     
     def get_room(self):
         room = rest_api.RoomHandler().read(self.request,
                                            id=self.player.room.id)
         output = {
             'room': room,
-            'signature': '0-0-0',
+            'signature': '0-0-0-0',
         }
         
         if not self.cache:
             return output
         
-        # room caching is based on comparing player, mobs and items presence
+        # room caching is based on id and
+        # comparing player, mobs and items presence in the room
         current_sig = getattr(self.request, self.request.method).get('room_sig')
         if current_sig:
-            new_sig = "%s-%s-%s" % (
+            new_sig = "%s-%s-%s-%s" % (
+                room.id,
                 sum(room.player_related.all().values_list('id', flat=True)),
                 sum(room.mob_related.all().values_list('id', flat=True)),
                 sum(room.items.all().values_list('id', flat=True)),
@@ -137,6 +151,9 @@ class Fetcher(object):
 
         # caching scenarios
         last_log = getattr(self.request, self.request.method).get('last_log')
+        if last_log == "0" and not messages:
+            # the client says they have nothing and we have nothing
+            return None
         if last_log:
             try:
                 message = messages.get(pk=last_log)
@@ -151,6 +168,7 @@ class Fetcher(object):
             except Message.DoesNotExist:
                 # that message ID doesn't even exist, refresh with what there is
                 return messages
+
         if not messages:
             return None
 
@@ -166,37 +184,12 @@ class UserInputHandler(BaseHandler):
     
             # get the raw command
             raw_cmd = request.POST.get('command')
-    
-            # split the command into tokens, ignoring extra blank spaces
-            tokens = filter(None, raw_cmd.split(' '))
-    
-            # grab the command name
-            sub = tokens.pop(0)
-            
-            # TODO: move these aliases to defaults in a broader alias system
-            if sub == 'n': sub = 'north'
-            if sub == 'e': sub = 'east'
-            if sub == 's': sub = 'south'
-            if sub == 'w': sub = 'west'
 
-            # convert sub to correctly formatted class name
-            class_name = sub[0].upper() + sub[1:].lower()
-    
-            # get the command object
-            if sub in commands.register or \
-               (player.builder_mode and sub in commands.builder_register):
-                cmd_class = getattr(commands, class_name)
-            else:
-                return "%s\nInvalid command: '%s'" % (raw_cmd, sub)
-        
-            # instanciate the command class
-            cmd_instance = cmd_class(player, raw_cmd, tokens=tokens)
+            # execute the command
+            deltas = execute_command(player, raw_cmd)
+            deltas.append('map')
+            return Fetcher(request, player, cache=True).fetch(deltas)
 
-            # execute the command object
-            deltas = cmd_instance.execute()
-            
-            # return the delta object
-            return Fetcher(request, player).fetch(deltas)
         except Exception, e:
             error = "Command Error: %s" % e
             pulse_log = logging.getLogger('StarkLogger')
@@ -209,7 +202,9 @@ class LoadHandler(BaseHandler):
     
     def read(self, request):
         player = Player.objects.get(user=request.user, status='logged_in')
-        return Fetcher(request, player).fetch(['map', 'room', 'player', 'log'])
+        return Fetcher(request, player).fetch(['room',
+                                               'player',
+                                               'log'])
         
 class PulseHandler(BaseHandler):
     allowed_method = ('GET',)
@@ -217,4 +212,7 @@ class PulseHandler(BaseHandler):
     def read(self, request):
         check_pulse()
         player = Player.objects.get(user=request.user, status='logged_in')
-        return Fetcher(request, player, cache=True).fetch(['log', 'room', 'player'])
+        return Fetcher(request, player, cache=True).fetch(['log',
+                                                           'room',
+                                                           'player',
+                                                           'map'])
