@@ -278,7 +278,6 @@ class Player(Anima):
     map_center_x = models.IntegerField(default=0)
     map_center_y = models.IntegerField(default=0)
     map_center_z = models.IntegerField(default=0)
-    map_width = models.IntegerField(default=10)
 
     def die(self, killer=None):
         self.target = None

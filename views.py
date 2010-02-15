@@ -91,7 +91,6 @@ def adx(request, input):
         return HttpResponse("error")
 
 def quick(request):
-    from stark.apps.commands import execute_command
-    player = Player.objects.get(status='logged_in', user=request.user)
-    output = execute_command(player, 'help', remote=True)
-    return HttpResponse(output)
+    if request.user.is_authenticated():
+        return HttpResponse("logged in")
+    return HttpResponse("logged out")

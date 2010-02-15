@@ -3,7 +3,50 @@ from django.forms.util import ErrorList
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth.models import User, check_password
 
+from stark import config
+from stark.apps.accounts.models import Preferences
 from stark.apps.anima.models import Player
+from stark.apps.world.models import Room
+
+class ChangeEmailForm(forms.Form):
+    email = forms.EmailField(required=True,
+                             help_text=("A confirmaton e-mail will be sent "
+                                        "to the new e-mail address"))
+    password = forms.CharField(
+                            required=True,
+                            widget=forms.PasswordInput(render_value=False),
+                            help_text="Enter your current password"
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        super(ChangeEmailForm, self).__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if not self.user.check_password(password):
+            raise forms.ValidationError('Password is incorrect')
+        return password
+
+class CreateCharacterForm(forms.Form):
+    name = forms.CharField(max_length=40)
+
+    def clean_name(self):
+        if Player.objects.filter(name=self.cleaned_data['name']):
+            raise forms.ValidationError('This character name is taken.')
+        return self.cleaned_data['name']
+
+    def save(self, user):
+        initial_room = Room.objects.get(pk=getattr(config, 'INITIAL_ROOM', 1))
+        player = Player.objects.create(user=user,
+                                       name=self.cleaned_data['name'],
+                                       status='logged_out',
+                                       builder_mode=False,
+                                       room=initial_room)
+
+        player.hp = player.max_hp
+        player.save()
+        player.update_level()
 
 class LoginForm(auth_forms.AuthenticationForm):
     # Inherits from contrib but also allows users to log in with their
@@ -13,15 +56,20 @@ class LoginForm(auth_forms.AuthenticationForm):
     def clean_username(self):
         username = self.cleaned_data['username']
         users = User.objects.filter(email=username)
-        
         # see if the user input matches an e-mail address
-        if users.count() == 1:
+        if len(users) == 1:
             username = users[0].username
-        elif users.count() > 1:
+        elif len(users) > 1:
             raise Exception("More than one user matched e-mail address %s"
                             % username)
         
         return username
+
+class PreferencesForm(forms.ModelForm):
+    class Meta:
+        model = Preferences
+        exclude = ('user', 'map_height')
+
 
 class SaveCharacterForm(forms.Form):
     username = forms.RegexField(
@@ -75,23 +123,3 @@ class SaveCharacterForm(forms.Form):
             self._errors['password'] = ErrorList(["Password and confirm don't match"])
             del data['password']
         return data
-
-class ChangeEmailForm(forms.Form):
-    email = forms.EmailField(required=True,
-                             help_text=("A confirmaton e-mail will be sent "
-                                        "to the new e-mail address"))
-    password = forms.CharField(
-                            required=True,
-                            widget=forms.PasswordInput(render_value=False),
-                            help_text="Enter your current password"
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super(ChangeEmailForm, self).__init__(*args, **kwargs)
-        self.user = user
-
-    def clean_password(self):
-        password = self.cleaned_data['password']
-        if not self.user.check_password(password):
-            raise forms.ValidationError('Password is incorrect')
-        return password

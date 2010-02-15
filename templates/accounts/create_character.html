@@ -1,0 +1,15 @@
+{% extends "accounts/base.html" %}
+
+{% block account_content %}
+
+<p>Choose the name of your new character:</p>
+
+<form action="" method="post" class='uniForm'>
+    {% load uni_form_tags %}
+    {{ form|as_uni_form }}
+
+    <input type='submit' value='Create Character' class='submitButton'/>
+
+</form>
+
+{% endblock %}

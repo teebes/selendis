@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from stark.apps.accounts.forms import SaveCharacterForm
+from stark.apps.accounts.forms import CreateCharacterForm, SaveCharacterForm
 from stark.apps.accounts.models import EmailConfirmation
 from stark.apps.accounts.utils import request_confirmation
 from stark.apps.anima.models import Player
@@ -14,6 +14,35 @@ def is_temporary(user):
         return True
     return False
 
+@login_required
+def create_character(request):
+    if request.method == 'POST':
+        form = CreateCharacterForm(request.POST)
+        if form.is_valid():
+            form.save(request.user)
+            return HttpResponseRedirect(reverse('accounts_index'))
+    else:
+        form = CreateCharacterForm()
+    return render_to_response("accounts/create_character.html", {
+        'form': form,
+    }, context_instance=RequestContext(request))
+
+@login_required
+def enter_realm(request, character=None):
+    # log all characters first
+    Player.objects.filter(user=request.user).update(status='logged_out')
+    character = Player.objects.get(user=request.user, name=character)
+    character.status = 'logged_in'
+    character.save()
+    return HttpResponseRedirect(reverse('index'))
+
+@login_required
+def exit_realm(request):
+    # even though only one player should be logged on at a time, we log
+    # all players off to be safe
+    Player.objects.filter(user=request.user).update(status='logged_out')
+    return HttpResponseRedirect(reverse("accounts_index"))
+    
 @login_required
 def save_character(request):
     # only temporary characters can be saved
@@ -50,19 +79,3 @@ def save_character(request):
         'player': player,
         'temporary_user': True,
     }, context_instance=RequestContext(request))
-
-@login_required
-def enter_realm(request, character=None):
-    # log all characters first
-    Player.objects.filter(user=request.user).update(status='logged_out')
-    character = Player.objects.get(user=request.user, name=character)
-    character.status = 'logged_in'
-    character.save()
-    return HttpResponseRedirect(reverse('index'))
-
-@login_required
-def exit_realm(request):
-    # even though only one player should be logged on at a time, we log
-    # all players off to be safe
-    Player.objects.filter(user=request.user).update(status='logged_out')
-    return HttpResponseRedirect(reverse("accounts_index"))

@@ -76,7 +76,7 @@ class Fetcher(object):
             self.player.save()
             return draw_map(self.player.room.xpos,
                             self.player.room.ypos,
-                            self.player.map_width)
+                            self.player.user.preferences.map_width)
         
         moved = False
         if abs(self.player.room.xpos - self.player.map_center_x) >= 3:
@@ -89,7 +89,7 @@ class Fetcher(object):
             self.player.save()            
             return draw_map(self.player.map_center_x,
                             self.player.map_center_y,
-                            self.player.map_width)
+                            self.player.user.preferences.map_width)
         return None
     
     def get_room(self):

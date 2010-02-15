@@ -18,7 +18,6 @@ urlpatterns = patterns('',
     (r'^api/', include('stark.api.urls')),
 
     url(r'^accounts/', include('stark.apps.accounts.urls')),
-    url(r'^preferences/', include('stark.apps.preferences.urls')),
 
     url(r'^$', 'stark.views.index', name='index'),
 

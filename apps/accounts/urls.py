@@ -15,6 +15,7 @@ urlpatterns = patterns('stark.apps.accounts.views',
 )
 
 urlpatterns += patterns('stark.apps.accounts.views.characters',
+    url(r'^create_character/$', 'create_character', name='create_character'),
     url(r'^save/$', 'save_character', name='save_character'),
     url(r'exit/', 'exit_realm', name='exit_realm'),
     url(r'^enter/(?P<character>\w+)/$', 'enter_realm', name='enter_realm'),
