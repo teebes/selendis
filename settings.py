@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'stark.apps.accounts',
     'stark.apps.anima',
+    'stark.apps.preferences',
     'stark.apps.world',
     'stark.lib.uni_form',
     'piston',
