@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
-from stark.api.handlers import ItemHandler, MapHandler, MessageHandler, PingHandler, PlayerHandler, RoomHandler
+from stark.api.rest import ItemHandler, MapHandler, MessageHandler, PingHandler, PlayerHandler, RoomHandler
 from stark.api import command as command_api
 
 urlpatterns = patterns('',

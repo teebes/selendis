@@ -4,7 +4,7 @@ import logging
 from piston.handler import BaseHandler
 from piston.utils import rc
 
-from stark.api import handlers as rest_api
+from stark.api import rest as rest_api
 from stark.apps.commands import execute_command
 from stark.apps.anima.models import Player, Message
 from stark.apps.world.utils import draw_map
