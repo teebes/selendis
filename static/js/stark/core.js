@@ -86,6 +86,8 @@ var get_signatures = function() {
 
 var pulse_id = 0;
 var pulse_queue = [];
+var pulses_sent = 0;
+var pulses_received = 0;
 var send_pulse = function() {
     $("#game_status").html($(stark).attr('status'));
     
@@ -93,7 +95,9 @@ var send_pulse = function() {
     var data = get_signatures()
     
     pulse_queue.push(pulse_id++);
+    pulses_sent++;
     $.get("/api/pulse/", data, function(stark_delta) {
+        pulses_received++;
         // pulse is a syncing call
         sync_stark.call(this, stark_delta);
         // sync_stark(stark_delta);
@@ -111,6 +115,9 @@ var send_pulse = function() {
             pulse_queue = [1];
         }
     }
+
+    $("#pulses_received").html(pulses_received);
+    $("#pulses_sent").html(pulses_sent);
 
 }
 

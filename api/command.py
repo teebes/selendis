@@ -53,13 +53,15 @@ class Fetcher(object):
             self.cache = cache
 
     def fetch(self, node_list):
+        # NB: the order matters.... map needs to be after player so that the
+        # coordinates it pulls are up to date
         stark = {}
         for node in node_list:
             fetched_node = getattr(self, "get_%s" % node)()
             if fetched_node is not None:
                 stark[node] = fetched_node
         if not stark: # everything is cached correctly scenario
-            return rc.ALL_OK
+            return 'OK'
         return stark
 
     def get_map(self):
@@ -69,21 +71,24 @@ class Fetcher(object):
         the player gets too far away from the center.
         """
         if not self.cache:
+            self.player.map_center_x = self.player.room.xpos
+            self.player.map_center_y = self.player.room.ypos
+            self.player.save()
             return draw_map(self.player.room.xpos,
                             self.player.room.ypos,
                             self.player.map_width)
         
         moved = False
-        if abs(self.player.room.xpos - self.player.map_center_x) >= 2:
+        if abs(self.player.room.xpos - self.player.map_center_x) >= 3:
             self.player.map_center_x = self.player.room.xpos
             moved = True
-        if abs(self.player.room.ypos - self.player.map_center_y) >= 2:
+        if abs(self.player.room.ypos - self.player.map_center_y) >= 3:
             self.player.map_center_y = self.player.room.ypos
-            self.player.save()
             moved = True
         if moved:
-            return draw_map(self.player.room.xpos,
-                            self.player.room.ypos,
+            self.player.save()            
+            return draw_map(self.player.map_center_x,
+                            self.player.map_center_y,
                             self.player.map_width)
         return None
     
@@ -204,7 +209,8 @@ class LoadHandler(BaseHandler):
         player = Player.objects.get(user=request.user, status='logged_in')
         return Fetcher(request, player).fetch(['room',
                                                'player',
-                                               'log'])
+                                               'log',
+                                               'map'])
         
 class PulseHandler(BaseHandler):
     allowed_method = ('GET',)

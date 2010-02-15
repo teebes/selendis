@@ -106,7 +106,7 @@ p.spaced { margin-bottom: 10px; }
 }
 
 #map {
-    /*border: 1px solid #000000;*/
+    border: 1px solid #000000;
 }
 
 #input_bar {

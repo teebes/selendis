@@ -76,13 +76,23 @@ def find_items_in_container(keyword, container, find_container=False):
     return items
 
 def draw_map(x, y, width=5, height=0):
+
+    # default to a square
     if not height:
         height = width
-    
-    x_range = (x - int(round(width/2)),
-               x + int(round(width/2)))
-    y_range = (y - int(round(height/2)),
-               y + int(round(height/2)))
+
+    # automatically adjust width / height to ceiling odd integer so the map
+    # can be centered nicely
+    if width % 2 == 0:
+        width += 1
+    if height % 2 == 0:
+        height += 1
+
+    # determine the x/y range to fetch rooms from
+    x_range = (x - ((width - 1) / 2),
+               x + ((width - 1) / 2))
+    y_range = (y - ((width - 1) / 2),
+               y + ((width - 1) / 2))
     
     map = {}
     

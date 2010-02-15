@@ -1,11 +1,30 @@
-void setup() 
+// Controls the size of each square. Increase for bigger squares
+int size = 12;
+
+// Controls how much space there is in between each square
+int spacing = 10;
+
+// A top / left margin
+int margin = 5;
+
+// The variables holding the stark x / y map center position that will
+// actually get displayed, which may vary from the stark.map values for
+// example in the case of a map shift where the animation needs to be smooth.
+int center_x;
+int center_y;
+
+// How fast the map catches up when moving. Lower values for fast catchup
+int delay = 3;
+
+void setup()
 {
     stroke(0);
     strokeWeight(1);
     frameRate(15);
 }
-/*
-void keyPressed() {
+
+void keyPressed()
+{
     if (!$(stark.player).attr('builder_mode')) {
         if (key == CODED) {
             if (keyCode == UP) { process_command('north'); }
@@ -15,20 +34,18 @@ void keyPressed() {
         }
     }
 }
-*/
-/*
-var size = 12;
-var spacing = 10;
-var margin = 5;
 
-var draw_room = function(room, mapcenter, is_player_room) {
+var draw_room = function(room, is_player_room) {
     // determine the true x starting position of the room in the canvas
-    true_x = (room.xpos + Math.round(stark.map.width / 2) - stark.map.x) * (size + spacing);
-    true_y = (room.ypos + Math.round(stark.map.height / 2) - stark.map.y)) * (size + spacing);
+    //true_x = (room.xpos + Math.round(stark.map.width / 2) - center_x) * (size + spacing);
+    //true_y = (room.ypos + Math.round(stark.map.height / 2) - center_y) * (size + spacing);
+    true_x = (room.xpos + Math.round((stark.map.width - 1) / 2) - center_x) * (size + spacing);
+    true_y = (room.ypos + Math.round((stark.map.height - 1) / 2) - center_y) * (size + spacing);
+
 
     // margin
-    true_x = true_x + margin;
-    true_y = true_y - margin;
+    true_x += margin;
+    true_y += margin;
 
     // connectors
     if (room.north == 'Normal') {
@@ -50,7 +67,7 @@ var draw_room = function(room, mapcenter, is_player_room) {
     
     // room background color according to type
     if (room.type == 'road') {
-        fill(#aa6e27);
+        fill(#AA6E27);
     } else if (room.type == 'water') {
         fill(#3292dc);
     } else if (room.type == 'field') {
@@ -74,33 +91,21 @@ var draw_room = function(room, mapcenter, is_player_room) {
     strokeWeight(1);
 
 }
- */
-
-// the variable holding the stark x / y map center position that will
-// actually get displayed, which may vary from the stark.map values for
-// example in the case of a map shift where the animation needs to be smooth
-//var map_center;
 
 void draw() 
 {
-/*
     background(#EEEEEE);
     if ($(stark).attr('map')) {
-        
-        
+
         // smooth motion animation
-        if (!map_center) { // initialization
-            map_center = {
-                x: stark.map.x,
-                y: stark.map.y
-            }
-        } else {
-            if (map_center.x > stark.map.x) { map_center.x--; }
-            if (map_center.x < stark.map.x) { map_center.x++; }
-            if (map_center.y > stark.map.y) { map_center.y--; }
-            if (map_center.y < stark.map.y) { map_center.y++; }
+        if (!center_x || !center_y) { // initialization
+            center_x = stark.map.x;
+            center_y = stark.map.y;
         }
-        
+        else {
+            center_x += (stark.map.x - center_x) / delay;
+            center_y += (stark.map.y - center_y) / delay;
+        }
         
         var is_player_room;
         $.each(stark.map, function(key, object) {
@@ -115,9 +120,17 @@ void draw()
                 is_player_room = true;
             }
             
-            draw_room(object, {}, is_player_room);
+            draw_room(object, is_player_room);
 
         });
-    }
-    */
+        
+        // center tracker
+        /* 
+        fill(#FF0000);
+        ellipse(Math.round((stark.map.width - 1) / 2) * (size + spacing) + size / 2 + margin,
+                Math.round((stark.map.height - 1) / 2) * (size + spacing) + size / 2 + margin,
+               10, 10);
+        */
+        
+    }   
 }
