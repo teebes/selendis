@@ -8,7 +8,11 @@ from stark.apps.world.utils import find_items_in_container, can_hold_item, rev_d
 def execute_command(anima, raw_cmd, remote=False):
     tokens = filter(None, raw_cmd.split(' '))
     cmd = tokens.pop(0)
-    cmd_class = globals()[cmd[0].upper() + cmd[1:].lower()]
+    try:
+        cmd_class = globals()[cmd[0].upper() + cmd[1:].lower()]
+    except KeyError:
+        anima.notify("Invalid command: '%s' - try 'help'" % cmd)
+        return ['log']
     cmd_object = cmd_class(anima, raw_cmd, tokens=tokens, remote=remote)
     return cmd_object.execute()
 
@@ -314,7 +318,7 @@ class Help(Command):
     
     def general_help(self):
         # general help page, list the available commands
-        commands = "Availble commands: (help <topic> for more info)\n%s" \
+        commands = "Availble commands: ('help <topic>' for more info)\n%s" \
                         % ''.join([" %s\n" % i for i in register])
 
         # builder help
