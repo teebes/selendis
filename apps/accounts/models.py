@@ -24,6 +24,9 @@ class Preferences(models.Model):
     
     map_height = models.IntegerField(default=11)
     map_width = models.IntegerField(default=11)
+    map_room_size = models.IntegerField(default=12);
+    map_room_spacing = models.IntegerField(default=10);
+    map_margin = models.IntegerField(default=5);
     
     log_memory = models.IntegerField(default=30)
 

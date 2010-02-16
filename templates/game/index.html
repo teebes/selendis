@@ -5,6 +5,15 @@
 <link type="text/css" href="/static/css/room.css" rel="stylesheet"/>
 <link type="text/css" href="/static/css/jquery/ui.all.css" rel="stylesheet" />
 
+<script type="text/javascript">
+/* save the user preferences */
+var map_width = {{ user.preferences.map_width }};
+var map_height = {{ user.preferences.map_height }};
+var map_room_size = {{ user.preferences.map_room_size }};
+var map_margin = {{ user.preferences.map_margin }};
+var map_room_spacing = {{ user.preferences.map_room_spacing }};
+</script>
+
 <!-- jquery libs -->
 <script type="text/javascript" src="/static/js/jquery/ui.core.js"></script>
 <script type="text/javascript" src="/static/js/jquery/ui.draggable.js"></script>
@@ -64,7 +73,7 @@
     {% include "game/room.html" %}
     
     <!-- map -->
-    <canvas datasrc="/static/js/stark/map.pjs" id="map" width="243px" height="243px"></canvas>
+    <canvas datasrc="/static/js/stark/map.pjs" id="map" width="300px" height="300px"></canvas>
 
 </div>
 
@@ -72,12 +81,14 @@
 
 <div id="dialog" title="Dialog Title"></div>
 
-
 <script type='text/javascript'>
 
 var stark;
 
 $(document).ready(function(){
+    /* -- Set up the canvas based on user preferences --*/
+    $("#map").attr('width', canvas_width);
+    $("#map").attr('height', canvas_height);
 
     $("#dialog").dialog({ autoOpen: false });
 

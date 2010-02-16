@@ -68,7 +68,7 @@ class LoginForm(auth_forms.AuthenticationForm):
 class PreferencesForm(forms.ModelForm):
     class Meta:
         model = Preferences
-        exclude = ('user', 'map_height')
+        exclude = ('user',)
 
 
 class SaveCharacterForm(forms.Form):

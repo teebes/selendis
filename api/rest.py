@@ -13,6 +13,7 @@ from piston.authentication import HttpBasicAuthentication
 from piston.utils import rc
 
 from stark import config
+from stark.apps.accounts.models import Preferences
 from stark.apps.anima.models import Anima, Player, Mob, Message
 from stark.apps.world.models import Room, RoomConnector, ItemInstance, Weapon, Armor, Zone
 from stark.apps.world.utils import draw_map
@@ -366,4 +367,10 @@ class PingHandler(BaseHandler):
     def read(self, request):
         return 'ok'
 
+class PreferencesHandler(BaseHandler):
+    allowed_method = ('GET',)
+    model = Preferences
+    exclude = ('id', 'user',)
     
+    def read(self, request):
+        return Preferences.objects.get(user=request.user)

@@ -77,7 +77,7 @@ def view_account(request):
                 preferences_form.save()
                 messages.add_message(request, messages.INFO,
                  "Preferences saved.")
-                return HttpResponseRedirect(reverse("accounts_index"))
+                return HttpResponseRedirect(reverse("index"))
 
     return render_to_response("accounts/index.html", {
         'players': Player.objects.filter(user=request.user),

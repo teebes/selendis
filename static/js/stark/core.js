@@ -1,3 +1,6 @@
+var canvas_width = map_room_size * map_width + map_room_spacing * (map_width - 1) + map_margin * 2;
+var canvas_height = map_room_size * map_height + map_room_spacing * (map_height - 1) + map_margin * 2;
+
 var last_pulse = false;
 
 var beat = function() {
@@ -57,13 +60,20 @@ var send_load = function() {
             _signature = $(stark.player).attr('signature');
             stark.player = _temp;
             stark.player.signature = _signature;
+            
             stark.pulses_sent = 0;
             stark.pulses_received = 0;
             pulse_tracker = [];
+            
+            // render all elements
             render_room();
             render_player();
             render_log();
+            //$('#map').attr('width', size * width + spacing * (width - 1) + margin * 2 + 10);
+            //$('#map').attr('width', 200);
+            
             stark.status = 'loaded';
+            
             if ($(stark.player).attr('builder_mode')) {
                 render_builder();
             }
