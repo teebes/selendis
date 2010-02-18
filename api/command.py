@@ -101,9 +101,10 @@ class Fetcher(object):
             self.player.save()            
             return draw_map(self.player.map_center_x,
                             self.player.map_center_y,
-                            self.player.user.preferences.map_width.                            
+                            self.player.user.preferences.map_width,
                             self.player.user.preferences.map_height)
         return None
+
     
     def get_room(self):
         room = rest_api.RoomHandler().read(self.request,
