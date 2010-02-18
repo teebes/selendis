@@ -21,7 +21,9 @@
     </p>
 {% endif %}
 
-<p class='spaced'><a href="">create new character</a></p>
+<p class='spaced' style='margin-top: 25px;'>
+    <a href="{% url create_character %}">create new character</a>
+</p>
 
 <table id='character_table'>
     <tr>
@@ -43,5 +45,13 @@
     </tr>
 {% endfor %}
 </table>
+
+<p class='spaced' style='margin-top: 25px;'><strong>Preferences</strong></p>
+
+<form action="" method="post" class='uniForm'>
+    {% load uni_form_tags %}
+    {{ preferences_form|as_uni_form }}
+    <input type='submit' name='save_preferences' value='Save Preferences' />
+</form>
 
 {% endblock %}

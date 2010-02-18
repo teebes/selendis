@@ -39,7 +39,7 @@ render_log = function() {
 }
 
 render_room = function() {
-    if (typeof(stark) == 'undefined') { return; }
+    $("#room_box").attr('style', str_format('width: {0}px', canvas_width));
     
     var room = stark.room;
     

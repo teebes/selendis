@@ -14,8 +14,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stark.apps.anima.models import Player
-from stark.apps.accounts.forms import ChangeEmailForm, SaveCharacterForm, LoginForm
-from stark.apps.accounts.models import EmailConfirmation
+from stark.apps.accounts.forms import ChangeEmailForm, LoginForm, PreferencesForm, SaveCharacterForm
+from stark.apps.accounts.models import EmailConfirmation, Preferences
 from stark.apps.accounts.utils import request_confirmation
 
 def login(request):
@@ -68,8 +68,20 @@ def view_account(request):
         # temp players shouldn't be in accounts
         raise Http404
 
+    preferences = Preferences.objects.get(user=request.user)
+    preferences_form = PreferencesForm(instance=preferences)
+    if request.method == 'POST':
+        if request.POST.get('save_preferences'):
+            preferences_form = PreferencesForm(request.POST, instance=preferences)
+            if preferences_form.is_valid():
+                preferences_form.save()
+                messages.add_message(request, messages.INFO,
+                 "Preferences saved.")
+                return HttpResponseRedirect(reverse("index"))
+
     return render_to_response("accounts/index.html", {
         'players': Player.objects.filter(user=request.user),
+        'preferences_form': preferences_form
     }, context_instance=RequestContext(request))
 
 @login_required

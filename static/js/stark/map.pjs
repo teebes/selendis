@@ -1,5 +1,5 @@
 // Controls the size of each square. Increase for bigger squares
-int size = 12;
+int size = map_room_size;
 
 // Controls how much space there is in between each square
 int spacing = 10;
@@ -39,8 +39,8 @@ var draw_room = function(room, is_player_room) {
     // determine the true x starting position of the room in the canvas
     //true_x = (room.xpos + Math.round(stark.map.width / 2) - center_x) * (size + spacing);
     //true_y = (room.ypos + Math.round(stark.map.height / 2) - center_y) * (size + spacing);
-    true_x = (room.xpos + Math.round((stark.map.width - 1) / 2) - center_x) * (size + spacing);
-    true_y = (room.ypos + Math.round((stark.map.height - 1) / 2) - center_y) * (size + spacing);
+    true_x = (room.xpos + Math.round((stark.preferences.map_width - 1) / 2) - center_x) * (size + spacing);
+    true_y = (room.ypos + Math.round((stark.preferences.map_height - 1) / 2) - center_y) * (size + spacing);
 
 
     // margin

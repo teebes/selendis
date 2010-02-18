@@ -91,8 +91,8 @@ def draw_map(x, y, width=5, height=0):
     # determine the x/y range to fetch rooms from
     x_range = (x - ((width - 1) / 2),
                x + ((width - 1) / 2))
-    y_range = (y - ((width - 1) / 2),
-               y + ((width - 1) / 2))
+    y_range = (y - ((height - 1) / 2),
+               y + ((height - 1) / 2))
     
     map = {}
     

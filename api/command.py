@@ -59,6 +59,17 @@ class Fetcher(object):
         for node in node_list:
             fetched_node = getattr(self, "get_%s" % node)()
             if fetched_node is not None:
+
+                # limit log size based on preference
+                if node == 'log':
+                    log_memory = self.request.user.preferences.log_memory
+                    log_length = len(fetched_node)
+                    if log_memory > log_length:
+                        start_at = 0
+                    else:
+                        start_at = log_length - log_memory
+                    fetched_node = fetched_node[start_at:log_length]
+
                 stark[node] = fetched_node
         if not stark: # everything is cached correctly scenario
             return 'OK'
@@ -76,7 +87,8 @@ class Fetcher(object):
             self.player.save()
             return draw_map(self.player.room.xpos,
                             self.player.room.ypos,
-                            self.player.map_width)
+                            self.player.user.preferences.map_width,
+                            self.player.user.preferences.map_height)
         
         moved = False
         if abs(self.player.room.xpos - self.player.map_center_x) >= 3:
@@ -89,8 +101,10 @@ class Fetcher(object):
             self.player.save()            
             return draw_map(self.player.map_center_x,
                             self.player.map_center_y,
-                            self.player.map_width)
+                            self.player.user.preferences.map_width,
+                            self.player.user.preferences.map_height)
         return None
+
     
     def get_room(self):
         room = rest_api.RoomHandler().read(self.request,
@@ -179,6 +193,9 @@ class Fetcher(object):
 
         return messages
 
+    def get_preferences(self):
+        return rest_api.PreferencesHandler().read(self.request)
+
 class UserInputHandler(BaseHandler):
     allowed_methods = ('POST',)
     
@@ -196,6 +213,7 @@ class UserInputHandler(BaseHandler):
             return Fetcher(request, player, cache=True).fetch(deltas)
 
         except Exception, e:
+            print raw_cmd
             error = "Command Error: %s" % e
             pulse_log = logging.getLogger('StarkLogger')
             pulse_log.debug(error)
@@ -210,7 +228,8 @@ class LoadHandler(BaseHandler):
         return Fetcher(request, player).fetch(['room',
                                                'player',
                                                'log',
-                                               'map'])
+                                               'map',
+                                               'preferences'])
         
 class PulseHandler(BaseHandler):
     allowed_method = ('GET',)
