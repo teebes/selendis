@@ -12,8 +12,9 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stark import config
-from stark.apps.world.models import Room
 from stark.apps.anima.models import Player, MobLoader
+from stark.apps.world.models import Room
+from stark.apps.anima.utils import set_default_aliases
 from stark.utils.adx import analyze
 
 def index(request):
@@ -46,6 +47,7 @@ def index(request):
         player.hp = player.max_hp
         player.save()
         player.update_level()
+        set_default_aliases(player)
         
     else: # returning user
         characters = Player.objects.filter(user=request.user)
@@ -71,6 +73,7 @@ def index(request):
             player.hp = player.max_hp
             player.save()
             player.update_level()
+            set_default_aliases(player)
         elif characters.filter(status='logged_in').count() == 1:
             player = characters.get(status='logged_in')
         else:

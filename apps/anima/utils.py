@@ -1,5 +1,6 @@
 from stark import config
 from stark.apps.anima.models import Player, Mob
+from stark.apps.commands.models import Alias
 from stark.utils import QuerySetChain
 
 def tick_regen():
@@ -39,3 +40,23 @@ def tick_regen():
     for mob in mobs.extra(where=["hp < hp_base +"
                                       "constitution * 5 + (level - 1) * 10"]):
         mob.regen('hp', TICK_HP_REGEN_RATE)
+
+def set_default_aliases(player=None):
+    aliases = {
+        'n': 'north',
+        'e': 'east',
+        'w': 'west',
+        's': 'south',
+    }
+    
+    if player is None: players = Player.objects.all()
+    else: player = players = [player]
+    
+    for player in players:
+        for k, v in aliases.items():
+            alias, created = Alias.objects.get_or_create(player=player, name=k)
+            if created:
+                alias.command = v
+                alias.save()
+
+    return 'done'
