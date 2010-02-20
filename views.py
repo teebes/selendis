@@ -10,12 +10,20 @@ from django.forms.util import ErrorList
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.utils.safestring import mark_safe
 
 from stark import config
 from stark.apps.anima.models import Player, MobLoader
 from stark.apps.world.models import Room
 from stark.apps.anima.utils import set_default_aliases
 from stark.utils.adx import analyze
+
+WELCOME_MSG = mark_safe("Welcome to Stark, an HTML 5 visual MUD. "
+                        "The game is still in alpha so it's likely that some "
+                        "things will break. Feel free to report any issues "
+                        "<a href='http://github.com/teebes/stark'>here</a>."
+                        "<br />"
+                        "Type 'help' for a list of available commands.")
 
 def index(request):
     initial_room = Room.objects.get(pk=getattr(config, 'INITIAL_ROOM', 1))
@@ -48,6 +56,7 @@ def index(request):
         player.save()
         player.update_level()
         set_default_aliases(player)
+        player.notify(WELCOME_MSG)
         
     else: # returning user
         characters = Player.objects.filter(user=request.user)
@@ -74,6 +83,7 @@ def index(request):
             player.save()
             player.update_level()
             set_default_aliases(player)
+            player.notify(WELCOME_MSG)
         elif characters.filter(status='logged_in').count() == 1:
             player = characters.get(status='logged_in')
         else:

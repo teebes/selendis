@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.db import models, transaction
+from django.utils.html import escape
+from django.utils.safestring import SafeString
 
 from stark import config
 from stark.apps.anima import constants as anima_constants
@@ -116,6 +118,12 @@ class Anima(models.Model):
     # Utilities #
     #############
     def notify(self, msg):
+        # Note: not completely sure this is the best place for this check.
+        # Other candidates would include overwriting the Message save method
+        # or the Message rest api handler
+        if type(msg) != 'SafeString':
+            msg = escape(msg)
+            
         Message.objects.create(type='notification',
                                destination=self.name,
                                content=msg)
@@ -134,8 +142,6 @@ class Anima(models.Model):
             new = max
         setattr(self, attribute, new)
         self.save()
-
-
 
     def get_name(self):
         # method to match ItemInstance's
@@ -377,7 +383,6 @@ class MobLoader(models.Model):
 
                 self.spawned_mobs.add(mob)
 
-    
 class Message(models.Model):
     created = models.DateTimeField(default=datetime.datetime.now,
                                    blank=False)

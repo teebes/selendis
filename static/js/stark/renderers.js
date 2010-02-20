@@ -20,12 +20,7 @@ render_log = function() {
     var html = '';
     $.each(stark.log, function() {
         html += '<div class="log_msg comm_' + this.type + '"> * &gt; ';
-        /*
-        if (this.type == 'chat') {
-            html += '<strong>' + this.source + '</strong>: ';
-        }
-        */
-        html += html_format(this.content);
+        html += this.content;
         html += '</div>\n';
     });
     
