@@ -1,6 +1,7 @@
 from django.db import transaction
 
 from stark.apps.anima.models import Player, Mob
+from stark.apps.commands.models import Alias as Alias_Model
 from stark.apps.world.models import Room, RoomConnector, ItemInstance
 from stark.apps.world import models as world_models
 from stark.apps.world.utils import find_items_in_container, can_hold_item, rev_direction, find_actionable_item
@@ -11,6 +12,13 @@ def execute_command(anima, raw_cmd, remote=False):
     try:
         cmd_class = globals()[cmd[0].upper() + cmd[1:].lower()]
     except KeyError:
+        # if it's a player, try an alias
+        if anima.__class__ == Player:
+            try:
+                alias = Alias_Model.objects.get(name=cmd, player=anima)
+                return execute_command(anima, alias.command)
+            except Alias_Model.DoesNotExist: pass
+        
         anima.notify("Invalid command: '%s' - try 'help'" % cmd)
         return ['log']
     cmd_object = cmd_class(anima, raw_cmd, tokens=tokens, remote=remote)
@@ -19,6 +27,7 @@ def execute_command(anima, raw_cmd, remote=False):
 
 # commands register (TODO: figure out an autoregister)
 register = [
+    'alias',
     'chat',
     'east',
     'drop',
@@ -110,6 +119,46 @@ class Command(object):
         self.anima.notify("%s\n%s" % (self.raw_cmd, output))
         
         return deltas
+
+class Alias(Command):
+    """Aliases a command. 'alias' lists aliases, 'alias n north' will bind 'n' to 'north', 'alias n' will clear the 'n' alias."""
+    template = "alias [<alias_name>] [<command>]"
+
+    def _execute(self):
+        # list aliases
+        if len(self.tokens) == 0:
+            aliases= Alias_Model.objects\
+                        .filter(player=self.anima)\
+                        .order_by('name')\
+                        .values('name', 'command')
+            if not aliases:
+                return "No aliases defined"
+            alist = ["%s: %s\n" % (x['name'], x['command']) for x in aliases]
+            return ''.join(alist)
+        
+        # clear an alias
+        elif len(self.tokens) == 1:
+            print 'here'
+            try:
+                alias = Alias_Model.objects.get(name=self.tokens[0])
+                alias.delete()
+                return "Alias cleared."
+            except Alias_Model.DoesNotExist:
+                return "No such alias: '%s'" % self.tokens[0]
+        
+        # create an alias
+        alias_name = self.tokens[0]
+        aliased_command = ' '.join(self.tokens[1:])
+        Alias_Model.objects.all()
+        aliases = Alias_Model.objects.filter(player=self.anima,
+                                             name=alias_name)
+        if aliases:
+            aliases[0].update(command=aliased_command)
+        else:
+            Alias_Model.objects.create(player=self.anima,
+                                       name=alias_name,
+                                       command=aliased_command)
+        return "Alias set."
 
 class Chat(Command):
     """Sends a chat message that all players will see in their console log, if they have chat enabled."""
