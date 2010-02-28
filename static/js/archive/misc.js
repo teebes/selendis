@@ -42,3 +42,10 @@ var send_object = function(object, url) {
         success: function() { }
     });
 }
+
+escape_html = function(html) {
+    // utility function to escape html and convert newlines
+    // http://stackoverflow.com/questions/24816/escaping-strings-with-jquery
+    html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return html
+}

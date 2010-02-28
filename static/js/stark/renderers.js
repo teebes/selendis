@@ -1,11 +1,3 @@
-html_format = function(html) {
-    // utility function to escape html and convert newlines
-    // http://stackoverflow.com/questions/24816/escaping-strings-with-jquery
-    html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    html = html.replace(/\n/g, "<br />");
-    return html
-}
-
 render_log = function() {
     
     var previous_html = $("#communications").html();
@@ -18,9 +10,9 @@ render_log = function() {
     }
     
     var html = '';
-    $.each(stark.log, function() {
-        html += '<div class="log_msg comm_' + this.type + '"> * &gt; ';
-        html += this.content;
+    $.each(stark.log, function(i, message) {
+        html += '<div class="log_msg comm_' + message.type + '"> * &gt; ';
+        html += message.content.replace(/\n/g, "<br />");
         html += '</div>\n';
     });
     

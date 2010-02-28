@@ -118,12 +118,6 @@ class Anima(models.Model):
     # Utilities #
     #############
     def notify(self, msg):
-        # Note: not completely sure this is the best place for this check.
-        # Other candidates would include overwriting the Message save method
-        # or the Message rest api handler
-        if type(msg) != 'SafeString':
-            msg = escape(msg)
-            
         Message.objects.create(type='notification',
                                destination=self.name,
                                content=msg)
@@ -153,7 +147,7 @@ class Anima(models.Model):
         # update level if necessary
         level = levels.filter(requirement__lt=self.experience)\
                       .order_by('-id')[0]
-        print "%s#%s" % (level, self.level)
+
         if level.id > self.level:
             self.notify('You gain a level!')
             self.level = level.id
@@ -393,6 +387,12 @@ class Message(models.Model):
     content_type = models.ForeignKey(ContentType, blank=True, null=True)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     author = generic.GenericForeignKey('content_type', 'object_id')
+    
+    def save(self, *args, **kwargs):
+        if type(self.content) == SafeString:
+            self.content = escape(self.content)
+
+        super(Message, self).save(*args, **kwargs)
     
     def __unicode__(self):
         return u"%s: %s" % (self.author, self.content)
