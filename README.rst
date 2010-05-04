@@ -11,20 +11,37 @@ which does yet yet support HTML5).
  
 * Built around 2 public APIs, one action-oriented for best client performance and one RESTful.
 
-* Server-side is `Django <http://djangoproject.com/>`_ served by Apache with mod-wsgi using `django_piston <http://bitbucket.org/jespern/django-piston/wiki/Home>`_ for the REST api and sqlite3 as the db (for now)
+* Server-side is `Django <http://djangoproject.com/>`_ served by Apache with mod-wsgi using `django_piston <http://bitbucket.org/teebes/django-piston/`_ for the REST api and sqlite3 as the db (for now)
  
 * Client-side is Javascript using `processing.js <http://processingjs.org/>`_ (which uses the HTML5 <canvas> element) for the graphics and `jQuery <http://jquery.com/>`_ API calls and UI
 
 Requirements
 ============
  
-You need django and django-piston installed (links above). There are right now no other requirements and as much as possible I'd like to keep it that way.
+You need django and a custom fork of django-piston installed (links above). There are right now no other requirements and as much as possible I'd like to keep it that way.
  
 **Important note**: At time of this writing, you need at least piston 0.2.3rc1 in order for it to work with the latest Django builds. That's more recent than the "latest release" links on bitbucket so be sure to checkout straight form the mercurial repo:
 
 ::
 
-  $ hg clone http://bitbucket.org/jespern/django-piston/
+  $ hg clone http://bitbucket.org/teebes/django-piston/
+
+There is a pip requirements file included so it's very easy to create an isolated Python virtual environment with everything you need:
+
+::
+
+  $ easy_install pip
+  $ pip install virtualenv
+
+Once Stark is installed, run in its root directory:
+
+::
+
+  $ virtualenv ve --no-site-packages
+  $ pip install -r REQUIREMENTS -e VE
+  $ source ve/bin/activate
+
+You should now have all of the requirements are ready to go.
  
 Installation
 ============

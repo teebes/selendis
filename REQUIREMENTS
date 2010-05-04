@@ -1,0 +1,2 @@
+-e git://github.com/django/django.git#egg=django
+-e hg+http://bitbucket.org/teebes/django-piston#egg=piston
