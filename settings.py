@@ -35,27 +35,23 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-""" add/remove hash mark to toggle DBs
-DATABASE_ENGINE = 'mysql'
-DATABASE_NAME = 'stark'
-DATABASE_USER = 'root'
-DATABASE_PASSWORD = ''
-DATABASE_HOST = ''
-DATABASE_PORT = ''
-DATABASE_OPTIONS = {
-    'sql_mode': 'TRADITIONAL,STRICT_ALL_TABLES,ANSI',
-    'charset': 'utf8',
-    'init_command': 'SET storage_engine=INNODB',
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db',
+    },
+    'mysql': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'stark',
+        'USER': 'root',
+        'PASSWORD': '',
+        'OPTIONS': {
+            'sql_mode': 'TRADITIONAL,STRICT_ALL_TABLES,ANSI',
+            'charset': 'utf8',
+            'init_command': 'SET storage_engine=INNODB',
+        }
+    }
 }
-"""
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = '%s/db' % SITE_FS_ROOT
-DATABASE_USER = ''
-DATABASE_PASSWORD = ''
-DATABASE_HOST = ''
-DATABASE_PORT = ''
-#"""
-
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

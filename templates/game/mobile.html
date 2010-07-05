@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stark</title>
+    
+    <link rel="icon" type="image/png" href="/static/images/favicon.png">
+    <script type="text/javascript" src="/static/js/jquery/jquery-1.4.1.min.js"></script>
+
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0, maximum-scale=1.0">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <!--
+    <link type="text/css" href="/static/css/style.css" rel="stylesheet" media="screen and (min-width: 481px)"/>
+    <link type="text/css" href="/static/css/player.css" rel="stylesheet" media="screen and (min-width: 481px)"/>
+    -->
+
+    <link type="text/css" href="/static/css/jquery/ui.all.css" rel="stylesheet" />
+    
+    <script type="text/javascript">
+    var map_width = 9;
+    var map_height = 9;
+    var map_room_size = 8;
+    var map_margin = 5;
+    var map_room_spacing = 10;
+    </script>
+    
+    <!-- jquery libs -->
+    <script type="text/javascript" src="/static/js/jquery/ui.core.js"></script>
+    <script type="text/javascript" src="/static/js/jquery/ui.draggable.js"></script>
+    <script type="text/javascript" src="/static/js/jquery/ui.resizable.js"></script>
+    <script type="text/javascript" src="/static/js/jquery/ui.dialog.js"></script>
+    
+    <script type="text/javascript" src="/static/js/lib/json2.js"></script>
+    
+    <!-- processing.js -->
+    <script language="javascript" src="/static/js/lib/processing/processing-0.4-packed.js"></script>
+    
+    <!-- stark libs -->
+    <script type="text/javascript" src="/static/js/stark/core.js"></script>
+    <script type="text/javascript" src="/static/js/stark/bindings.js"></script>
+    <script type="text/javascript" src="/static/js/stark/renderers.js"></script>
+    
+    <script type="text/javascript" src="/static/js/commands.js"></script>
+    <script type="text/javascript" src="/static/js/inspect.js"></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    
+</head>
+
+<body style='margin: 0; padding: 0;'>
+
+<div id="header" style='border-bottom: 1px solid #333;'>
+    Stark |
+    {% if temporary_user %}
+        <a id='save_character_box'
+           class='menu_box account_box'
+           href="{% url save_character %}">Save</a> |
+        <a class='menu_box account_box'
+           href="{% url accounts_login %}"
+           style='margin-left: 5px;'>Login</a>
+    {% else %}
+        {% if user.is_authenticated %}
+        <a class='menu_box account_box'
+           href="{% url accounts_index %}">Account</a> |
+        <a class='menu_box account_box'
+           href="{% url logout %}"
+           style='border-left: 0'>Logout</a>
+        {% endif %}
+    {% endif %}
+
+    | <a href="http://github.com/teebes/stark/blob/master/README.rst">About</a>
+    | <a href="{% url help %}">Help</a>
+
+    <div class='clear'></div>
+</div>
+
+<!--[if IE]>
+<div id='iewarning'>
+    You're using IE, which does not support HTML5 and therefore this game will
+    not work with it.<br />
+    Please use either: <br />
+    - <a href="http://www.mozilla.com/en-US/firefox/">Firefox</a><br />
+    - <a href="http://www.google.com/chrome">Chrome</a><br />
+    - <a href="http://www.apple.com/safari/download/">Safari</a><br />
+    - <a href="http://www.opera.com/">Opera</a><br />
+</div>
+<![endif]-->
+
+
+<!-- player name, level, hp, mp & exp -->
+<div>
+    <div style='float: left;'>
+        <strong id="player_name"></strong>,
+        Level <span id="player_level"></span>
+        (exp: <span id="player_experience"></span>)
+    </div>
+    <div style='float: right;'>
+        <span id="current_hp">40</span> HP,
+        <span id="current_mp">40</span> MP
+    </div>
+    <div style='clear: both;'></div>
+</div>
+
+
+<style type='text/css'>
+p { margin: 0 0 10px 0; }
+table#dir_pad {
+    border-collapse: collapse;
+    clear: both;
+    width: 100%;
+}
+table#dir_pad td {
+}
+table#dir_pad td.button {
+    background: #eee; 
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 5px;
+}
+
+</style>
+
+<table id="dir_pad" style='clear: both; width: 100%;'>
+    <tr>
+        <td></td>
+        <td id="move_north" class='button'>North</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td id="move_west" class='button'>West</td>
+        <td id="move_south" class='button'>South</td>
+        <td id="move_east" class='button'>East</td>
+    </tr>
+</table>
+
+<div id="multi_display_menu" style='text-align: center; border-bottom: 1px solid #333;'>
+    <span id="inventory">Inventory</span>
+    | <span id="location">Location</span>
+    | <span id="messages">Messages</span>
+</div>
+
+<p id="room_title" style='clear: both; font-weight: bold; text-align: center; margin: 0; border-bottom: 1px solid #333;'></p>
+
+<div id="multi_display">
+    <div id="location">
+        <!-- map -->
+        <canvas datasrc="/static/js/stark/map.pjs" id="map" width="300px" height="300px" style='float: left;'></canvas>
+        
+        <div style='float: left; margin-left: 3px; vertical-align: top;'>
+            <p id="room_desc"></p>
+            <div id="room_items"></div>
+            <div id="room_mobs"></div>        
+            <div id="room_players"></div>
+        </div>
+        <div style='clear: both'></div>
+    </div>
+    <div id="inventory" style='display: none;'>
+            <div id="player_equipment">
+                You are using:<br />
+                <table border='0'>
+                    <tr>
+                        <td nowrap="nowrap" valign='top'>wielded</td>
+                        <td><span id="player_main_hand"></span></td>
+                    </tr><tr>
+                        <td nowrap="nowrap" valign='top'>worn on head</td>
+                        <td><span id="player_head"></span></td>
+                    </tr><tr>
+                        <td nowrap="nowrap" valign='top'>worn on chest</td>
+                        <td><span id="player_chest"></span></td>
+                    </tr><tr>
+                        <td nowrap="nowrap" valign='top'>worn on hangs</td>
+                        <td valign='top'><span id="player_hands"></span></td>
+                    </tr><tr>
+                        <td nowrap="nowrap" valign='top'>worn on legs</td>
+                        <td><span id="player_legs"></span></td>
+                    </tr><tr>
+                        <td nowrap="nowrap" valign='top'>worn on feet</td>
+                        <td><span id="player_feet"></span></td>
+                    </tr>
+                    {% comment %}
+                Wielded: <span id="player_main_hand"></span><br />
+                Worn on head: <span id="player_head"></span><br />
+                Worn on chest: <span id="player_chest"></span><br />
+                Worn on hands: <span id="player_hands"></span><br />
+                Worn on legs: <span id="player_legs"></span><br />
+                Worn on feet: <span id="player_feet"></span><br />
+                    {% endcomment %}
+                </table>
+            </div>            
+            <br />
+            You are carrying:
+            <div id="player_inventory"></div>
+    </div>
+        
+    <div id="messages" style='display: none;'>
+        {% include "game/command_bar.html" %}
+        <div id="communications"></div>
+    </div>
+</div>
+
+<!-- builder -->
+{% include "game/builder.html" %}
+
+<div id="dialog" title="Dialog Title"></div>
+
+<script type='text/javascript'>
+
+var stark;
+
+$(document).ready(function(){
+    /* -- Set up the canvas based on user preferences --*/
+    $("#map").attr('width', canvas_width);
+    $("#map").attr('height', canvas_height);
+
+    $("#dialog").dialog({ autoOpen: false });
+
+    // mobile bindings
+    $("#multi_display_menu > span").click(function() {
+        $("#multi_display > #inventory").hide();
+        $("#multi_display > #location").hide();
+        $("#multi_display > #messages").hide();
+        
+        $("#multi_display > #" + $(this).attr('id')).show();
+    });
+    
+    // set the room info width
+    $("#location > div").width($(window).width() - $("#location > canvas").width() - 3);
+    
+    setup_commands();
+    setup_builder();
+    setup_player();
+
+    //setInterval(beat, 250)
+    setTimeout(function(){
+        beat();
+        setTimeout(arguments.callee, 250);
+    }, 250);
+
+});
+
+</script>
+
+</body>
+</html>

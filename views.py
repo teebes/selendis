@@ -17,7 +17,10 @@ from stark.apps.world.models import Room
 from stark.apps.anima.utils import set_default_aliases
 from stark.utils.adx import analyze
 
-def index(request):
+def mobile(request):
+    return index(request, template="game/mobile.html")
+
+def index(request, template="game/index.html"):
     initial_room = Room.objects.get(pk=getattr(config, 'INITIAL_ROOM', 1))
     if not request.user.is_authenticated():
         """
@@ -80,7 +83,7 @@ def index(request):
             characters.update(status='logged_out')
             return HttpResponseRedirect(reverse('accounts_index'))
 
-    return render_to_response("game/index.html", {
+    return render_to_response(template, {
         'player': player,
         'temporary_user': player.temporary,
         }, context_instance=RequestContext(request))
