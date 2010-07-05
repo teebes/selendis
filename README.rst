@@ -11,7 +11,7 @@ which does yet yet support HTML5).
  
 * Built around 2 public APIs, one action-oriented for best client performance and one RESTful.
 
-* Server-side is `Django <http://djangoproject.com/>`_ served by Apache with mod-wsgi using `django_piston <http://bitbucket.org/teebes/django-piston/`_ for the REST api and sqlite3 as the db (for now)
+* Server-side is `Django <http://djangoproject.com/>`_ served by Apache with mod-wsgi using `django_piston <http://bitbucket.org/teebes/django-piston/>`_ for the REST api and sqlite3 as the db (for now)
  
 * Client-side is Javascript using `processing.js <http://processingjs.org/>`_ (which uses the HTML5 <canvas> element) for the graphics and `jQuery <http://jquery.com/>`_ API calls and UI
 
