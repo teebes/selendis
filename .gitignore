@@ -1,6 +1,2 @@
 *.pyc
-.svn
-.DS_Store
-*.kpf
-db
-doc/_build/
+*.swp

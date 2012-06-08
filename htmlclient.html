@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+
+<head>
+
+<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+<script type='text/javascript' src='http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js'></script>
+</head>
+
+<body>
+
+<input type='text' id='input' />
+
+<div id='output'></div>
+
+<script type='text/javascript'>
+
+function output(msg) {
+    var msg_div = $("<div style='margin-bottom: 10px'/>").text(msg);
+    $("#output").append(msg_div);
+    
+}
+
+$(document).ready(function(){
+    output('test2');
+});
+
+if ("WebSocket" in window) {
+    console.log('ws'); 
+    var ws = new WebSocket("ws://thibaudmorel.com:8888/cmd");
+    ws.onmessage = function(evt) {
+        var data = JSON.parse(evt.data);
+        console.log(data);
+        console.log(data.message);
+        output(data.message);
+    }
+} else {
+    alert('This browser does not support websockets.');
+}
+</script>
+</html>
+
