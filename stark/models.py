@@ -4,8 +4,8 @@ import json
 import logging
 import sys
 
-from stark.core.models import Registry
-from stark.core.models import Model
+from stark.core.rjson import Registry
+from stark.core.rjson import Model
 
 LOG_LEVEL = 'debug'
 logger = logging.getLogger(__name__)
@@ -74,18 +74,21 @@ class Room(Model):
     # book['author']['father']['address']['state']
 
     def get_direction(self, direction):
+        """
+        Return the Room instance that one moves to by following a direction.
+        """
+
         assert(direction in DIRECTIONS)
         return getattr(self, direction, None)
 
     def get_exits(self):
+        "return the exits from a Room"
+
         exits = [
             direction[0].upper()
             for direction in DIRECTIONS
             if hasattr(self, direction)
         ]
-
-        #if fmt == TERMINAL:
-        #    return u"[ obvious exits: {} ]".format(' '.join(exits))
 
         return exits
 
@@ -103,20 +106,25 @@ class Room(Model):
 
 class Anima(Model):
     """
-    """
-
-    """
     >>> orig = Room({'key': 'orig', 'x': 0, 'y': 1, 'z': 0, 'name': 'Orig', 'south': {'key': 'dest'}})
     >>> dest = Room({'key': 'dest', 'x': 0, 'y': 0, 'z': 0, 'name': 'Dest', 'north': {'key': 'orig'}})
-    >>> orig.south.name
-    'Dest'
+    >>> orig.south.key
+    'dest'
     >>> anima = Anima({'key': 'anima', 'room': { 'key': 'orig' } })
-    >>> anima.room.name
-    'Orig'
-    >>> anima.move('north')
-    >>> 
+    >>> anima.room.key
+    'orig'
+    >>> anima.move('south')
+    >>> anima.room.key
+    'dest'
     """
-    def move(self, direction): pass
+
+    room = Room
+
+    def move(self, direction):
+        dest = self.room.get_direction(direction)
+        if dest:
+            self.room = dest
+
     def goto(self, direction): pass
     def look(self, direction): pass
     

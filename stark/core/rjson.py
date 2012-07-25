@@ -37,7 +37,6 @@ class Registry(Singleton):
     keys = {}
 
     def set(self, key, value):
-        self.keys[key] = value
         return value
 
     def get(self, key):
@@ -49,8 +48,33 @@ class Registry(Singleton):
     def has(self, key):
         return self.keys.has_key(key)
 
-
 registry = Registry()
+
+def process(payload):
+    """
+    Processes a chunk of JSON and returns Model instances for each
+    identifyable object.
+
+    >>> r = registry.process({'key': 'foo'})
+    
+    """
+    assert isinstance(payload, dict)
+    
+    if not payload.has_key('key'):
+        # not an object, don't register
+        return payload
+
+    key = payload['key']
+
+    # the object is a reference
+    if len(payload.keys()) == 1:
+        if self.get(key):
+            return self.get(key)
+
+    model_instance = Model(payload)
+    registry.set(key, model_instance)
+    return model_instance
+
 
 class Model(object):
     """
@@ -100,12 +124,48 @@ class Model(object):
     key = "required"
 
     @classmethod
+    def factory(cl, payload):
+        """
+        Processes a chunk of JSON and returns Model instances for each
+        identifyable object.
+
+        >>> r = registry.process({'key': 'foo'})
+        
+        """
+        assert isinstance(payload, dict)
+        
+        if not payload.has_key('key'):
+            # not an object, don't register
+            return payload
+
+        key = payload['key']
+
+        # the object is a reference
+        if len(payload.keys()) == 1:
+            if self.get(key):
+                return self.get(key)
+
+        model_instance = cl(payload)
+        registry.set(key, model_instance)
+        return model_instance
+
+    @classmethod
     def validate_schema(cl, data):
         for required_key, info in cl.get_schema().items():
             if required_key not in data.keys():
                 raise KeyError("Key '{}' is required by the schema".format(
                     required_key
                 ))
+
+    #def __getattribute__(self, key):
+        #return super(Model, self).__getattribute__(key)
+        #model_in_registry = registry.get(key)
+        
+        #if model_in_registry: return model_in_registry
+        #if registry.has(v['key']):
+        #    return setattr(self, k, registry.get(v[
+        #return object.__getattribute__(self, key)
+
     
     def __init__(self, data):
         self.__class__.validate_schema(data)
@@ -135,6 +195,8 @@ class Model(object):
 
         registry.set(self.key, self)
 
+        
+
     @classmethod
     def get_schema(cl):
         """
@@ -160,6 +222,11 @@ class Model(object):
     def __repr__(self): return self.__unicode__()
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
+
+    author = Model.factory({'key':'author', 'name':'john'})
+    #book = Model({ 'key':'book', 'author': { 'key':'author' } })
+
+    print author.name
 
