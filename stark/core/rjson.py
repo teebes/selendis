@@ -1,3 +1,5 @@
+import json
+
 class Singleton(object):
     """
     >>> s1=Singleton()
@@ -37,6 +39,7 @@ class Registry(Singleton):
     keys = {}
 
     def set(self, key, value):
+        self.keys[key] = value
         return value
 
     def get(self, key):
@@ -124,32 +127,6 @@ class Model(object):
     key = "required"
 
     @classmethod
-    def factory(cl, payload):
-        """
-        Processes a chunk of JSON and returns Model instances for each
-        identifyable object.
-
-        >>> r = registry.process({'key': 'foo'})
-        
-        """
-        assert isinstance(payload, dict)
-        
-        if not payload.has_key('key'):
-            # not an object, don't register
-            return payload
-
-        key = payload['key']
-
-        # the object is a reference
-        if len(payload.keys()) == 1:
-            if self.get(key):
-                return self.get(key)
-
-        model_instance = cl(payload)
-        registry.set(key, model_instance)
-        return model_instance
-
-    @classmethod
     def validate_schema(cl, data):
         for required_key, info in cl.get_schema().items():
             if required_key not in data.keys():
@@ -157,45 +134,34 @@ class Model(object):
                     required_key
                 ))
 
-    #def __getattribute__(self, key):
-        #return super(Model, self).__getattribute__(key)
-        #model_in_registry = registry.get(key)
-        
-        #if model_in_registry: return model_in_registry
-        #if registry.has(v['key']):
-        #    return setattr(self, k, registry.get(v[
-        #return object.__getattribute__(self, key)
+    def __new__(cls, data):
+        cls.validate_schema(data)
+        assert isinstance(data, dict)
 
-    
-    def __init__(self, data):
-        self.__class__.validate_schema(data)
+        # reference
+        if data.get('key') is not None:
+            instance_in_registry = registry.get(data['key'])
+            if instance_in_registry and len(data.keys()) == 1:
+                return instance_in_registry
 
+        new = super(Model, cls).__new__(cls)
+
+        new.update(data)
+        if len(data.keys()) > 1:
+            registry.set(data['key'], new)
+
+        return new
+
+    def update(self, data):
         self._data = data
-
-        for k, v in data.items():
-
-            # model relation
-            if isinstance(v, dict):
-                if registry.has(v['key']):
-                    setattr(self, k, registry.get(v['key']))
-                else:
-                    setattr(self, k, Model(v))
-
-            # collection
-            elif isinstance(v, (list, tuple)):
-                for item in v:
-                    instance_in_registry = registry.get(v['key'])
-                    if instance_in_registry is None:
-                        setattr(self, k, Model(v))
-                    else:
-                        setattr(self, k, instance_in_registry)
-                    
+        for attr, payload in data.items():
+            if isinstance(payload, dict):
+                setattr(self, attr, Model(payload))
+            elif isinstance(payload, (list, tuple)):
+                pass
             else:
-                setattr(self, k, v)
-
-        registry.set(self.key, self)
-
-        
+                setattr(self, attr, payload)
+        return self
 
     @classmethod
     def get_schema(cl):
@@ -214,9 +180,10 @@ class Model(object):
         return schema
 
     def __unicode__(self):
-        return u"<{cls} - {key}>".format(
+        return u"<{cls} - {key}: {dump}>".format(
             cls=self.__class__.__name__,
-            key=self.key
+            key=self.key,
+            dump=self._data,
         )
 
     def __repr__(self): return self.__unicode__()
@@ -225,8 +192,10 @@ if __name__ == "__main__":
     #import doctest
     #doctest.testmod()
 
-    author = Model.factory({'key':'author', 'name':'john'})
-    #book = Model({ 'key':'book', 'author': { 'key':'author' } })
+    book = Model({ 'key':'book', 'author': { 'key':'author' } })
+    author = Model({'key':'author', 'name':'john'})
 
-    print author.name
+    print author
+    print book
+
 
