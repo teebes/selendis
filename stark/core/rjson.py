@@ -52,10 +52,10 @@ class Registry(Singleton):
 
 
 registry = Registry()
-class Model(object):
+class RJSON(object):
     """
     Dictionary attributes become class attributes:
-    >>> author = Model({'key': 'author', 'name':'john'})
+    >>> author = RJSON({'key': 'author', 'name':'john'})
     >>> author.key
     'author'
     >>> author.name
@@ -66,12 +66,12 @@ class Model(object):
     'john'
 
     References to other model instances can be used:
-    >>> book = Model({ 'key':'book', 'author': { 'key':'author' } })
+    >>> book = RJSON({ 'key':'book', 'author': { 'key':'author' } })
     >>> book.author.name
     'john'
 
     If a model defines an attribute, those elements need to be present:
-    >>> class MyModel(Model):
+    >>> class MyModel(RJSON):
     ...     foo = ""
     ...     def method(self): pass
     >>> MyModel({ "bar": "i", "key": "key" }) # doctest:+IGNORE_EXCEPTION_DETAIL
@@ -80,21 +80,21 @@ class Model(object):
     KeyError: ... ('foo' is required by schema)
 
     But callables are not part of the schema:
-    >>> not Model.get_schema().has_key('method')
+    >>> not RJSON.get_schema().has_key('method')
     True
     """
 
     @classmethod
     def get_schema(cl):
         """
-        >>> class Thing(Model):
+        >>> class Thing(RJSON):
         ...     foo = 'bar'
         >>> Thing.get_schema() == {'foo': 'bar'}
         True
         """
         schema = {
             k:v for k, v in cl.__dict__.items()
-            if (k not in Model.__dict__.keys()
+            if (k not in RJSON.__dict__.keys()
             and not hasattr(v, '__call__'))
         }
         return schema
@@ -109,31 +109,51 @@ class Model(object):
 
 
     def __new__(cls, data):
-        assert isinstance(data, dict)
+
+        if isinstance(data, (list, tuple)):
+            collection = []
+            for item in data:
+                collection.append(RJSON(item))
+            return collection
+
+        if not isinstance(data, dict):
+            return data
+
+        # assert isinstance(data, dict)
 
         cls.validate_schema(data)
 
         # reference
         if data.has_key('key'):
+
             instance_in_registry = registry.get(data['key'])
-            if instance_in_registry and len(data.keys()) == 1:
+            if instance_in_registry:
+
+                if len(data.keys()) > 1:
+                    instance_in_registry.update(data)
+
                 return instance_in_registry
-
-        new = super(Model, cls).__new__(cls)
-
-        new.update(data)
-        if len(data.keys()) > 1 and data.has_key('key'):
-            registry.set(data['key'], new)
-
-        return new
+            else:
+                new = super(RJSON, cls).__new__(cls)
+                new.update(data)
+                registry.set(data['key'], new)
+                return new
+        else:
+            new = super(RJSON, cls).__new__(cls)
+            new.update(data)
+            return new
 
     def update(self, data):
         self._data = data
         for attr, payload in data.items():
             if isinstance(payload, dict):
-                setattr(self, attr, Model(payload))
+                setattr(self, attr, RJSON(payload))
             elif isinstance(payload, (list, tuple)):
-                pass
+                setattr(self, attr, [])
+                for listitem in payload:
+                    if isinstance(listitem, dict):
+                        listitem = RJSON(listitem)
+                    getattr(self, attr).append(listitem)
             else:
                 setattr(self, attr, payload)
         return self
@@ -147,8 +167,14 @@ class Model(object):
 
     def __repr__(self): return self.__unicode__()
 
+Model = RJSON
+
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    #doctest.testmod()
+    author = RJSON({'key': 'author', 'name': {'first': 'john', 'last': 'doe'}})
+    book = RJSON({'key':'book', 'author': { 'key':'author'}})
+
+    print book.author
 
 

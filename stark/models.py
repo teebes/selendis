@@ -5,7 +5,7 @@ import logging
 import sys
 
 from stark.core.rjson import Registry
-from stark.core.rjson import Model
+from stark.core.rjson import RJSON
 
 LOG_LEVEL = 'debug'
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ logger.addHandler(console)
 DIRECTIONS = ['north', 'east', 'south', 'west', 'up', 'down']
 TERMINAL = 'terminal'
 
-class Room(Model):
+class Room(RJSON):
     """
     >>> center = Room({ 
     ...     "x": 0, "y": 0, "z": 0, 
@@ -104,7 +104,7 @@ class Room(Model):
             if v is not None
         }
 
-class Anima(Model):
+class Anima(RJSON):
     """
     >>> orig = Room({'key': 'orig', 'x': 0, 'y': 1, 'z': 0, 'name': 'Orig', 'south': {'key': 'dest'}})
     >>> dest = Room({'key': 'dest', 'x': 0, 'y': 0, 'z': 0, 'name': 'Dest', 'north': {'key': 'orig'}})
@@ -129,7 +129,7 @@ class Anima(Model):
     def look(self, direction): pass
     
 
-class Item(Model):
+class Item(RJSON):
     """
     Fundamental assumption: the templates must be loaded first
 
@@ -167,7 +167,7 @@ class Item(Model):
         if self.template.contains and not self.contains:
             self.contains = self.template.contains
 
-class Base(Model): pass
+class Base(RJSON): pass
 
 class ItemTemplate(Base): pass
 
