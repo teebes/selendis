@@ -4,7 +4,9 @@ import json
 import logging
 import sys
 
-from stark.core.rjson import Registry
+from stark import config 
+from stark.core.exceptions import WrongDirectionError
+from stark.core.exceptions import ExhaustedError
 from stark.core.rjson import RJSON
 
 LOG_LEVEL = 'debug'
@@ -19,6 +21,11 @@ TERMINAL = 'terminal'
 
 class Room(RJSON):
     """
+    A physical location in the world, with unique (x, y, z)
+    coordinates and the ability to connect to other rooms.
+
+    Acts as a container for Anima and Items.
+
     >>> center = Room({ 
     ...     "x": 0, "y": 0, "z": 0, 
     ...     "key": "center", 
@@ -63,16 +70,6 @@ class Room(RJSON):
 
     # optional keys: DIRECTIONS
 
-    def __call__(self):
-        return [    
-            self.name,
-            self.exits,
-        ]
-
-    # because book.author.father.address.state
-    # looks cleaner than
-    # book['author']['father']['address']['state']
-
     def get_direction(self, direction):
         """
         Return the Room instance that one moves to by following a direction.
@@ -82,7 +79,13 @@ class Room(RJSON):
         return getattr(self, direction, None)
 
     def get_exits(self):
-        "return the exits from a Room"
+        """
+        Return the exits from a Room
+
+        Sample return value::
+
+            ['N', 'E', 'W']
+        """
 
         exits = [
             direction[0].upper()
@@ -93,6 +96,10 @@ class Room(RJSON):
         return exits
 
     def get_rendering_context(self):
+        """
+        Returns a context to be used by a front-end to render
+        the room.
+        """
         # TODO: unicode calls belongs elsewhere, probably Model.__init__ring_context(self):
         return {
             k: v 
@@ -104,87 +111,65 @@ class Room(RJSON):
             if v is not None
         }
 
+from stark.data import load_world
 class Anima(RJSON):
     """
-    >>> orig = Room({'key': 'orig', 'x': 0, 'y': 1, 'z': 0, 'name': 'Orig', 'south': {'key': 'dest'}})
-    >>> dest = Room({'key': 'dest', 'x': 0, 'y': 0, 'z': 0, 'name': 'Dest', 'north': {'key': 'orig'}})
-    >>> orig.south.key
-    'dest'
-    >>> anima = Anima({'key': 'anima', 'room': { 'key': 'orig' } })
-    >>> anima.room.key
-    'orig'
-    >>> anima.move('south')
-    >>> anima.room.key
-    'dest'
+    >>> load_world.load_demo_rooms()
+    >>> anima = Anima({
+    ...     'key': 'anima', 
+    ...     'room': { 'key': 'center' }, 
+    ...     'stats': {
+    ...         'mp': 200
+    ...     }
+    ... })
+    >>> anima.room.name
+    'Center'
+    >>>
     """
 
+    #: The room in which the Anima instance is in.
     room = Room
 
+    #: The stats of the Anima instance.
+    stats = { 'mp': 200 }
+
     def move(self, direction):
+        """
+        Move in a direction, changing the anima's room 
+        attribute to the destination Room if the move
+        if allowed.
+
+        Has the side effect of lowering an Anima's movement points.
+
+        :returns: :class:`models.Room`
+
+        >>> anima = load_world.load_demo_anima()
+        >>> anima.room.name
+        'Center'
+        >>> 'N' in anima.room.get_exits()
+        True
+        >>> anima.move('north') # doctest:+ELLIPSIS
+        <Room - ...
+        >>> anima.room.name
+        'North'
+        >>> anima.room.get_exits()
+        ['S']
+        >>> anima.move('north') # doctest:+IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
+        ...
+        WrongDirectionError: ...
+        """
+
         dest = self.room.get_direction(direction)
-        if dest:
-            self.room = dest
+        if dest is None:
+            raise WrongDirectionError(direction)
 
-    def goto(self, direction): pass
-    def look(self, direction): pass
-    
+        if self.stats.mp < config.MOVEMENT_COST:
+            raise ExhaustedError(self.stats.mp)
 
-class Item(RJSON):
-    """
-    Fundamental assumption: the templates must be loaded first
+        self.room = dest
+        self.stats.mp -= config.MOVEMENT_COST
 
-    >>> ItemTemplate({
-    ...     "key": "itemtemplate.1",
-    ...     "name": "an apple",
-    ...     "contains": False
-    ... })
-    >>> ItemTemplate({
-    ...     "key": "itemtemplate.2",
-    ...     "name": "a bag",
-    ...     "contains": False
-    ... })
-    >>> bag = Item({
-    ...     "key": "item.1",
-    ...     "template": "itemtemplate.1"
-    ... })
-    >>> apple = Item({
-    ...     "key": "item.2",
-    ...     "template": "itemtemplate.2",
-    ...     "contains": ["item.1"]
-    >>> bag.contains
-    [<Item 2 - a leather bag>]
-    """
+        return dest
 
-    key = None
-    template = None
-
-    def __init__(self, data):
-        super(Item, self).__init__(data)
-
-        # load the template
-        self.template = Template.load(data['template'])
-
-        if self.template.contains and not self.contains:
-            self.contains = self.template.contains
-
-class Base(RJSON): pass
-
-class ItemTemplate(Base): pass
-
-class Item(Base): pass
-
-class World(Item):
-    name = "The world"
-    rooms = []
-    items = []
-
-def get_user_attributes(cls):
-    boring = dir(type('dummy', (object,), {}))
-    return [item
-            for item in inspect.getmembers(cls)
-            if item[0] not in boring]
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
 

@@ -1,23 +1,12 @@
-2 levels of data mapping in Stark:
-1) Item, Room, Mob => static JSON data, loaded at server start and thereafter maintained.
-2) Character, Mob Instances => very dynamic, in Redis
+Stark: Websocket MUD
 
-0.1 deliverables:
-* moving around
-* saying in room
-* combat:
-    - weapon based hits
-    - messages
-    - corpse creation / looting
-    - no armor mitigation
-* getting / dropping / giving / equipping / unquipping (only weapons for equip)
-* loading mechanism for mobs & items
-* tic regen
-* mobs with random movement based on tic probability
 
-Commands: get drop give get remove say kill directions help chat
+Currently working on
+====================
+Cost of movement, in Anima.move
 
-Stark model notes:
+Model notes:
+============
 Base:
     name
     items
@@ -28,5 +17,18 @@ Anima: hp, mp, dp, lvl, exp, room, stats (can stats be schemaless)
 Room:
     x, y z
 Item
+
+Future
+======
+
+* combat:
+    - weapon based hits
+    - messages
+    - corpse creation / looting
+    - no armor mitigation
+* stats
+* equipment
+
+API
 
 

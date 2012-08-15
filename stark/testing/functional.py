@@ -1,9 +1,6 @@
 from stark.models import Anima
 from stark.models import Room
 
-from stark.core.rjson import registry
-from stark.core.rjson import RJSON
-
 rooms = [
     {
         "key": "room1",
@@ -28,12 +25,14 @@ rooms = [
 cat = Anima({
     "key": "cat",
     "name": "a cat",
+    "stats": { "mp": 200 },
     "room": { "key": "room1" }
 })
 
 dog = Anima({
     "key": "dog",
     "name": "a dog",
+    "stats": { "mp": 200 },
     "room": { "key": "room1" }
 })
 
