@@ -1,6 +1,6 @@
-Models
-======
+selendis.models
+---------------
 
-.. automodule:: models
+.. automodule:: selendis.models
    :members:
 

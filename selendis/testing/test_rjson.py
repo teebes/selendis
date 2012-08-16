@@ -2,10 +2,10 @@
 Test the RJSON implementation
 """
 
-from stark.core.rjson import RJSON
+from selendis.core.rjson import RJSON
 
 import unittest
-from stark.core.rjson import Registry
+from selendis.core.rjson import Registry
 
 class RJSONTestCase(unittest.TestCase):
     def setUp(self):

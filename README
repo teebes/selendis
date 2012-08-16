@@ -1,34 +1,4 @@
 Stark: Websocket MUD
 
 
-Currently working on
-====================
-Cost of movement, in Anima.move
-
-Model notes:
-============
-Base:
-    name
-    items
-
-Anima: hp, mp, dp, lvl, exp, room, stats (can stats be schemaless)
-    Mobs
-    Chars
-Room:
-    x, y z
-Item
-
-Future
-======
-
-* combat:
-    - weapon based hits
-    - messages
-    - corpse creation / looting
-    - no armor mitigation
-* stats
-* equipment
-
-API
-
 

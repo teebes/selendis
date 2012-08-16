@@ -1,5 +1,5 @@
-from stark.models import Anima
-from stark.models import Room
+from selendis.models import Anima
+from selendis.models import Room
 
 rooms = [
     {

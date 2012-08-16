@@ -1,10 +1,6 @@
-
-API Reference
-=============
-
-stark.core.rjson
-----------------
+selendis.core.rjson
+-------------------
 
 
-.. automodule:: core.rjson
+.. automodule:: selendis.core.rjson
    :members:

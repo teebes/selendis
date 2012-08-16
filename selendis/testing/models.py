@@ -1,7 +1,7 @@
 import unittest
 
-from ..models import Anima
-from stark.data import load_world
+from selendis.models import Anima
+from selendis.data import load_world
 
 class AnimaTestCase(unittest.TestCase): 
     def setUp(self):
@@ -15,7 +15,6 @@ class AnimaTestCase(unittest.TestCase):
         })
         
     def test_stats(self):
-        self.assertEqual(1, 1)
         self.assertEqual(self.anima.stats.mp, 200)
 
 if __name__ == "__main__":

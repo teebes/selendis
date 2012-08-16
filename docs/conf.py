@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Stark documentation build configuration file, created by
-# sphinx-quickstart on Sun Aug 12 22:25:14 2012.
+# Selendis documentation build configuration file, created by
+# sphinx-quickstart on Tue Aug 14 22:23:18 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -17,7 +17,6 @@ import sys, os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, 'stark')
 
 # -- General configuration -----------------------------------------------------
 
@@ -26,7 +25,7 @@ sys.path.insert(0, 'stark')
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Stark'
+project = u'Selendis'
 copyright = u'2012, Thibaud Morel'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -165,7 +164,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Starkdoc'
+htmlhelp_basename = 'Selendisdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -184,7 +183,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Stark.tex', u'Stark Documentation',
+  ('index', 'Selendis.tex', u'Selendis Documentation',
    u'Thibaud Morel', 'manual'),
 ]
 
@@ -214,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'stark', u'Stark Documentation',
+    ('index', 'selendis', u'Selendis Documentation',
      [u'Thibaud Morel'], 1)
 ]
 
@@ -228,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Stark', u'Stark Documentation',
-   u'Thibaud Morel', 'Stark', 'One line description of project.',
+  ('index', 'Selendis', u'Selendis Documentation',
+   u'Thibaud Morel', 'Selendis', 'One line description of project.',
    'Miscellaneous'),
 ]
 

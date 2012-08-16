@@ -4,10 +4,13 @@ import json
 import logging
 import sys
 
-from stark import config 
-from stark.core.exceptions import WrongDirectionError
-from stark.core.exceptions import ExhaustedError
-from stark.core.rjson import RJSON
+from selendis import config 
+from selendis.core.exceptions import WrongDirectionError
+from selendis.core.exceptions import ExhaustedError
+from selendis.core.rjson import RJSON
+
+# This is imported for more concise doctests
+from selendis.data import load_world
 
 LOG_LEVEL = 'debug'
 logger = logging.getLogger(__name__)
@@ -19,7 +22,31 @@ logger.addHandler(console)
 DIRECTIONS = ['north', 'east', 'south', 'west', 'up', 'down']
 TERMINAL = 'terminal'
 
-class Room(RJSON):
+class Base(RJSON):
+    inventory = []
+
+    def receive(self, item):
+        self.inventory.append(item)
+
+    def find(self, lookup):
+        """
+        Finds items in inventory that match the
+        provided lookup list of words.
+
+        The lookup logic is that if any word matches any of the query tokens,
+        it is added to the return list.
+        
+        :returns: list of items, if applicable
+        """
+
+        return [
+            item for item 
+            in self.inventory
+            if item.found_by(lookup.split(' '))
+        ]
+
+
+class Room(Base):
     """
     A physical location in the world, with unique (x, y, z)
     coordinates and the ability to connect to other rooms.
@@ -36,7 +63,6 @@ class Room(RJSON):
     ... })
     >>> center.get_exits()
     ['N']
-
     >>> north = Room({ 
     ...     "x": 0, "y": 1, "z": 0, 
     ...     "key": "north", 
@@ -111,8 +137,7 @@ class Room(RJSON):
             if v is not None
         }
 
-from stark.data import load_world
-class Anima(RJSON):
+class Anima(Base):
     """
     >>> load_world.load_demo_rooms()
     >>> anima = Anima({
@@ -171,5 +196,35 @@ class Anima(RJSON):
         self.stats.mp -= config.MOVEMENT_COST
 
         return dest
+
+class Item(Base):
+    name = "untitled item"
+
+    def found_by(self, token):
+        """
+        Function that determines whether any of its instances
+        match the provided token
+        """
+
+        #token
+
+
+if __name__ == "__main__":
+    load_world.load_demo_rooms()
+    anima = load_world.load_demo_anima()
+
+    rock = Item({
+        "name": "a rock",
+    })
+
+    anima.receive(rock)
+
+    print rock.name
+    print anima.inventory
+    
+
+
+
+
 
 

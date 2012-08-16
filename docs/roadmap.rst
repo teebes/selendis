@@ -4,13 +4,14 @@
 Functionality
 -------------
 
-* moving around - movement stat (no other stats)
-* saying in room
-* getting / dropping / giving
-* loading mechanism for mobs & items
+* [OK] moving around - movement stat (no other stats)
+* [WIP] getting / dropping / giving
+
 * tic regen
 * mobs with random movement based on tic probability
+* loading mechanism for mobs & items
 * authentication
+* saying in room
 
 Commands
 --------

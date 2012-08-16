@@ -1,5 +1,5 @@
 def load_demo_rooms():
-    from stark.models import Room
+    from selendis.models import Room
 
     # center
     Room({ 
@@ -23,7 +23,7 @@ def load_demo_rooms():
      })
 
 def load_demo_anima():
-    from stark.models import Anima
+    from selendis.models import Anima
 
     load_demo_rooms()
    
