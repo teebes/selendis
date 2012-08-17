@@ -23,8 +23,16 @@ In the project root, run::
 
 Currently working on
 ====================
-* Root Makefile
-* 0.1 deliverables
+* Deserialization
+* containers
+* item dropping 
+* getting
+
+Issues
+======
+* Getting the __setattr__ piece to work on Base broke some of the unit test
+* load_world.py is throwing a __new__ TypeError
+* Registry reset can only work using kwargs. using key={} doesn't reset to it
 
 Model notes:
 ============

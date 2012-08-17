@@ -36,6 +36,7 @@ dog = Anima({
     "room": { "key": "room1" }
 })
 
+
 print cat.room.name
 cat.move('north')
 print cat.room.name

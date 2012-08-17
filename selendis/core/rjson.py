@@ -85,18 +85,20 @@ class RJSON(object):
     registry = Registry()
 
     @classmethod
-    def get_schema(cl):
+    def get_schema(cls):
         """
         >>> class Thing(RJSON):
         ...     foo = 'bar'
         >>> Thing.get_schema() == {'foo': 'bar'}
         True
         """
-        schema = {
-            k:v for k, v in cl.__dict__.items()
-            if (k not in RJSON.__dict__.keys()
-            and not hasattr(v, '__call__'))
-        }
+        schema = {}
+        for cl in cls.__bases__:
+            schema = {
+                k:v for k, v in cl.__dict__.items()
+                if (k not in RJSON.__dict__.keys()
+                and not hasattr(v, '__call__'))
+            }
         return schema
  
     @classmethod
@@ -191,5 +193,4 @@ class RJSON(object):
 
     def __repr__(self): return self.__unicode__()
 
-Model = RJSON
 

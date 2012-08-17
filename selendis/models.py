@@ -22,8 +22,23 @@ logger.addHandler(console)
 DIRECTIONS = ['north', 'east', 'south', 'west', 'up', 'down']
 TERMINAL = 'terminal'
 
+from selendis.core.rjson import Registry
+registry = Registry()
+
+class RequiredFieldException(Exception): pass
+
 class Base(RJSON):
+    key = RequiredFieldException("key is required.")
     inventory = []
+
+    def __init__(self, *args, **kwargs):
+        for k, v in RJSON.get_schema().items():
+            if not kwargs.has_key(k):
+                self.k = v
+
+    def partwith(self, key):
+        key = registry.get(key)
+        return key
 
     def receive(self, item):
         self.inventory.append(item)
@@ -45,6 +60,14 @@ class Base(RJSON):
             if item.found_by(lookup.split(' '))
         ]
 
+    def __setattr__(self, key, value):
+        super(Base, self).__setattr__(key, value)
+
+        if key != '_data':
+            data = copy.deepcopy(self._data)
+            data[key] = value
+
+            super(Base, self).__setattr__('_data', data)
 
 class Room(Base):
     """
@@ -211,20 +234,21 @@ class Item(Base):
 
 if __name__ == "__main__":
     load_world.load_demo_rooms()
-    anima = load_world.load_demo_anima()
+    #anima = load_world.load_demo_anima()
 
+    """
     rock = Item({
+        "key": "rock",
         "name": "a rock",
     })
+    bag = Item({ "key": "bag", "name": "a bag" })
+    print bag._data
+    print Item.get_schema()
+    """
 
-    anima.receive(rock)
-
-    print rock.name
-    print anima.inventory
-    
-
-
-
-
+    #anima.receive(rock)
+    #print anima._data
+    #anima.partwith(rock)
+    #print anima._data
 
 
